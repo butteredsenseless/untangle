@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-// ── CONSTANTS ─────────────────────────────────────────────────────────────────
-
 const DEFAULT_AREAS = [
   { id:"work",     label:"Work & Career",            emoji:"💼", color:"#4F86C6", bg:"#EBF2FB", tags:["work","career","job","meeting","email"], custom:false },
   { id:"health",   label:"Health & Fitness",          emoji:"💪", color:"#5BAD6F", bg:"#EBF7EF", tags:["health","fitness","gym","workout","run","walk","doctor","meds"], custom:false },
@@ -59,7 +57,6 @@ Catch up with friend #social,social,week,medium,none,,
 Morning walk #health,health,today,low,daily,,
 Plan monthly budget #finance,finance,month,high,monthly,,`;
 
-// ── HELPERS ───────────────────────────────────────────────────────────────────
 const uid = () => Math.random().toString(36).slice(2,9);
 const todayStr = () => new Date().toISOString().slice(0,10);
 const colorBg = c => c+"22";
@@ -118,7 +115,6 @@ async function parseUploadedFile(file, areas) {
   });
 }
 
-// ── LOGO SVG ──────────────────────────────────────────────────────────────────
 function UntangleLogo({ size=32 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
@@ -131,7 +127,6 @@ function UntangleLogo({ size=32 }) {
   );
 }
 
-// ── CONFETTI ──────────────────────────────────────────────────────────────────
 function ConfettiPop({ x, y }) {
   const pieces=Array.from({length:14},(_,i)=>({ id:i, color:["#4F86C6","#5BAD6F","#E09B3D","#D96B8A","#3AABB5","#E05C3A","#f0d060"][i%7], angle:(i/14)*360, dist:45+Math.random()*35 }));
   return (
@@ -142,7 +137,6 @@ function ConfettiPop({ x, y }) {
   );
 }
 
-// ── XP BAR ────────────────────────────────────────────────────────────────────
 function XpBar({ xp }) {
   const stage=getStage(xp), next=getNextStage(xp);
   const progress=next?Math.round(((xp-stage.minXp)/(next.minXp-stage.minXp))*100):100;
@@ -164,7 +158,6 @@ function XpBar({ xp }) {
   );
 }
 
-// ── LEVEL UP SPLASH ───────────────────────────────────────────────────────────
 function LevelUpSplash({ stage, onDone }) {
   useEffect(()=>{ const t=setTimeout(onDone,3200); return()=>clearTimeout(t); },[]);
   return (
@@ -181,7 +174,6 @@ function LevelUpSplash({ stage, onDone }) {
   );
 }
 
-// ── ONE THING PROMPT BANNER ───────────────────────────────────────────────────
 function OneThingBanner({ tasks, onSet, onDismiss }) {
   const h=hour();
   const isEve=h>=19, isMorn=h>=6&&h<12;
@@ -200,7 +192,7 @@ function OneThingBanner({ tasks, onSet, onDismiss }) {
           <div style={{fontSize:11,fontWeight:700,color:"rgba(255,255,255,0.4)",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:7}}>Pick from your tasks or type one:</div>
           <div style={{display:"flex",flexWrap:"wrap",gap:5,marginBottom:8}}>
             {todayTasks.slice(0,5).map(t=>(
-              <button key={t.id} onClick={()=>onSet(t.title)} style={{padding:"5px 10px",borderRadius:20,border:"2px solid rgba(126,217,160,0.3)",background:"rgba(126,217,160,0.08)",color:"#7ed9a0",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",textAlign:"left"}}>{t.title}</button>
+              <button key={t.id} onClick={()=>onSet(t.title)} style={{padding:"5px 10px",borderRadius:20,border:"2px solid rgba(126,217,160,0.3)",background:"rgba(126,217,160,0.08)",color:"#7ed9a0",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{t.title}</button>
             ))}
           </div>
           <CustomOneThingInput onSet={onSet}/>
@@ -223,7 +215,6 @@ function CustomOneThingInput({ onSet, autoFocus=false }) {
   );
 }
 
-// ── THE ONE THING CARD ────────────────────────────────────────────────────────
 function OneThingCard({ oneThing, onClear }) {
   return (
     <div style={{background:"linear-gradient(135deg,#0d2e1a,#0f3d22)",border:"2px solid #2d8c55",borderRadius:18,padding:"16px 18px",marginBottom:16,position:"relative",boxShadow:"0 0 0 4px rgba(45,140,85,0.12),0 6px 24px rgba(45,140,85,0.2)",animation:"glowPulse 3s ease-in-out infinite"}}>
@@ -234,14 +225,13 @@ function OneThingCard({ oneThing, onClear }) {
           <div style={{fontSize:16,fontWeight:800,color:"#fff",fontFamily:"'DM Sans',sans-serif",lineHeight:1.3}}>{oneThing}</div>
           <div style={{fontSize:11,color:"rgba(255,255,255,0.35)",marginTop:4}}>Focus here first. Everything else can wait.</div>
         </div>
-        <button onClick={onClear} title="Clear" style={{background:"none",border:"none",color:"rgba(255,255,255,0.2)",fontSize:16,cursor:"pointer",padding:"2px 4px"}}>×</button>
+        <button onClick={onClear} style={{background:"none",border:"none",color:"rgba(255,255,255,0.2)",fontSize:16,cursor:"pointer",padding:"2px 4px"}}>×</button>
       </div>
       <style>{`@keyframes glowPulse{0%,100%{box-shadow:0 0 0 4px rgba(45,140,85,0.12),0 6px 24px rgba(45,140,85,0.2)}50%{box-shadow:0 0 0 6px rgba(45,140,85,0.18),0 6px 32px rgba(45,140,85,0.35)}}`}</style>
     </div>
   );
 }
 
-// ── TASK CARD ─────────────────────────────────────────────────────────────────
 function TaskCard({ task, areas, onComplete, onDelete, onBreakdown, onFocus, compact=false }) {
   const area=areas.find(a=>a.id===task.area)||areas[0];
   const energy=ENERGY.find(e=>e.id===task.energy);
@@ -286,14 +276,12 @@ function TaskCard({ task, areas, onComplete, onDelete, onBreakdown, onFocus, com
   );
 }
 
-// ── VOICE DUMP ────────────────────────────────────────────────────────────────
 function VoiceDumpModal({ areas, onAddMany, onClose }) {
   const [transcript,setTranscript]=useState("");
   const [listening,setListening]=useState(false);
   const [status,setStatus]=useState("Tap the mic and start speaking");
   const [supported,setSupported]=useState(true);
   const recRef=useRef(null);
-
   useEffect(()=>{
     const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
     if(!SR){setSupported(false);return;}
@@ -314,12 +302,10 @@ function VoiceDumpModal({ areas, onAddMany, onClose }) {
     recRef.current=rec;
     return()=>{try{rec.stop();}catch{}};
   },[]);
-
   const toggle=()=>{
     if(listening){recRef.current?.stop();setListening(false);}
     else{recRef.current?.start();setListening(true);setStatus("Listening… speak freely!");}
   };
-
   const handleImport=()=>{
     const lines=transcript.split(/[.!?\n]/).map(l=>l.trim()).filter(l=>l.length>2);
     const tasks=lines.map(line=>{
@@ -329,7 +315,6 @@ function VoiceDumpModal({ areas, onAddMany, onClose }) {
     });
     onAddMany(tasks);onClose();
   };
-
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div style={{background:"#fff",borderRadius:22,padding:26,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.2)"}}>
@@ -338,7 +323,7 @@ function VoiceDumpModal({ areas, onAddMany, onClose }) {
         {!supported?(
           <div style={{background:"#fff8e1",borderRadius:12,padding:14,marginBottom:16}}>
             <p style={{fontSize:13,color:"#b8860b",fontWeight:700,margin:0}}>⚠️ Voice not supported in this browser</p>
-            <p style={{fontSize:12,color:"#b8860b",margin:"6px 0 0"}}>Try Chrome or Safari. Or paste a transcript from your Voice Memos app below!</p>
+            <p style={{fontSize:12,color:"#b8860b",margin:"6px 0 0"}}>Try Chrome or Safari. Or paste a transcript below!</p>
           </div>
         ):(
           <div style={{textAlign:"center",marginBottom:18}}>
@@ -362,7 +347,6 @@ function VoiceDumpModal({ areas, onAddMany, onClose }) {
   );
 }
 
-// ── TEMPLATE MODAL ────────────────────────────────────────────────────────────
 function TemplateModal({ onClose }) {
   const [copied,setCopied]=useState(false);
   const copy=()=>{ navigator.clipboard.writeText(TEMPLATE_CSV).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2000);}); };
@@ -370,7 +354,7 @@ function TemplateModal({ onClose }) {
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div style={{background:"#fff",borderRadius:22,padding:26,width:"100%",maxWidth:560,boxShadow:"0 24px 64px rgba(0,0,0,0.18)",maxHeight:"85vh",overflowY:"auto"}}>
         <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,marginBottom:4}}>📥 CSV Import Template</h2>
-        <p style={{fontSize:13,color:"#aaa",marginBottom:14}}>Copy this template into a spreadsheet app, fill in your tasks, export as CSV, then import into Untangle.</p>
+        <p style={{fontSize:13,color:"#aaa",marginBottom:14}}>Copy this into a spreadsheet, fill in your tasks, export as CSV, then import into Untangle.</p>
         <div style={{background:"#1a1a2e",borderRadius:14,padding:"14px 16px",marginBottom:14,overflowX:"auto"}}>
           <pre style={{margin:0,fontSize:12,color:"#a0cfff",fontFamily:"'Courier New',monospace",lineHeight:1.7,whiteSpace:"pre"}}>{TEMPLATE_CSV}</pre>
         </div>
@@ -394,7 +378,6 @@ function TemplateModal({ onClose }) {
   );
 }
 
-// ── BRAIN DUMP ────────────────────────────────────────────────────────────────
 function BrainDumpModal({ areas, onAddMany, onClose }) {
   const [text,setText]=useState("");
   const go=()=>{
@@ -422,7 +405,6 @@ function BrainDumpModal({ areas, onAddMany, onClose }) {
   );
 }
 
-// ── UPLOAD MODAL ──────────────────────────────────────────────────────────────
 function UploadModal({ areas, onAddMany, onClose }) {
   const [preview,setPreview]=useState(null);
   const [parsed,setParsed]=useState([]);
@@ -474,7 +456,6 @@ function UploadModal({ areas, onAddMany, onClose }) {
   );
 }
 
-// ── ADD TASK MODAL ────────────────────────────────────────────────────────────
 function AddTaskModal({ areas, onAdd, onClose }) {
   const [raw,setRaw]=useState("");
   const [area,setArea]=useState(areas[0]?.id);
@@ -535,7 +516,6 @@ function AddTaskModal({ areas, onAdd, onClose }) {
   );
 }
 
-// ── SETTINGS ──────────────────────────────────────────────────────────────────
 function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAreas, onClose }) {
   const [newLabel,setNewLabel]=useState("");
   const [newEmoji,setNewEmoji]=useState("⭐");
@@ -605,7 +585,6 @@ function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAre
   );
 }
 
-// ── FOCUS TIMER ───────────────────────────────────────────────────────────────
 function FocusTimer({ task, areas, onDone, onComplete }) {
   const [secs,setSecs]=useState(25*60);
   const [running,setRunning]=useState(false);
@@ -651,7 +630,6 @@ function FocusTimer({ task, areas, onDone, onComplete }) {
   );
 }
 
-// ── AI BREAKDOWN ──────────────────────────────────────────────────────────────
 function AiBreakdownModal({ task, onSave, onClose }) {
   const [loading,setLoading]=useState(false);
   const [subtasks,setSubtasks]=useState([]);
@@ -688,7 +666,6 @@ function AiBreakdownModal({ task, onSave, onClose }) {
 
 const lbl={display:"block",fontSize:10,fontWeight:800,color:"#bbb",letterSpacing:"0.09em",textTransform:"uppercase",marginBottom:6,fontFamily:"'DM Sans',sans-serif"};
 
-// ── MAIN APP ──────────────────────────────────────────────────────────────────
 export default function App() {
   const [tasks,setTasks]           = useState([]);
   const [areas,setAreas]           = useState(DEFAULT_AREAS);
@@ -715,33 +692,38 @@ export default function App() {
   const [levelUpStage,setLevelUpStage] = useState(null);
   const [loaded,setLoaded]         = useState(false);
 
+  // ── Load from localStorage ────────────────────────────────────────────────
   useEffect(()=>{
-    (async()=>{
-      try {
-        const keys=["ut-tasks","ut-areas","ut-name","ut-logo","ut-xp","ut-streak","ut-lastdone","ut-onething"];
-        const res=await Promise.all(keys.map(k=>window.storage.get(k).catch(()=>null)));
-        const [t,a,n,l,x,s,d,ot]=res;
-        if(t?.value)setTasks(JSON.parse(t.value));
-        if(a?.value)setAreas(JSON.parse(a.value));
-        if(n?.value)setAppName(n.value);
-        if(l?.value)setAppLogo(l.value);
-        if(x?.value)setXp(Number(x.value));
-        if(s?.value)setStreak(Number(s.value));
-        if(d?.value)setLastDoneDate(d.value);
-        if(ot?.value)setOneThing(JSON.parse(ot.value));
-      } catch {}
-      setLoaded(true);
-    })();
+    try {
+      const t=localStorage.getItem("ut-tasks");
+      const a=localStorage.getItem("ut-areas");
+      const n=localStorage.getItem("ut-name");
+      const l=localStorage.getItem("ut-logo");
+      const x=localStorage.getItem("ut-xp");
+      const s=localStorage.getItem("ut-streak");
+      const d=localStorage.getItem("ut-lastdone");
+      const ot=localStorage.getItem("ut-onething");
+      if(t)setTasks(JSON.parse(t));
+      if(a)setAreas(JSON.parse(a));
+      if(n)setAppName(n);
+      if(l)setAppLogo(l);
+      if(x)setXp(Number(x));
+      if(s)setStreak(Number(s));
+      if(d)setLastDoneDate(d);
+      if(ot)setOneThing(JSON.parse(ot));
+    } catch {}
+    setLoaded(true);
   },[]);
 
-  useEffect(()=>{ if(!loaded)return; window.storage.set("ut-tasks",JSON.stringify(tasks)).catch(()=>{}); },[tasks,loaded]);
-  useEffect(()=>{ if(!loaded)return; window.storage.set("ut-areas",JSON.stringify(areas)).catch(()=>{}); },[areas,loaded]);
-  useEffect(()=>{ if(!loaded)return; window.storage.set("ut-name",appName).catch(()=>{}); },[appName,loaded]);
-  useEffect(()=>{ if(!loaded)return; window.storage.set("ut-logo",appLogo||"").catch(()=>{}); },[appLogo,loaded]);
-  useEffect(()=>{ if(!loaded)return; window.storage.set("ut-xp",String(xp)).catch(()=>{}); },[xp,loaded]);
-  useEffect(()=>{ if(!loaded)return; window.storage.set("ut-streak",String(streak)).catch(()=>{}); },[streak,loaded]);
-  useEffect(()=>{ if(!loaded)return; window.storage.set("ut-lastdone",lastDoneDate||"").catch(()=>{}); },[lastDoneDate,loaded]);
-  useEffect(()=>{ if(!loaded)return; window.storage.set("ut-onething",JSON.stringify(oneThing||null)).catch(()=>{}); },[oneThing,loaded]);
+  // ── Save to localStorage ──────────────────────────────────────────────────
+  useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-tasks",JSON.stringify(tasks)); },[tasks,loaded]);
+  useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-areas",JSON.stringify(areas)); },[areas,loaded]);
+  useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-name",appName); },[appName,loaded]);
+  useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-logo",appLogo||""); },[appLogo,loaded]);
+  useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-xp",String(xp)); },[xp,loaded]);
+  useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-streak",String(streak)); },[streak,loaded]);
+  useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-lastdone",lastDoneDate||""); },[lastDoneDate,loaded]);
+  useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-onething",JSON.stringify(oneThing||null)); },[oneThing,loaded]);
 
   useEffect(()=>{ if(!loaded)return; setTasks(p=>p.map(t=>t.recur&&t.recur!=="none"&&t.done&&shouldRecurToday(t)?{...t,done:false,lastRecurDate:todayStr()}:t)); },[loaded]);
   useEffect(()=>{ if(oneThing&&oneThing.date!==todayStr()&&!isEvening()) setOneThing(null); },[oneThing]);
