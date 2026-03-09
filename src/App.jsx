@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-// ── CONSTANTS ────────────────────────────────────────────────────────────────
-
 const DEFAULT_AREAS = [
   { id:"work",      label:"Work & Career",            emoji:"💼", color:"#4F86C6", bg:"#EBF2FB", tags:["work","career","job","meeting","email"], custom:false },
   { id:"health",    label:"Health & Fitness",          emoji:"💪", color:"#5BAD6F", bg:"#EBF7EF", tags:["health","fitness","gym","workout","run","walk","doctor","meds"], custom:false },
@@ -14,7 +12,6 @@ const DEFAULT_AREAS = [
   { id:"education", label:"Education & School",        emoji:"🎓", color:"#6366F1", bg:"#EEF2FF", tags:["school","education","homework","study","exam","essay","revision","college","uni"], custom:false },
   { id:"admin",     label:"Admin",                     emoji:"📋", color:"#6B7280", bg:"#F3F4F6", tags:["admin","paperwork","form","bureaucracy","appointment"], custom:false },
 ];
-
 const HORIZONS = [
   { id:"today",   label:"Today",        icon:"⚡" },
   { id:"week",    label:"This Week",    icon:"📅" },
@@ -40,21 +37,6 @@ const RECUR_OPTIONS = [
   { id:"monthly", label:"Monthly" },
 ];
 const DAYS_OF_WEEK = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-const EVOLUTION_STAGES = [
-  { id:"amoeba",         name:"Amoeba",               emoji:"🦠",  minXp:0,    color:"#88bbcc", desc:"Just a single cell. Every journey starts here." },
-  { id:"bacterium",      name:"Bacterium",             emoji:"🧫",  minXp:30,   color:"#7db8c8", desc:"Multiplying. The world is starting to notice." },
-  { id:"fish",           name:"Fish",                  emoji:"🐟",  minXp:80,   color:"#4488cc", desc:"You've left the primordial soup. The sea is yours." },
-  { id:"amphibian",      name:"Amphibian",             emoji:"🐸",  minXp:160,  color:"#5baa6f", desc:"Two worlds. You adapt." },
-  { id:"lizard",         name:"Lizard",                emoji:"🦎",  minXp:280,  color:"#7aad5b", desc:"On land. Basking in the sun of your productivity." },
-  { id:"mammal",         name:"Mammal",                emoji:"🐾",  minXp:440,  color:"#c07a3a", desc:"Warm blooded. You feel things. You act on them." },
-  { id:"primate",        name:"Primate",               emoji:"🐒",  minXp:640,  color:"#b8723a", desc:"Opposable thumbs. Big brain energy. Tasks fear you." },
-  { id:"human",          name:"Human",                 emoji:"🧑",  minXp:900,  color:"#4F86C6", desc:"You are the apex. For now." },
-  { id:"inventor",       name:"Inventor",              emoji:"🔬",  minXp:1200, color:"#3AABB5", desc:"You're not just living life. You're improving it." },
-  { id:"astronaut",      name:"Astronaut",             emoji:"👨‍🚀", minXp:1600, color:"#8B6FBE", desc:"The planet can't contain you anymore." },
-  { id:"explorer",       name:"Galactic Explorer",     emoji:"🛸",  minXp:2100, color:"#D96B8A", desc:"New worlds. New horizons. Still completing tasks." },
-  { id:"interplanetary", name:"Interplanetary Being",  emoji:"🌌",  minXp:2800, color:"#E05C3A", desc:"You have transcended. Tasks are but stardust." },
-];
-const XP_PER_TASK = { low:5, medium:10, high:15 };
 const PALETTE = ["#4F86C6","#5BAD6F","#E09B3D","#D96B8A","#8B6FBE","#E05C3A","#3AABB5","#C07A3A","#6B7280","#E84393","#0EA5E9","#10B981","#6366F1","#F59E0B","#EF4444"];
 const TEMPLATE_CSV = `title,area,horizon,energy,recur,deadline,note
 Call dentist #health,health,today,medium,none,Friday,
@@ -66,22 +48,9 @@ Catch up with friend #social,social,week,medium,none,,
 Morning walk #health,health,today,low,daily,,
 Plan monthly budget #finance,finance,month,high,monthly,,`;
 
-const DEFAULT_DOPAMINE = [
-  "Put on a favourite song 🎵",
-  "Make a cup of tea ☕",
-  "Step outside for 2 minutes 🌿",
-  "Do 10 jumping jacks 🏃",
-  "Watch a funny video 😂",
-  "Eat a snack you love 🍫",
-  "Splash cold water on your face 💧",
-  "Text someone you like 💬",
-];
 const uid = () => Math.random().toString(36).slice(2,9);
 const todayStr = () => new Date().toISOString().slice(0,10);
 const colorBg = c => c+"22";
-const hour = () => new Date().getHours();
-const isEvening = () => hour() >= 19;
-const isMorning = () => hour() >= 6 && hour() < 12;
 
 const playSound = (type) => {
   try {
@@ -105,16 +74,6 @@ const playSound = (type) => {
         g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
         o.start(ctx.currentTime); o.stop(ctx.currentTime + 2.5);
       });
-    } else if (type === "levelup") {
-      [392, 523, 659, 784, 1047, 1319].forEach((freq, i) => {
-        const o = ctx.createOscillator(); const g = ctx.createGain();
-        o.connect(g); g.connect(ctx.destination);
-        o.frequency.value = freq; o.type = "triangle";
-        g.gain.setValueAtTime(0, ctx.currentTime + i * 0.07);
-        g.gain.linearRampToValueAtTime(0.2, ctx.currentTime + i * 0.07 + 0.04);
-        g.gain.linearRampToValueAtTime(0, ctx.currentTime + i * 0.07 + 0.3);
-        o.start(ctx.currentTime + i * 0.07); o.stop(ctx.currentTime + i * 0.07 + 0.35);
-      });
     }
   } catch {}
 };
@@ -132,12 +91,6 @@ function inferFromTags(tags, areas) {
   }
   return { area, horizon };
 }
-function getStage(xp) {
-  let s=EVOLUTION_STAGES[0];
-  for (const st of EVOLUTION_STAGES) if (xp>=st.minXp) s=st;
-  return s;
-}
-function getNextStage(xp) { return EVOLUTION_STAGES.find(s=>s.minXp>xp)||null; }
 function shouldRecurToday(task) {
   if (!task.recur||task.recur==="none") return false;
   if (task.lastRecurDate===todayStr()) return false;
@@ -193,43 +146,6 @@ function ConfettiPop({ x, y }) {
     </div>
   );
 }
-
-function XpBar({ xp }) {
-  const stage=getStage(xp), next=getNextStage(xp);
-  const progress=next?Math.round(((xp-stage.minXp)/(next.minXp-stage.minXp))*100):100;
-  return (
-    <div style={{background:"rgba(255,255,255,0.06)",borderRadius:12,padding:"10px 14px",marginBottom:12}}>
-      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-        <span style={{fontSize:22}}>{stage.emoji}</span>
-        <div style={{flex:1}}>
-          <div style={{display:"flex",justifyContent:"space-between"}}>
-            <span style={{color:"#fff",fontWeight:900,fontSize:12,fontFamily:"'DM Sans',sans-serif"}}>{stage.name}</span>
-            <span style={{color:"rgba(255,255,255,0.45)",fontSize:11,fontWeight:600}}>{xp} XP{next?` · ${next.minXp-xp} to ${next.emoji}`:""}</span>
-          </div>
-        </div>
-      </div>
-      <div style={{background:"rgba(255,255,255,0.1)",borderRadius:20,height:6,overflow:"hidden"}}>
-        <div style={{height:"100%",borderRadius:20,width:`${progress}%`,background:`linear-gradient(90deg,${stage.color},${next?.color||stage.color})`,transition:"width 0.8s cubic-bezier(.23,1,.32,1)",boxShadow:`0 0 6px ${stage.color}88`}}/>
-      </div>
-    </div>
-  );
-}
-
-function LevelUpSplash({ stage, onDone }) {
-  useEffect(()=>{ playSound("levelup"); const t=setTimeout(onDone,3500); return()=>clearTimeout(t); },[]);
-  return (
-    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.88)",zIndex:9000,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={onDone}>
-      <div style={{textAlign:"center",animation:"splashIn 0.45s cubic-bezier(.23,1,.32,1)"}}>
-        <div style={{fontSize:96,marginBottom:12,filter:"drop-shadow(0 0 40px rgba(255,255,255,0.35))"}}>{stage.emoji}</div>
-        <div style={{color:"#fff",fontSize:11,letterSpacing:"0.2em",fontWeight:700,fontFamily:"'DM Sans',sans-serif",opacity:0.6,marginBottom:6}}>YOU EVOLVED</div>
-        <div style={{color:stage.color,fontSize:32,fontWeight:900,fontFamily:"'DM Sans',sans-serif"}}>{stage.name}</div>
-        <div style={{color:"rgba(255,255,255,0.5)",fontSize:14,marginTop:10,maxWidth:260,margin:"10px auto 0",fontFamily:"'DM Sans',sans-serif"}}>{stage.desc}</div>
-        <div style={{color:"rgba(255,255,255,0.25)",fontSize:11,marginTop:20}}>tap to continue</div>
-      </div>
-      <style>{`@keyframes splashIn{from{transform:scale(0.4) rotate(-8deg);opacity:0}to{transform:scale(1) rotate(0deg);opacity:1}}`}</style>
-    </div>
-  );
-}
 function OneThingSection({ tasks, oneThing, onSet, onClear }) {
   const [editing, setEditing] = useState(false);
   const todayTasks = tasks.filter(t=>!t.done&&(t.horizon==="today"||t.horizon==="week"));
@@ -264,14 +180,16 @@ function OneThingSection({ tasks, oneThing, onSet, onClear }) {
           ))}
         </div>
       )}
-      <OneThingInput onSet={t=>{onSet(t);setEditing(false);}} defaultVal={isSet?oneThing.text:""} />
+      <div style={{display:"flex",gap:7}}>
+        <OneThingInput onSet={t=>{onSet(t);setEditing(false);}} defaultVal={isSet?oneThing.text:""} />
+      </div>
     </div>
   );
 }
 function OneThingInput({ onSet, defaultVal="" }) {
   const [val,setVal]=useState(defaultVal);
   return (
-    <div style={{display:"flex",gap:7}}>
+    <div style={{display:"flex",gap:7,width:"100%"}}>
       <input value={val} onChange={e=>setVal(e.target.value)} onKeyDown={e=>e.key==="Enter"&&val.trim()&&onSet(val.trim())}
         placeholder="Or type your own…"
         style={{flex:1,padding:"8px 12px",borderRadius:10,border:"2px solid rgba(126,217,160,0.3)",background:"rgba(255,255,255,0.06)",color:"#fff",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/>
@@ -348,7 +266,7 @@ function TaskCard({ task, areas, onComplete, onDelete, onBreakdown, onFocus, onE
         {!task.done&&!compact&&(
           <div style={{display:"flex",flexDirection:"column",gap:4,alignItems:"center"}}>
             <button onClick={()=>onFocus&&onFocus(task)} title="Focus timer" style={{width:28,height:28,borderRadius:8,background:"#fff9e6",border:"1.5px solid #f0d060",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>🎯</button>
-            <button onClick={()=>onBreakdown&&onBreakdown(task)} title="AI break down" style={{width:28,height:28,borderRadius:8,background:"#e8f5e9",border:"1.5px solid #5BAD6F44",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>🤖</button>
+            <button onClick={()=>onBreakdown&&onBreakdown(task)} title="AI Task Coach" style={{width:28,height:28,borderRadius:8,background:"#e8f5e9",border:"1.5px solid #5BAD6F44",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>🫱🍽️</button>
             <button onClick={()=>onEdit&&onEdit(task)} title="Edit" style={{width:28,height:28,borderRadius:8,background:"#f0f4ff",border:"1.5px solid #4F86C644",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>✏️</button>
           </div>
         )}
@@ -358,27 +276,10 @@ function TaskCard({ task, areas, onComplete, onDelete, onBreakdown, onFocus, onE
   );
 }
 function VoiceDumpModal({ areas, onAddMany, onClose }) {
-  const [transcript,setTranscript]=useState("");
-  const [listening,setListening]=useState(false);
-  const [status,setStatus]=useState("Tap the mic and start speaking");
-  const [supported,setSupported]=useState(true);
-  const recRef=useRef(null);
-  useEffect(()=>{
-    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!SR){setSupported(false);return;}
-    const rec=new SR(); rec.continuous=true; rec.interimResults=true; rec.lang="en-GB";
-    let final="";
-    rec.onresult=e=>{ let interim=""; for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)final+=t+" ";else interim=t;} setTranscript(final+interim); };
-    rec.onerror=e=>{setStatus("Mic error: "+e.error);setListening(false);};
-    rec.onend=()=>{setListening(false);setStatus("Done! Edit below or import now.");};
-    recRef.current=rec; return()=>{try{rec.stop();}catch{}};
-  },[]);
+  const [transcript,setTranscript]=useState(""); const [listening,setListening]=useState(false); const [status,setStatus]=useState("Tap the mic and start speaking"); const [supported,setSupported]=useState(true); const recRef=useRef(null);
+  useEffect(()=>{ const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR){setSupported(false);return;} const rec=new SR(); rec.continuous=true; rec.interimResults=true; rec.lang="en-GB"; let final=""; rec.onresult=e=>{ let interim=""; for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)final+=t+" ";else interim=t;} setTranscript(final+interim); }; rec.onerror=e=>{setStatus("Mic error: "+e.error);setListening(false);}; rec.onend=()=>{setListening(false);setStatus("Done! Edit below or import now.");}; recRef.current=rec; return()=>{try{rec.stop();}catch{}}; },[]);
   const toggle=()=>{ if(listening){recRef.current?.stop();setListening(false);}else{recRef.current?.start();setListening(true);setStatus("Listening… speak freely!");} };
-  const handleImport=()=>{
-    const lines=transcript.split(/[.!?\n]/).map(l=>l.trim()).filter(l=>l.length>2);
-    const tasks=lines.map(line=>{ const{clean,tags}=parseHashtags(line);const{area,horizon}=inferFromTags(tags,areas);return{id:uid(),title:clean||line,area:area||areas[0].id,horizon:horizon||"week",energy:"medium",note:"",deadline:"",recur:"none",done:false,createdAt:Date.now(),subtasks:[],dailyTarget:1,dailyCount:0}; });
-    onAddMany(tasks);onClose();
-  };
+  const handleImport=()=>{ const lines=transcript.split(/[.!?\n]/).map(l=>l.trim()).filter(l=>l.length>2); const tasks=lines.map(line=>{ const{clean,tags}=parseHashtags(line);const{area,horizon}=inferFromTags(tags,areas);return{id:uid(),title:clean||line,area:area||areas[0].id,horizon:horizon||"week",energy:"medium",note:"",deadline:"",recur:"none",done:false,createdAt:Date.now(),subtasks:[],dailyTarget:1,dailyCount:0}; }); onAddMany(tasks);onClose(); };
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div style={{background:"#fff",borderRadius:22,padding:26,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.2)"}}>
@@ -420,10 +321,7 @@ function TemplateModal({ onClose }) {
 
 function BrainDumpModal({ areas, onAddMany, onClose }) {
   const [text,setText]=useState("");
-  const go=()=>{
-    const tasks=text.split("\n").map(l=>l.trim()).filter(Boolean).map(line=>{ const{clean,tags}=parseHashtags(line);const{area,horizon}=inferFromTags(tags,areas);return{id:uid(),title:clean||line,area:area||areas[0].id,horizon:horizon||"week",energy:"medium",note:"",deadline:"",recur:"none",done:false,createdAt:Date.now(),subtasks:[],dailyTarget:1,dailyCount:0}; });
-    onAddMany(tasks);onClose();
-  };
+  const go=()=>{ const tasks=text.split("\n").map(l=>l.trim()).filter(Boolean).map(line=>{ const{clean,tags}=parseHashtags(line);const{area,horizon}=inferFromTags(tags,areas);return{id:uid(),title:clean||line,area:area||areas[0].id,horizon:horizon||"week",energy:"medium",note:"",deadline:"",recur:"none",done:false,createdAt:Date.now(),subtasks:[],dailyTarget:1,dailyCount:0}; }); onAddMany(tasks);onClose(); };
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div style={{background:"#fff",borderRadius:22,padding:26,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.18)"}}>
@@ -469,15 +367,10 @@ function UploadModal({ areas, onAddMany, onClose }) {
 }
 
 function TaskModal({ areas, onSave, onClose, existing=null }) {
-  const isEdit = !!existing;
+  const isEdit=!!existing;
   const [raw,setRaw]=useState(existing?.title||""); const [area,setArea]=useState(existing?.area||areas[0]?.id); const [horizon,setHorizon]=useState(existing?.horizon||"today"); const [energy,setEnergy]=useState(existing?.energy||"medium"); const [note,setNote]=useState(existing?.note||""); const [deadline,setDeadline]=useState(existing?.deadline||""); const [recur,setRecur]=useState(existing?.recur||"none"); const [recurFreq,setRecurFreq]=useState(existing?.recurFreq||1); const [recurDays,setRecurDays]=useState(existing?.recurDays||[]); const [recurTime,setRecurTime]=useState(existing?.recurTime||""); const [dailyTarget,setDailyTarget]=useState(existing?.dailyTarget||1); const [tags,setTags]=useState([]);
   useEffect(()=>{ if(isEdit)return; const{tags:t}=parseHashtags(raw); const{area:a,horizon:h}=inferFromTags(t,areas); setTags(t);if(a)setArea(a);if(h)setHorizon(h); },[raw]);
-  const go=()=>{
-    if(!raw.trim())return;
-    const{clean}=parseHashtags(raw);
-    onSave({id:existing?.id||uid(),title:clean||raw.trim(),area,horizon,energy,note,deadline,recur,recurFreq,recurDays,recurTime,dailyTarget:Number(dailyTarget)||1,dailyCount:existing?.dailyCount||0,done:existing?.done||false,createdAt:existing?.createdAt||Date.now(),subtasks:existing?.subtasks||[]});
-    onClose();
-  };
+  const go=()=>{ if(!raw.trim())return; const{clean}=parseHashtags(raw); onSave({id:existing?.id||uid(),title:clean||raw.trim(),area,horizon,energy,note,deadline,recur,recurFreq,recurDays,recurTime,dailyTarget:Number(dailyTarget)||1,dailyCount:existing?.dailyCount||0,done:existing?.done||false,createdAt:existing?.createdAt||Date.now(),subtasks:existing?.subtasks||[]}); onClose(); };
   const toggleDay=d=>setRecurDays(p=>p.includes(d)?p.filter(x=>x!==d):[...p,d]);
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
@@ -527,52 +420,6 @@ function TaskModal({ areas, onSave, onClose, existing=null }) {
     </div>
   );
 }
-function DopamineModal({ items, onSave, onClose }) {
-  const [list,setList]=useState(items.length?items:[...DEFAULT_DOPAMINE]);
-  const [newItem,setNewItem]=useState("");
-  const [picked,setPicked]=useState(null);
-  const pickRandom=()=>setPicked(list[Math.floor(Math.random()*list.length)]);
-  const addItem=()=>{if(!newItem.trim())return;setList(p=>[...p,newItem.trim()]);setNewItem("");};
-  const removeItem=i=>setList(p=>p.filter((_,idx)=>idx!==i));
-  return (
-    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div style={{background:"#fff",borderRadius:22,padding:26,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.18)",maxHeight:"90vh",overflowY:"auto"}}>
-        <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,marginBottom:4}}>⚡ Dopamine Menu</h2>
-        <p style={{fontSize:13,color:"#aaa",marginBottom:16}}>Things that give your brain a boost before tackling a task.</p>
-        {picked?(
-          <div style={{background:"linear-gradient(135deg,#1a2a4a,#1e3d6e)",borderRadius:16,padding:"18px 20px",marginBottom:16,textAlign:"center"}}>
-            <div style={{fontSize:13,color:"rgba(255,255,255,0.5)",marginBottom:6}}>Your boost:</div>
-            <div style={{fontSize:18,fontWeight:800,color:"#fff",fontFamily:"'DM Sans',sans-serif",marginBottom:12}}>{picked}</div>
-            <div style={{display:"flex",gap:8,justifyContent:"center"}}>
-              <button onClick={()=>setPicked(null)} style={{padding:"8px 16px",borderRadius:10,border:"none",background:"#3AABB5",color:"#fff",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Done, let's go! 🚀</button>
-              <button onClick={pickRandom} style={{padding:"8px 14px",borderRadius:10,border:"2px solid rgba(255,255,255,0.2)",background:"transparent",color:"rgba(255,255,255,0.6)",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Another one</button>
-            </div>
-          </div>
-        ):(
-          <button onClick={pickRandom} style={{width:"100%",padding:"14px",borderRadius:14,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",marginBottom:16,boxShadow:"0 4px 16px rgba(58,171,181,0.35)"}}>🎲 Pick a random boost</button>
-        )}
-        <div style={{marginBottom:12}}>
-          {list.map((item,i)=>(
-            <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",background:"#fafafa",borderRadius:10,marginBottom:5}}>
-              <span style={{flex:1,fontSize:13,fontFamily:"'DM Sans',sans-serif",color:"#333"}}>{item}</span>
-              <button onClick={()=>setPicked(item)} style={{padding:"3px 9px",borderRadius:8,border:"2px solid #3AABB544",background:"#E8F7F8",color:"#3AABB5",fontSize:11,fontWeight:700,cursor:"pointer"}}>Pick</button>
-              <button onClick={()=>removeItem(i)} style={{background:"none",border:"none",color:"#ddd",fontSize:16,cursor:"pointer",padding:"0 2px"}}>×</button>
-            </div>
-          ))}
-        </div>
-        <div style={{display:"flex",gap:8,marginBottom:16}}>
-          <input value={newItem} onChange={e=>setNewItem(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addItem()} placeholder="Add your own boost…" style={{flex:1,padding:"9px 13px",borderRadius:11,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/>
-          <button onClick={addItem} style={{padding:"9px 14px",borderRadius:11,border:"none",background:"#3AABB5",color:"#fff",fontSize:13,fontWeight:800,cursor:"pointer"}}>+ Add</button>
-        </div>
-        <div style={{display:"flex",gap:8}}>
-          <button onClick={()=>onSave(list)} style={{flex:1,padding:"11px",borderRadius:12,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Save menu ✓</button>
-          <button onClick={onClose} style={{padding:"11px 16px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Close</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function NotesModal({ notes, onSave, onClose }) {
   const [text,setText]=useState(notes||"");
   return (
@@ -646,10 +493,9 @@ function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAre
   );
 }
 
-function FocusTimer({ task, areas, onDone, onComplete, soundEnabled, dopamineItems }) {
+function FocusTimer({ task, areas, onDone, onComplete, soundEnabled }) {
   const [secs,setSecs]=useState(25*60); const [running,setRunning]=useState(false); const [finished,setFinished]=useState(false);
   const area=areas.find(a=>a.id===task?.area)||areas[0]; const iRef=useRef(null);
-  const randomBoost=dopamineItems[Math.floor(Math.random()*dopamineItems.length)];
   useEffect(()=>{ if(running&&secs>0){iRef.current=setInterval(()=>setSecs(s=>s-1),1000);}else if(secs===0&&!finished){setRunning(false);setFinished(true);if(soundEnabled)playSound("timer");} return()=>clearInterval(iRef.current); },[running,secs,finished]);
   const m=String(Math.floor(secs/60)).padStart(2,"0"),s=String(secs%60).padStart(2,"0");
   const prog=((25*60-secs)/(25*60))*100;
@@ -667,12 +513,6 @@ function FocusTimer({ task, areas, onDone, onComplete, soundEnabled, dopamineIte
             <span style={{fontSize:44,fontWeight:900,color:finished?"#5BAD6F":"#fff",letterSpacing:"-2px"}}>{finished?"✓":`${m}:${s}`}</span>
           </div>
         </div>
-        {!running&&!finished&&dopamineItems.length>0&&(
-          <div style={{background:"rgba(255,255,255,0.05)",borderRadius:14,padding:"12px 16px",marginBottom:16,border:"1px solid rgba(255,255,255,0.08)"}}>
-            <p style={{fontSize:11,color:"rgba(255,255,255,0.4)",margin:"0 0 6px"}}>⚡ Boost before you start:</p>
-            <p style={{fontSize:13,color:"#fff",fontWeight:700,margin:0}}>{randomBoost}</p>
-          </div>
-        )}
         {!finished?(
           <div style={{display:"flex",gap:10,justifyContent:"center"}}>
             <button onClick={()=>setRunning(r=>!r)} style={{padding:"12px 28px",borderRadius:14,border:"none",background:area.color,color:"#fff",fontSize:16,fontWeight:800,cursor:"pointer"}}>{running?"⏸ Pause":"▶ Start"}</button>
@@ -700,7 +540,7 @@ function AiBreakdownModal({ task, onSave, onClose }) {
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div style={{background:"#fff",borderRadius:22,padding:26,width:"100%",maxWidth:440,boxShadow:"0 24px 64px rgba(0,0,0,0.18)"}}>
-        <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:18,fontWeight:800,marginBottom:4}}>🤖 AI Task Coach</h2>
+        <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:18,fontWeight:800,marginBottom:4}}>🫱🍽️ AI Task Coach</h2>
         <p style={{fontSize:13,color:"#aaa",marginBottom:14}}>Breaking down: <strong>{task.title}</strong></p>
         {loading&&<div style={{textAlign:"center",padding:28}}><div style={{fontSize:30,animation:"spin 1s linear infinite"}}>⚙️</div><p style={{color:"#aaa",marginTop:8,fontFamily:"'DM Sans',sans-serif"}}>Thinking…</p></div>}
         {error&&<p style={{color:"#E05C3A",fontFamily:"'DM Sans',sans-serif",fontSize:13}}>{error}</p>}
@@ -719,12 +559,8 @@ function AiBreakdownModal({ task, onSave, onClose }) {
 
 function CalendarView({ tasks, areas, onComplete, onDelete, onBreakdown, onFocus, onEdit, soundEnabled }) {
   const [mode,setMode]=useState("week"); const [offset,setOffset]=useState(0);
-  const now = new Date();
-  const getDateRange = () => {
-    if(mode==="day"){const d=new Date(now);d.setDate(d.getDate()+offset);return{start:d,end:d,label:d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})};}
-    if(mode==="week"){const start=new Date(now);start.setDate(start.getDate()-start.getDay()+1+(offset*7));const end=new Date(start);end.setDate(start.getDate()+6);return{start,end,label:`${start.toLocaleDateString("en-GB",{day:"numeric",month:"short"})} – ${end.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}`};}
-    if(mode==="month"){const d=new Date(now.getFullYear(),now.getMonth()+offset,1);return{start:d,end:new Date(d.getFullYear(),d.getMonth()+1,0),label:d.toLocaleDateString("en-GB",{month:"long",year:"numeric"})};}
-  };
+  const now=new Date();
+  const getDateRange=()=>{ if(mode==="day"){const d=new Date(now);d.setDate(d.getDate()+offset);return{label:d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})};} if(mode==="week"){const start=new Date(now);start.setDate(start.getDate()-start.getDay()+1+(offset*7));const end=new Date(start);end.setDate(start.getDate()+6);return{label:`${start.toLocaleDateString("en-GB",{day:"numeric",month:"short"})} – ${end.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}`};} if(mode==="month"){const d=new Date(now.getFullYear(),now.getMonth()+offset,1);return{label:d.toLocaleDateString("en-GB",{month:"long",year:"numeric"})};} };
   const range=getDateRange();
   const getTasksForRange=()=>{ const horizons=[]; if(mode==="day")horizons.push("today"); if(mode==="week")horizons.push("today","week"); if(mode==="month")horizons.push("today","week","month"); return tasks.filter(t=>!t.done&&horizons.includes(t.horizon)); };
   const visibleTasks=getTasksForRange();
@@ -744,14 +580,28 @@ function CalendarView({ tasks, areas, onComplete, onDelete, onBreakdown, onFocus
     </div>
   );
 }
-const lbl={display:"block",fontSize:10,fontWeight:800,color:"#bbb",letterSpacing:"0.09em",textTransform:"uppercase",marginBottom:6,fontFamily:"'DM Sans',sans-serif"};
 
+function StatsView({ tasks, areas, streak, done }) {
+  const incomplete=tasks.filter(t=>!t.done);
+  return (
+    <div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
+        {[{v:`🔥 ${streak}`,l:"Day streak",c:"#E09B3D"},{v:done.length,l:"Tasks done",c:"#5BAD6F"},{v:incomplete.length,l:"Still to do",c:"#4F86C6"},{v:incomplete.filter(t=>t.recur&&t.recur!=="none").length,l:"Recurring",c:"#8B6FBE"}].map(s=><div key={s.l} style={{background:"#fff",borderRadius:14,padding:"14px 16px",boxShadow:"0 2px 8px rgba(0,0,0,0.04)"}}><div style={{fontSize:26,fontWeight:900,color:s.c,fontFamily:"'DM Sans',sans-serif"}}>{s.v}</div><div style={{fontSize:11,color:"#aaa",fontWeight:700,fontFamily:"'DM Sans',sans-serif"}}>{s.l}</div></div>)}
+      </div>
+      <div style={{background:"#fff",borderRadius:14,padding:"16px 18px",boxShadow:"0 2px 8px rgba(0,0,0,0.04)"}}>
+        <h3 style={{fontSize:12,fontWeight:800,margin:"0 0 12px",color:"#888",fontFamily:"'DM Sans',sans-serif"}}>By area</h3>
+        {areas.map(a=>{ const n=incomplete.filter(t=>t.area===a.id).length,tot=tasks.filter(t=>t.area===a.id).length; if(!tot)return null; return <div key={a.id} style={{marginBottom:9}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:12,fontWeight:700,color:"#555",fontFamily:"'DM Sans',sans-serif"}}>{a.emoji} {a.label}</span><span style={{fontSize:11,color:"#bbb"}}>{n} left / {tot}</span></div><div style={{background:"#f0f0f0",borderRadius:20,height:6}}><div style={{width:`${Math.round(((tot-n)/tot)*100)}%`,height:"100%",background:a.color,borderRadius:20,transition:"width 0.6s"}}/></div></div>; })}
+      </div>
+    </div>
+  );
+}
+
+const lbl={display:"block",fontSize:10,fontWeight:800,color:"#bbb",letterSpacing:"0.09em",textTransform:"uppercase",marginBottom:6,fontFamily:"'DM Sans',sans-serif"};
 export default function App() {
   const [tasks,setTasks]           = useState([]);
   const [areas,setAreas]           = useState(DEFAULT_AREAS);
   const [appName,setAppName]       = useState("Untangle");
   const [appLogo,setAppLogo]       = useState(null);
-  const [xp,setXp]                 = useState(0);
   const [streak,setStreak]         = useState(0);
   const [lastDoneDate,setLastDoneDate] = useState(null);
   const [oneThing,setOneThing]     = useState(null);
@@ -763,9 +613,7 @@ export default function App() {
   const [showUpload,setShowUpload] = useState(false);
   const [showTemplate,setShowTemplate] = useState(false);
   const [showSettings,setShowSettings] = useState(false);
-  const [showDopamine,setShowDopamine] = useState(false);
   const [showNotes,setShowNotes]   = useState(false);
-  const [dopamineItems,setDopamineItems] = useState(DEFAULT_DOPAMINE);
   const [notes,setNotes]           = useState("");
   const [soundEnabled,setSoundEnabled] = useState(true);
   const [filterEnergy,setFilterEnergy] = useState(null);
@@ -773,13 +621,12 @@ export default function App() {
   const [focusTask,setFocusTask]   = useState(null);
   const [breakdownTask,setBreakdownTask] = useState(null);
   const [editTask,setEditTask]     = useState(null);
-  const [levelUpStage,setLevelUpStage] = useState(null);
   const [loaded,setLoaded]         = useState(false);
 
   useEffect(()=>{
     try {
-      const t=localStorage.getItem("ut-tasks"); const a=localStorage.getItem("ut-areas"); const n=localStorage.getItem("ut-name"); const l=localStorage.getItem("ut-logo"); const x=localStorage.getItem("ut-xp"); const s=localStorage.getItem("ut-streak"); const d=localStorage.getItem("ut-lastdone"); const ot=localStorage.getItem("ut-onething"); const dm=localStorage.getItem("ut-dopamine"); const nt=localStorage.getItem("ut-notes"); const snd=localStorage.getItem("ut-sound");
-      if(t)setTasks(JSON.parse(t)); if(a)setAreas(JSON.parse(a)); if(n)setAppName(n); if(l)setAppLogo(l); if(x)setXp(Number(x)); if(s)setStreak(Number(s)); if(d)setLastDoneDate(d); if(ot)setOneThing(JSON.parse(ot)); if(dm)setDopamineItems(JSON.parse(dm)); if(nt)setNotes(nt); if(snd!==null)setSoundEnabled(snd==="true");
+      const t=localStorage.getItem("ut-tasks"); const a=localStorage.getItem("ut-areas"); const n=localStorage.getItem("ut-name"); const l=localStorage.getItem("ut-logo"); const s=localStorage.getItem("ut-streak"); const d=localStorage.getItem("ut-lastdone"); const ot=localStorage.getItem("ut-onething"); const nt=localStorage.getItem("ut-notes"); const snd=localStorage.getItem("ut-sound");
+      if(t)setTasks(JSON.parse(t)); if(a)setAreas(JSON.parse(a)); if(n)setAppName(n); if(l)setAppLogo(l); if(s)setStreak(Number(s)); if(d)setLastDoneDate(d); if(ot)setOneThing(JSON.parse(ot)); if(nt)setNotes(nt); if(snd!==null)setSoundEnabled(snd==="true");
     } catch {}
     setLoaded(true);
   },[]);
@@ -788,17 +635,15 @@ export default function App() {
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-areas",JSON.stringify(areas)); },[areas,loaded]);
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-name",appName); },[appName,loaded]);
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-logo",appLogo||""); },[appLogo,loaded]);
-  useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-xp",String(xp)); },[xp,loaded]);
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-streak",String(streak)); },[streak,loaded]);
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-lastdone",lastDoneDate||""); },[lastDoneDate,loaded]);
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-onething",JSON.stringify(oneThing||null)); },[oneThing,loaded]);
-  useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-dopamine",JSON.stringify(dopamineItems)); },[dopamineItems,loaded]);
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-notes",notes); },[notes,loaded]);
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-sound",String(soundEnabled)); },[soundEnabled,loaded]);
 
   useEffect(()=>{ if(!loaded)return; setTasks(p=>p.map(t=>t.recur&&t.recur!=="none"&&t.done&&shouldRecurToday(t)?{...t,done:false,lastRecurDate:todayStr(),dailyCount:0}:t)); },[loaded]);
   useEffect(()=>{ if(!loaded)return; const today=todayStr(); setTasks(p=>p.map(t=>t.dailyTarget>1&&t.lastCountDate&&t.lastCountDate!==today?{...t,dailyCount:0,done:false}:t)); },[loaded]);
-  useEffect(()=>{ if(oneThing&&oneThing.date!==todayStr()&&!isEvening())setOneThing(null); },[oneThing]);
+  useEffect(()=>{ if(oneThing&&oneThing.date!==todayStr())setOneThing(null); },[oneThing]);
 
   const addTask=useCallback(t=>setTasks(p=>[t,...p]),[]);
   const addMany=useCallback(ts=>setTasks(p=>[...ts,...p]),[]);
@@ -807,18 +652,14 @@ export default function App() {
   const saveTask=useCallback(t=>setTasks(p=>p.map(x=>x.id===t.id?t:x)),[]);
   const saveSubtasks=useCallback((id,st)=>{ setTasks(p=>p.map(t=>t.id===id?{...t,subtasks:st}:t)); setBreakdownTask(null); },[]);
 
-  const completeTask=useCallback((id, newCount=null)=>{
+  const completeTask=useCallback((id,newCount=null)=>{
     const task=tasks.find(t=>t.id===id); if(!task)return;
     if(newCount!==null){setTasks(p=>p.map(t=>t.id===id?{...t,dailyCount:newCount,lastCountDate:todayStr()}:t));return;}
-    const earned=XP_PER_TASK[task?.energy||"medium"]; const today=todayStr();
-    const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
+    const today=todayStr(); const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
     const newStreak=lastDoneDate===today?streak:(lastDoneDate===yesterday?streak+1:1);
-    const newXp=xp+earned+(newStreak>1?5:0);
-    const oldStage=getStage(xp),newStage=getStage(newXp);
-    if(newStage.id!==oldStage.id)setLevelUpStage(newStage);
     setTasks(p=>p.map(t=>t.id===id?{...t,done:true,dailyCount:t.dailyTarget,lastCountDate:today}:t));
-    setXp(newXp);setStreak(newStreak);setLastDoneDate(today);
-  },[tasks,xp,streak,lastDoneDate]);
+    setStreak(newStreak); setLastDoneDate(today);
+  },[tasks,streak,lastDoneDate]);
 
   const setOneThingFn=useCallback(text=>setOneThing({text,date:todayStr()}),[]);
   const incomplete=tasks.filter(t=>!t.done);
@@ -829,23 +670,19 @@ export default function App() {
   return (
     <div style={{minHeight:"100vh",background:"#F2F1EF",fontFamily:"'DM Sans',sans-serif"}}>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-
       {showAdd       && <TaskModal areas={areas} onSave={t=>{addTask(t);}} onClose={()=>setShowAdd(false)}/>}
       {editTask      && <TaskModal areas={areas} onSave={t=>{saveTask(t);setEditTask(null);}} onClose={()=>setEditTask(null)} existing={editTask}/>}
       {showDump      && <BrainDumpModal areas={areas} onAddMany={addMany} onClose={()=>setShowDump(false)}/>}
       {showVoice     && <VoiceDumpModal areas={areas} onAddMany={addMany} onClose={()=>setShowVoice(false)}/>}
       {showUpload    && <UploadModal areas={areas} onAddMany={addMany} onClose={()=>setShowUpload(false)}/>}
       {showTemplate  && <TemplateModal onClose={()=>setShowTemplate(false)}/>}
-      {showDopamine  && <DopamineModal items={dopamineItems} onSave={items=>{setDopamineItems(items);setShowDopamine(false);}} onClose={()=>setShowDopamine(false)}/>}
       {showNotes     && <NotesModal notes={notes} onSave={setNotes} onClose={()=>setShowNotes(false)}/>}
       {showSettings  && <SettingsPanel appName={appName} setAppName={setAppName} appLogo={appLogo} setAppLogo={setAppLogo} areas={areas} setAreas={setAreas} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} onClose={()=>setShowSettings(false)}/>}
-      {focusTask     && <FocusTimer task={focusTask} areas={areas} onDone={()=>setFocusTask(null)} onComplete={completeTask} soundEnabled={soundEnabled} dopamineItems={dopamineItems}/>}
+      {focusTask     && <FocusTimer task={focusTask} areas={areas} onDone={()=>setFocusTask(null)} onComplete={completeTask} soundEnabled={soundEnabled}/>}
       {breakdownTask && <AiBreakdownModal task={breakdownTask} onSave={saveSubtasks} onClose={()=>setBreakdownTask(null)}/>}
-      {levelUpStage  && <LevelUpSplash stage={levelUpStage} onDone={()=>setLevelUpStage(null)}/>}
 
       <div style={{background:"linear-gradient(160deg,#0f1923 0%,#152232 60%,#1a2d3a 100%)",padding:"18px 20px 0",boxShadow:"0 4px 24px rgba(0,0,0,0.2)"}}>
         <div style={{maxWidth:680,margin:"0 auto"}}>
-          <XpBar xp={xp}/>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
             <div style={{display:"flex",alignItems:"center",gap:11}}>
               {appLogo?<img src={appLogo} style={{width:38,height:38,borderRadius:11,objectFit:"cover",border:"2px solid rgba(255,255,255,0.15)"}}/>:<UntangleLogo size={38}/>}
@@ -856,7 +693,6 @@ export default function App() {
             </div>
             <div style={{display:"flex",gap:6,alignItems:"center"}}>
               <button onClick={()=>setShowNotes(true)} title="Quick notes" style={{width:36,height:36,borderRadius:10,border:"2px solid rgba(255,255,255,0.12)",background:"transparent",color:"rgba(255,255,255,0.5)",fontSize:16,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>📝</button>
-              <button onClick={()=>setShowDopamine(true)} title="Dopamine menu" style={{width:36,height:36,borderRadius:10,border:"2px solid rgba(255,255,255,0.12)",background:"transparent",color:"rgba(255,255,255,0.5)",fontSize:16,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>⚡</button>
               <button onClick={()=>setShowSettings(true)} style={{width:36,height:36,borderRadius:10,border:"2px solid rgba(255,255,255,0.12)",background:"transparent",color:"rgba(255,255,255,0.5)",fontSize:15,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>⚙️</button>
               <button onClick={()=>setShowAdd(true)} style={{padding:"8px 16px",borderRadius:11,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:13,fontWeight:800,cursor:"pointer",boxShadow:"0 3px 12px rgba(58,171,181,0.4)"}}>+ Add</button>
             </div>
@@ -926,21 +762,7 @@ export default function App() {
             :HORIZONS.map(h=>{ const group=tasks.filter(t=>t.area===activeArea&&t.horizon===h.id&&!t.done); if(!group.length)return null; return <div key={h.id} style={{marginBottom:18}}><h3 style={{fontSize:11,fontWeight:800,color:"#bbb",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:7,fontFamily:"'DM Sans',sans-serif"}}>{h.icon} {h.label}</h3>{group.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={setEditTask} soundEnabled={soundEnabled}/>)}</div>; })}
           </div>
         )}
-        {view==="stats"&&(
-          <div>
-            <div style={{background:"#fff",borderRadius:18,padding:"18px 20px",marginBottom:14,boxShadow:"0 2px 8px rgba(0,0,0,0.04)"}}>
-              <h2 style={{fontSize:15,fontWeight:800,margin:"0 0 14px",fontFamily:"'DM Sans',sans-serif"}}>🦠 Evolution Progress</h2>
-              {EVOLUTION_STAGES.map(s=>{ const u=xp>=s.minXp,cur=getStage(xp).id===s.id; return <div key={s.id} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderRadius:12,background:cur?s.color+"18":u?"#fafafa":"#fcfcfc",border:`2px solid ${cur?s.color:u?"#eee":"#f0f0f0"}`,marginBottom:5}}><span style={{fontSize:20,filter:u?"none":"grayscale(1) opacity(0.3)"}}>{s.emoji}</span><div style={{flex:1}}><div style={{fontWeight:700,fontSize:13,color:u?"#1a1a1a":"#ccc",fontFamily:"'DM Sans',sans-serif"}}>{s.name}</div><div style={{fontSize:11,color:"#bbb"}}>{s.minXp} XP</div></div>{cur&&<span style={{fontSize:10,fontWeight:800,color:s.color,background:s.color+"22",padding:"2px 7px",borderRadius:20}}>YOU ARE HERE</span>}{u&&!cur&&<span style={{fontSize:13}}>✓</span>}{!u&&<span style={{fontSize:11,color:"#ddd"}}>{s.minXp-xp} XP away</span>}</div>; })}
-            </div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
-              {[{v:xp,l:"Total XP",c:"#3AABB5"},{v:`🔥 ${streak}`,l:"Day streak",c:"#E09B3D"},{v:done.length,l:"Tasks done",c:"#5BAD6F"},{v:incomplete.filter(t=>t.recur&&t.recur!=="none").length,l:"Recurring",c:"#8B6FBE"}].map(s=><div key={s.l} style={{background:"#fff",borderRadius:14,padding:"14px 16px",boxShadow:"0 2px 8px rgba(0,0,0,0.04)"}}><div style={{fontSize:26,fontWeight:900,color:s.c,fontFamily:"'DM Sans',sans-serif"}}>{s.v}</div><div style={{fontSize:11,color:"#aaa",fontWeight:700,fontFamily:"'DM Sans',sans-serif"}}>{s.l}</div></div>)}
-            </div>
-            <div style={{background:"#fff",borderRadius:14,padding:"16px 18px",boxShadow:"0 2px 8px rgba(0,0,0,0.04)"}}>
-              <h3 style={{fontSize:12,fontWeight:800,margin:"0 0 12px",color:"#888",fontFamily:"'DM Sans',sans-serif"}}>By area</h3>
-              {areas.map(a=>{ const n=incomplete.filter(t=>t.area===a.id).length,tot=tasks.filter(t=>t.area===a.id).length; if(!tot)return null; return <div key={a.id} style={{marginBottom:9}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:12,fontWeight:700,color:"#555",fontFamily:"'DM Sans',sans-serif"}}>{a.emoji} {a.label}</span><span style={{fontSize:11,color:"#bbb"}}>{n} left / {tot}</span></div><div style={{background:"#f0f0f0",borderRadius:20,height:6}}><div style={{width:`${Math.round(((tot-n)/tot)*100)}%`,height:"100%",background:a.color,borderRadius:20,transition:"width 0.6s"}}/></div></div>; })}
-            </div>
-          </div>
-        )}
+        {view==="stats"&&<StatsView tasks={tasks} areas={areas} streak={streak} done={done}/>}
         {view!=="stats"&&(
           <div style={{marginTop:20,background:"#fff",borderRadius:14,padding:"10px 14px",display:"flex",gap:10,flexWrap:"wrap",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
             {areas.map(a=>{ const n=incomplete.filter(t=>t.area===a.id).length; if(!n)return null; return <div key={a.id} style={{display:"flex",alignItems:"center",gap:3}}><span style={{fontSize:13}}>{a.emoji}</span><span style={{fontSize:12,fontWeight:800,color:a.color,fontFamily:"'DM Sans',sans-serif"}}>{n}</span></div>; })}
