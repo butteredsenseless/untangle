@@ -49,6 +49,61 @@ Morning walk #health,health,today,low,daily,,
 Plan monthly budget #finance,finance,month,high,monthly,,`;
 
 const uid = () => Math.random().toString(36).slice(2,9);
+
+async function askAlexander(input, areas, context = {}, learned = {}) {
+  console.log("API key:", import.meta.env.VITE_ANTHROPIC_API_KEY);
+  console.log("Learned:", learned);
+  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
+  const bucketList = areas.map(a => `${a.id}: ${a.label} (${a.emoji})`).join('\n');
+  
+  const prompt = `You are Alexander, an AI assistant for Untangle — an ADHD life management app.
+
+The user has typed: "${input}"
+
+Available buckets:
+${bucketList}
+${Object.keys(learned).length > 0 ? `\nLearned corrections:\n${Object.entries(learned).map(([k,v])=>`- "${k}" goes in ${v.to} (corrected ${v.count} time${v.count>1?'s':''})`).join('\n')}` : ''}
+
+Analyse the input and respond with ONLY a JSON object, no markdown:
+{
+  "title": "keep the user's original wording, only fix typos or remove hashtags — never rewrite or interpret",
+  "area": "bucket id from the list above",
+  "type": "task|recurring|deadline|goal|project",
+  "recur": "none|daily|weekday|weekly|monthly",
+  "dailyTarget": 1,
+  "deadline": "natural language deadline or empty string",
+  "horizon": "today|week|month|project",
+  "confidence": "high|medium|low",
+  "nudge": "optional short message if this looks like a project or goal, otherwise empty string"
+}
+
+Rules:
+- NEVER rewrite the task title. Keep the user's own words.
+- If the task mentions a frequency like "twice a day" or "3 times daily", set dailyTarget to that number and recur to "daily" — do NOT create multiple tasks.
+- If the input sounds like a goal (e.g. "lose weight", "be happier"), set nudge to a gentle message.
+- If the input sounds like a project (multiple steps implied), set nudge to a gentle message.`;
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    },
+    body: JSON.stringify({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 300,
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+
+  const data = await response.json();
+  console.log("Alexander response:", data);
+  const text = data.content?.map(c => c.text || "").join("") || "{}";
+  return JSON.parse(text.replace(/```json|```/g, "").trim());
+}
+
 const todayStr = () => new Date().toISOString().slice(0,10);
 const colorBg = c => c+"22";
 
@@ -257,7 +312,7 @@ function TaskCard({ task, areas, onComplete, onDelete, onBreakdown, onFocus, onE
           {isCountTask&&<div style={{marginTop:5,height:4,background:"#f0f0f0",borderRadius:20,overflow:"hidden"}}><div style={{height:"100%",width:`${countProgress*100}%`,background:area.color,borderRadius:20,transition:"width 0.4s"}}/></div>}
           {task.note&&<div style={{fontSize:12,color:"#aaa",marginTop:2,fontFamily:"'DM Sans',sans-serif"}}>{task.note}</div>}
           <div style={{display:"flex",gap:5,marginTop:5,flexWrap:"wrap"}}>
-            <span style={{fontSize:11,background:area.bg||colorBg(area.color),color:area.color,padding:"2px 8px",borderRadius:20,fontWeight:700,fontFamily:"'DM Sans',sans-serif"}}>{area.emoji} {area.label}</span>
+            <span onClick={()=>onEdit&&onEdit(task,'reassign')} style={{fontSize:11,background:area.bg||colorBg(area.color),color:area.color,padding:"2px 8px",borderRadius:20,fontWeight:700,fontFamily:"'DM Sans',sans-serif",cursor:"pointer",userSelect:"none"}}>{area.emoji} {area.label} ✎</span>
             {task.deadline&&<span style={{fontSize:11,background:"#fff3e0",color:"#E09B3D",padding:"2px 8px",borderRadius:20,fontWeight:600}}>📅 {task.deadline}</span>}
             {task.recurTime&&<span style={{fontSize:11,background:"#f0f0ff",color:"#8B6FBE",padding:"2px 8px",borderRadius:20,fontWeight:600}}>🕐 {task.recurTime}</span>}
           </div>
@@ -366,11 +421,66 @@ function UploadModal({ areas, onAddMany, onClose }) {
   );
 }
 
-function TaskModal({ areas, onSave, onClose, existing=null }) {
+function ReassignPicker({ task, areas, onPick, onClose }) {
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div style={{background:"#fff",borderRadius:22,padding:22,width:"100%",maxWidth:380,boxShadow:"0 24px 64px rgba(0,0,0,0.18)"}}>
+        <div style={{fontFamily:"'DM Sans',sans-serif",fontWeight:800,fontSize:15,marginBottom:4}}>Move to bucket</div>
+        <div style={{fontSize:12,color:"#aaa",marginBottom:14}}>"{task.title}"</div>
+        <div style={{display:"flex",flexDirection:"column",gap:6}}>
+          {areas.map(a=>(
+            <button key={a.id} onClick={()=>onPick(a.id)} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",borderRadius:12,border:`2px solid ${task.area===a.id?a.color:"#e5e5e5"}`,background:task.area===a.id?(a.bg||colorBg(a.color)):"#fafafa",cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
+              <span style={{fontSize:18}}>{a.emoji}</span>
+              <span style={{fontSize:13,fontWeight:700,color:task.area===a.id?a.color:"#555"}}>{a.label}</span>
+              {task.area===a.id&&<span style={{marginLeft:"auto",fontSize:11,color:a.color,fontWeight:800}}>current</span>}
+            </button>
+          ))}
+        </div>
+        <button onClick={onClose} style={{width:"100%",marginTop:12,padding:"10px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+function TaskModal({ areas, onSave, onClose, existing=null, learned={} }) {
   const isEdit=!!existing;
   const [raw,setRaw]=useState(existing?.title||""); const [area,setArea]=useState(existing?.area||areas[0]?.id); const [horizon,setHorizon]=useState(existing?.horizon||"today"); const [energy,setEnergy]=useState(existing?.energy||"medium"); const [note,setNote]=useState(existing?.note||""); const [deadline,setDeadline]=useState(existing?.deadline||""); const [recur,setRecur]=useState(existing?.recur||"none"); const [recurFreq,setRecurFreq]=useState(existing?.recurFreq||1); const [recurDays,setRecurDays]=useState(existing?.recurDays||[]); const [recurTime,setRecurTime]=useState(existing?.recurTime||""); const [dailyTarget,setDailyTarget]=useState(existing?.dailyTarget||1); const [tags,setTags]=useState([]);
   useEffect(()=>{ if(isEdit)return; const{tags:t}=parseHashtags(raw); const{area:a,horizon:h}=inferFromTags(t,areas); setTags(t);if(a)setArea(a);if(h)setHorizon(h); },[raw]);
-  const go=()=>{ if(!raw.trim())return; const{clean}=parseHashtags(raw); onSave({id:existing?.id||uid(),title:clean||raw.trim(),area,horizon,energy,note,deadline,recur,recurFreq,recurDays,recurTime,dailyTarget:Number(dailyTarget)||1,dailyCount:existing?.dailyCount||0,done:existing?.done||false,createdAt:existing?.createdAt||Date.now(),subtasks:existing?.subtasks||[]}); onClose(); };
+  const [aiLoading, setAiLoading] = useState(false);
+const go = async () => {
+  if (!raw.trim()) return;
+  if (isEdit) {
+    onSave({ id: existing.id, title: raw.trim(), area, horizon, energy, note, deadline, recur, recurFreq, recurDays, recurTime, dailyTarget: Number(dailyTarget) || 1, dailyCount: existing?.dailyCount || 0, done: existing?.done || false, createdAt: existing?.createdAt || Date.now(), subtasks: existing?.subtasks || [] });
+    onClose();
+    return;
+  }
+  setAiLoading(true);
+  try {
+    const result = await askAlexander(raw, areas, {}, learned);
+    onSave({
+      id: uid(),
+      title: result.title || raw.trim(),
+      area: areas.find(a => a.id === result.area) ? result.area : areas[0].id,
+      horizon: result.horizon || horizon,
+      energy,
+      note,
+      deadline: result.deadline || deadline,
+      recur: result.recur || recur,
+      recurFreq, recurDays, recurTime,
+      dailyTarget: Number(dailyTarget) || 1,
+      dailyCount: 0,
+      done: false,
+      createdAt: Date.now(),
+      subtasks: [],
+      aiSorted: true,
+      aiNudge: result.nudge || ""
+    });
+  } catch (e) {
+    // fallback to manual if AI fails
+    onSave({ id: uid(), title: raw.trim(), area, horizon, energy, note, deadline, recur, recurFreq, recurDays, recurTime, dailyTarget: Number(dailyTarget) || 1, dailyCount: 0, done: false, createdAt: Date.now(), subtasks: [] });
+  }
+  setAiLoading(false);
+  onClose();
+};
   const toggleDay=d=>setRecurDays(p=>p.includes(d)?p.filter(x=>x!==d):[...p,d]);
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
@@ -621,6 +731,8 @@ export default function App() {
   const [focusTask,setFocusTask]   = useState(null);
   const [breakdownTask,setBreakdownTask] = useState(null);
   const [editTask,setEditTask]     = useState(null);
+  const [reassignTask,setReassignTask] = useState(null);
+  const [learned, setLearned] = useState(() => { try { return JSON.parse(localStorage.getItem("ut-learned") || "{}"); } catch { return {}; } });
   const [loaded,setLoaded]         = useState(false);
 
   useEffect(()=>{
@@ -670,8 +782,8 @@ export default function App() {
   return (
     <div style={{minHeight:"100vh",background:"#F2F1EF",fontFamily:"'DM Sans',sans-serif"}}>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-      {showAdd       && <TaskModal areas={areas} onSave={t=>{addTask(t);}} onClose={()=>setShowAdd(false)}/>}
-      {editTask      && <TaskModal areas={areas} onSave={t=>{saveTask(t);setEditTask(null);}} onClose={()=>setEditTask(null)} existing={editTask}/>}
+      {showAdd       && <TaskModal areas={areas} onSave={t=>{addTask(t);}} onClose={()=>setShowAdd(false)} learned={learned}/>}
+      {editTask      && <TaskModal areas={areas} onSave={t=>{saveTask(t);setEditTask(null);}} onClose={()=>setEditTask(null)} existing={editTask} learned={learned}/>}
       {showDump      && <BrainDumpModal areas={areas} onAddMany={addMany} onClose={()=>setShowDump(false)}/>}
       {showVoice     && <VoiceDumpModal areas={areas} onAddMany={addMany} onClose={()=>setShowVoice(false)}/>}
       {showUpload    && <UploadModal areas={areas} onAddMany={addMany} onClose={()=>setShowUpload(false)}/>}
@@ -679,6 +791,16 @@ export default function App() {
       {showNotes     && <NotesModal notes={notes} onSave={setNotes} onClose={()=>setShowNotes(false)}/>}
       {showSettings  && <SettingsPanel appName={appName} setAppName={setAppName} appLogo={appLogo} setAppLogo={setAppLogo} areas={areas} setAreas={setAreas} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} onClose={()=>setShowSettings(false)}/>}
       {focusTask     && <FocusTimer task={focusTask} areas={areas} onDone={()=>setFocusTask(null)} onComplete={completeTask} soundEnabled={soundEnabled}/>}
+      {reassignTask && <ReassignPicker task={reassignTask} areas={areas} onPick={(area)=>{
+  saveTask({...reassignTask,area});
+  setLearned(prev=>{
+    const key=reassignTask.title.toLowerCase().slice(0,30);
+    const updated={...prev,[key]:{from:reassignTask.area,to:area,count:(prev[key]?.count||0)+1}};
+    localStorage.setItem("ut-learned",JSON.stringify(updated));
+    return updated;
+  });
+  setReassignTask(null);
+}} onClose={()=>setReassignTask(null)}/>}
       {breakdownTask && <AiBreakdownModal task={breakdownTask} onSave={saveSubtasks} onClose={()=>setBreakdownTask(null)}/>}
 
       <div style={{background:"linear-gradient(160deg,#0f1923 0%,#152232 60%,#1a2d3a 100%)",padding:"18px 20px 0",boxShadow:"0 4px 24px rgba(0,0,0,0.2)"}}>
@@ -738,7 +860,7 @@ export default function App() {
                 <p style={{fontWeight:700,fontSize:15,fontFamily:"'DM Sans',sans-serif"}}>Nothing queued!</p>
                 <button onClick={()=>setShowAdd(true)} style={{marginTop:10,padding:"8px 18px",borderRadius:12,border:"none",background:"#3AABB5",color:"#fff",fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>+ Add a task</button>
               </div>
-            ):brainTasks.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={setEditTask} soundEnabled={soundEnabled}/>)}
+            ):brainTasks.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(task, mode)=>mode==='reassign'?setReassignTask(task):setEditTask(task)} soundEnabled={soundEnabled}/>)}
             {incomplete.length>brainLimit&&<p style={{textAlign:"center",fontSize:12,color:"#bbb",marginTop:6}}>+{incomplete.length-brainLimit} more hiding away. You'll get there. 🙂</p>}
             {done.length>0&&(
               <div style={{marginTop:22}}>
@@ -751,7 +873,7 @@ export default function App() {
             )}
           </div>
         )}
-        {view==="calendar"&&<CalendarView tasks={tasks} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={setEditTask} soundEnabled={soundEnabled}/>}
+        {view==="calendar"&&<CalendarView tasks={tasks} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(task, mode)=>mode==='reassign'?setReassignTask(task):setEditTask(task)} soundEnabled={soundEnabled}/>}
         {view==="area"&&(
           <div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(110px,1fr))",gap:7,marginBottom:18}}>
@@ -759,7 +881,7 @@ export default function App() {
             </div>
             <div style={{display:"flex",justifyContent:"flex-end",marginBottom:12}}><button onClick={()=>setShowAdd(true)} style={{padding:"7px 14px",borderRadius:10,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>+ Add task</button></div>
             {tasks.filter(t=>t.area===activeArea).length===0?<div style={{textAlign:"center",padding:"36px 20px",color:"#bbb"}}><div style={{fontSize:38}}>{areas.find(a=>a.id===activeArea)?.emoji}</div><p style={{fontWeight:700,fontFamily:"'DM Sans',sans-serif"}}>Nothing here</p></div>
-            :HORIZONS.map(h=>{ const group=tasks.filter(t=>t.area===activeArea&&t.horizon===h.id&&!t.done); if(!group.length)return null; return <div key={h.id} style={{marginBottom:18}}><h3 style={{fontSize:11,fontWeight:800,color:"#bbb",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:7,fontFamily:"'DM Sans',sans-serif"}}>{h.icon} {h.label}</h3>{group.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={setEditTask} soundEnabled={soundEnabled}/>)}</div>; })}
+            :HORIZONS.map(h=>{ const group=tasks.filter(t=>t.area===activeArea&&t.horizon===h.id&&!t.done); if(!group.length)return null; return <div key={h.id} style={{marginBottom:18}}><h3 style={{fontSize:11,fontWeight:800,color:"#bbb",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:7,fontFamily:"'DM Sans',sans-serif"}}>{h.icon} {h.label}</h3>{group.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(task, mode)=>mode==='reassign'?setReassignTask(task):setEditTask(task)} soundEnabled={soundEnabled}/>)}</div>; })}
           </div>
         )}
         {view==="stats"&&<StatsView tasks={tasks} areas={areas} streak={streak} done={done}/>}
