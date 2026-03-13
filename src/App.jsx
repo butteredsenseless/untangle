@@ -374,18 +374,65 @@ function TemplateModal({ onClose }) {
   );
 }
 
-function BrainDumpModal({ areas, onAddMany, onClose }) {
-  const [text,setText]=useState("");
-  const go=()=>{ const tasks=text.split("\n").map(l=>l.trim()).filter(Boolean).map(line=>{ const{clean,tags}=parseHashtags(line);const{area,horizon}=inferFromTags(tags,areas);return{id:uid(),title:clean||line,area:area||areas[0].id,horizon:horizon||"week",energy:"medium",note:"",deadline:"",recur:"none",done:false,createdAt:Date.now(),subtasks:[],dailyTarget:1,dailyCount:0}; }); onAddMany(tasks);onClose(); };
+function BrainDumpModal({ areas, onAddMany, onClose, learned={} }) {
+  const [text, setText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const go = async () => {
+    const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+    console.log("Brain dump go fired", lines)
+    if (!lines.length) return;
+    setLoading(true);
+    setProgress(0);
+    const tasks = [];
+    for (let i = 0; i < lines.length; i++) {
+      try {
+        const result = await askAlexander(lines[i], areas, {}, learned);
+        tasks.push({
+          id: uid(),
+          title: result.title || lines[i],
+          area: areas.find(a => a.id === result.area) ? result.area : areas[0].id,
+          horizon: result.horizon || "week",
+          energy: "medium",
+          note: "",
+          deadline: result.deadline || "",
+          recur: result.recur || "none",
+          recurFreq: 1,
+          recurDays: [],
+          recurTime: "",
+          dailyTarget: result.dailyTarget || 1,
+          dailyCount: 0,
+          done: false,
+          createdAt: Date.now(),
+          subtasks: [],
+          aiSorted: true
+        });
+      } catch {
+        tasks.push({ id: uid(), title: lines[i], area: areas[0].id, horizon: "week", energy: "medium", note: "", deadline: "", recur: "none", recurFreq: 1, recurDays: [], recurTime: "", dailyTarget: 1, dailyCount: 0, done: false, createdAt: Date.now(), subtasks: [] });
+      }
+      setProgress(i + 1);
+    }
+    onAddMany(tasks);
+    setLoading(false);
+    onClose();
+  };
+
   return (
-    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&!loading&&onClose()}>
       <div style={{background:"#fff",borderRadius:22,padding:26,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.18)"}}>
         <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,marginBottom:4}}>🧠 Brain Dump</h2>
-        <p style={{fontSize:13,color:"#aaa",marginBottom:14}}>One task per line. Use #tags to auto-sort.</p>
-        <textarea value={text} onChange={e=>setText(e.target.value)} autoFocus placeholder={"Call dentist #health #today\nFinish report #work #week"} rows={10} style={{width:"100%",padding:"12px 14px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:14,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",resize:"vertical",lineHeight:1.8}}/>
+        <p style={{fontSize:13,color:"#aaa",marginBottom:14}}>One task per line. Just type naturally — Alexander will sort them.</p>
+        <textarea value={text} onChange={e=>setText(e.target.value)} autoFocus placeholder={"call the dentist\npay council tax\nwalk the dog every morning"} rows={10} style={{width:"100%",padding:"12px 14px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:14,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",resize:"vertical",lineHeight:1.8}} disabled={loading}/>
+        {loading && (
+          <div style={{marginTop:10,textAlign:"center"}}>
+            <div style={{fontSize:13,color:"#3AABB5",fontWeight:700,fontFamily:"'DM Sans',sans-serif"}}>Alexander is sorting task {progress} of {text.split("\n").filter(l=>l.trim()).length}…</div>
+            <div style={{marginTop:6,background:"#f0f0f0",borderRadius:20,height:6}}><div style={{width:`${(progress/text.split("\n").filter(l=>l.trim()).length)*100}%`,height:"100%",background:"linear-gradient(90deg,#3AABB5,#4F86C6)",borderRadius:20,transition:"width 0.4s"}}/></div>
+          </div>
+        )}
         <div style={{display:"flex",gap:8,marginTop:14}}>
-          <button onClick={go} style={{flex:1,padding:"12px",borderRadius:12,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Import all ✓</button>
-          <button onClick={onClose} style={{padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
+          <button onClick={go} disabled={!text.trim()||loading} style={{flex:1,padding:"12px",borderRadius:12,border:"none",background:text.trim()&&!loading?"linear-gradient(135deg,#3AABB5,#4F86C6)":"#e5e5e5",color:text.trim()&&!loading?"#fff":"#aaa",fontSize:14,fontWeight:800,cursor:text.trim()&&!loading?"pointer":"default",fontFamily:"'DM Sans',sans-serif"}}>{loading?"Sorting…":"Let Alexander sort these ✓"}</button>
+          <button onClick={onClose} disabled={loading} style={{padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
         </div>
       </div>
     </div>
