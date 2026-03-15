@@ -491,7 +491,6 @@ function ReassignPicker({ task, areas, onPick, onClose }) {
 function TaskModal({ areas, onSave, onClose, existing=null, learned={} }) {
   const isEdit=!!existing;
   const [raw,setRaw]=useState(existing?.title||""); const [area,setArea]=useState(existing?.area||areas[0]?.id); const [horizon,setHorizon]=useState(existing?.horizon||"today"); const [energy,setEnergy]=useState(existing?.energy||"medium"); const [note,setNote]=useState(existing?.note||""); const [deadline,setDeadline]=useState(existing?.deadline||""); const [recur,setRecur]=useState(existing?.recur||"none"); const [recurFreq,setRecurFreq]=useState(existing?.recurFreq||1); const [recurDays,setRecurDays]=useState(existing?.recurDays||[]); const [recurTime,setRecurTime]=useState(existing?.recurTime||""); const [dailyTarget,setDailyTarget]=useState(existing?.dailyTarget||1); const [tags,setTags]=useState([]);
-  useEffect(()=>{ if(isEdit)return; const{tags:t}=parseHashtags(raw); const{area:a,horizon:h}=inferFromTags(t,areas); setTags(t);if(a)setArea(a);if(h)setHorizon(h); },[raw]);
   const [aiLoading, setAiLoading] = useState(false);
 const go = async () => {
   if (!raw.trim()) return;
