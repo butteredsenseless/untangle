@@ -311,6 +311,7 @@ function TaskCard({ task, areas, onComplete, onDelete, onBreakdown, onFocus, onE
           </div>
           {isCountTask&&<div style={{marginTop:5,height:4,background:"#f0f0f0",borderRadius:20,overflow:"hidden"}}><div style={{height:"100%",width:`${countProgress*100}%`,background:area.color,borderRadius:20,transition:"width 0.4s"}}/></div>}
           {task.note&&<div style={{fontSize:12,color:"#aaa",marginTop:2,fontFamily:"'DM Sans',sans-serif"}}>{task.note}</div>}
+          {task.aiNudge&&<div style={{fontSize:12,color:"#8B6FBE",marginTop:4,fontFamily:"'DM Sans',sans-serif",background:"#F3EFFB",padding:"4px 8px",borderRadius:8}}>💡 {task.aiNudge}</div>}
           <div style={{display:"flex",gap:5,marginTop:5,flexWrap:"wrap"}}>
             <span onClick={()=>onEdit&&onEdit(task,'reassign')} style={{fontSize:11,background:area.bg||colorBg(area.color),color:area.color,padding:"2px 8px",borderRadius:20,fontWeight:700,fontFamily:"'DM Sans',sans-serif",cursor:"pointer",userSelect:"none"}}>{area.emoji} {area.label} ✎</span>
             {task.deadline&&<span style={{fontSize:11,background:"#fff3e0",color:"#E09B3D",padding:"2px 8px",borderRadius:20,fontWeight:600}}>📅 {task.deadline}</span>}
