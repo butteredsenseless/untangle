@@ -324,8 +324,41 @@ function VoiceDumpModal({ areas, onAddMany, onClose }) {
   const [transcript,setTranscript]=useState(""); const [listening,setListening]=useState(false); const [status,setStatus]=useState("Tap the mic and start speaking"); const [supported,setSupported]=useState(true); const recRef=useRef(null);
   useEffect(()=>{ const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR){setSupported(false);return;} const rec=new SR(); rec.continuous=true; rec.interimResults=true; rec.lang="en-GB"; let final=""; rec.onresult=e=>{ let interim=""; for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)final+=t+" ";else interim=t;} setTranscript(final+interim); }; rec.onerror=e=>{setStatus("Mic error: "+e.error);setListening(false);}; rec.onend=()=>{setListening(false);setStatus("Done! Edit below or import now.");}; recRef.current=rec; return()=>{try{rec.stop();}catch{}}; },[]);
   const toggle=()=>{ if(listening){recRef.current?.stop();setListening(false);}else{recRef.current?.start();setListening(true);setStatus("Listening… speak freely!");} };
-  const handleImport=()=>{ const lines=transcript.split(/[.!?\n]/).map(l=>l.trim()).filter(l=>l.length>2); const tasks=lines.map(line=>{ const{clean,tags}=parseHashtags(line);const{area,horizon}=inferFromTags(tags,areas);return{id:uid(),title:clean||line,area:area||areas[0].id,horizon:horizon||"week",energy:"medium",note:"",deadline:"",recur:"none",done:false,createdAt:Date.now(),subtasks:[],dailyTarget:1,dailyCount:0}; }); onAddMany(tasks);onClose(); };
-  return (
+const handleImport = async () => {
+  console.log("handleImport fired", transcript);
+  const lines = transcript.split(/[.!?\n]/).map(l => l.trim()).filter(l => l.length > 2);
+  if (!lines.length) return;
+  setStatus("Alexander is sorting...");
+  const tasks = [];
+  for (let i = 0; i < lines.length; i++) {
+    try {
+      const result = await askAlexander(lines[i], areas, {}, {});
+      tasks.push({
+        id: uid(),
+        title: result.title || lines[i],
+        area: areas.find(a => a.id === result.area) ? result.area : areas[0].id,
+        horizon: result.horizon || "week",
+        energy: "medium",
+        note: "",
+        deadline: result.deadline || "",
+        recur: result.recur || "none",
+        recurFreq: 1,
+        recurDays: [],
+        recurTime: "",
+        dailyTarget: result.dailyTarget || 1,
+        dailyCount: 0,
+        done: false,
+        createdAt: Date.now(),
+        subtasks: [],
+        aiSorted: true
+      });
+    } catch {
+      tasks.push({ id: uid(), title: lines[i], area: areas[0].id, horizon: "week", energy: "medium", note: "", deadline: "", recur: "none", done: false, createdAt: Date.now(), subtasks: [] });
+    }
+  }
+  onAddMany(tasks);
+  onClose();
+};  return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div style={{background:"#fff",borderRadius:22,padding:26,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.2)"}}>
         <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,marginBottom:4}}>🎤 Voice Brain Dump</h2>
