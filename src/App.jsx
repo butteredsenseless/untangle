@@ -330,36 +330,40 @@ const handleImport = async () => {
   if (!lines.length) return;
   setStatus("Alexander is sorting...");
   const tasks = [];
-  for (let i = 0; i < lines.length; i++) {
+for (let i = 0; i < lines.length; i++) {
     try {
       const result = await askAlexander(lines[i], areas, {}, {});
-      console.log("Parsed result:", result);
-      tasks.push({
-        id: uid(),
-        title: result.title || lines[i],
-        area: areas.find(a => a.id === result.area) ? result.area : areas[0].id,
-        horizon: result.horizon || "week",
-        energy: "medium",
-        note: "",
-        deadline: result.deadline || "",
-        recur: result.recur || "none",
-        recurFreq: 1,
-        recurDays: [],
-        recurTime: "",
-        dailyTarget: result.dailyTarget || 1,
-        dailyCount: 0,
-        done: false,
-        createdAt: Date.now(),
-        subtasks: [],
-        aiSorted: true
-      });
+      const results = Array.isArray(result) ? result : [result];
+      for (const r of results) {
+        tasks.push({
+          id: uid(),
+          title: r.title || lines[i],
+          area: areas.find(a => a.id === r.area) ? r.area : areas[0].id,
+          horizon: r.horizon || "week",
+          energy: "medium",
+          note: "",
+          deadline: r.deadline || "",
+          recur: r.recur || "none",
+          recurFreq: 1,
+          recurDays: [],
+          recurTime: "",
+          dailyTarget: r.dailyTarget || 1,
+          dailyCount: 0,
+          done: false,
+          createdAt: Date.now(),
+          subtasks: [],
+          aiSorted: true
+        });
+      }
     } catch {
       tasks.push({ id: uid(), title: lines[i], area: areas[0].id, horizon: "week", energy: "medium", note: "", deadline: "", recur: "none", done: false, createdAt: Date.now(), subtasks: [] });
     }
   }
   onAddMany(tasks);
   onClose();
-};  return (
+
+};
+  return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div style={{background:"#fff",borderRadius:22,padding:26,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.2)"}}>
         <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,marginBottom:4}}>🎤 Voice Brain Dump</h2>
