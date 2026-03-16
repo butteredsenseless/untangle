@@ -213,7 +213,7 @@ function OneThingSection({ tasks, oneThing, onSet, onClear }) {
           <div style={{flex:1}}>
             <div style={{fontSize:10,fontWeight:800,color:"#4ade80",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:3,fontFamily:"'DM Sans',sans-serif"}}>The One Thing</div>
             <div style={{fontSize:15,fontWeight:800,color:"#fff",fontFamily:"'DM Sans',sans-serif",lineHeight:1.3}}>{oneThing.text}</div>
-            <div style={{fontSize:11,color:"rgba(255,255,255,0.35)",marginTop:3}}>Focus here first. Everything else can wait.</div>
+<div style={{fontSize:11,color:"rgba(255,255,255,0.35)",marginTop:3}}>{oneThing.completed?"🎉 You've untangled today's knot! The main thing is done.":"Focus here first. Everything else can wait."}</div>
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:4}}>
             <button onClick={()=>setEditing(true)} style={{background:"rgba(255,255,255,0.1)",border:"none",color:"rgba(255,255,255,0.5)",fontSize:11,fontWeight:700,cursor:"pointer",padding:"3px 8px",borderRadius:8,fontFamily:"'DM Sans',sans-serif"}}>Edit</button>
@@ -751,6 +751,7 @@ export default function App() {
   const [streak,setStreak]         = useState(0);
   const [lastDoneDate,setLastDoneDate] = useState(null);
   const [oneThing,setOneThing]     = useState(null);
+  const oneThingRef = useRef(null);
   const [view,setView]             = useState("brain");
   const [activeArea,setActiveArea] = useState(DEFAULT_AREAS[0].id);
   const [showAdd,setShowAdd]       = useState(false);
@@ -807,10 +808,11 @@ export default function App() {
     const newStreak=lastDoneDate===today?streak:(lastDoneDate===yesterday?streak+1:1);
     setTasks(p=>p.map(t=>t.id===id?{...t,done:true,dailyCount:t.dailyTarget,lastCountDate:today}:t));
     setStreak(newStreak); setLastDoneDate(today);
-  },[tasks,streak,lastDoneDate]);
+    console.log("oneThing:", oneThing?.text, "task:", task?.title);
+    if(oneThing&&oneThing.text===task?.title){setOneThing({...oneThing,completed:true});setTimeout(()=>setOneThing(null),4000);}
+  },[tasks,streak,lastDoneDate, oneThing]);
 
-  const setOneThingFn=useCallback(text=>setOneThing({text,date:todayStr()}),[]);
-  const incomplete=tasks.filter(t=>!t.done);
+const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneThing(val);oneThingRef.current=val;},[]);  const incomplete=tasks.filter(t=>!t.done);
   const done=tasks.filter(t=>t.done);
   const brainPool=(filterEnergy?incomplete.filter(t=>t.energy===filterEnergy):incomplete).filter(t=>t.horizon==="today"||t.horizon==="week");
   const brainTasks=brainPool.slice(0,brainLimit);
