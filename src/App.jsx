@@ -333,6 +333,7 @@ const handleImport = async () => {
   for (let i = 0; i < lines.length; i++) {
     try {
       const result = await askAlexander(lines[i], areas, {}, {});
+      console.log("Parsed result:", result);
       tasks.push({
         id: uid(),
         title: result.title || lines[i],
