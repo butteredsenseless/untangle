@@ -347,22 +347,7 @@ function VoiceDumpModal({ areas, onAddMany, onClose }) {
   );
 }
 
-function TemplateModal({ onClose }) {
-  const [copied,setCopied]=useState(false);
-  const copy=()=>{ navigator.clipboard.writeText(TEMPLATE_CSV).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2000);}); };
-  return (
-    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div style={{background:"#fff",borderRadius:22,padding:26,width:"100%",maxWidth:560,boxShadow:"0 24px 64px rgba(0,0,0,0.18)",maxHeight:"85vh",overflowY:"auto"}}>
-        <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,marginBottom:4}}>📥 CSV Template</h2>
-        <div style={{background:"#1a1a2e",borderRadius:14,padding:"14px 16px",marginBottom:14,overflowX:"auto"}}><pre style={{margin:0,fontSize:12,color:"#a0cfff",fontFamily:"'Courier New',monospace",lineHeight:1.7,whiteSpace:"pre"}}>{TEMPLATE_CSV}</pre></div>
-        <div style={{display:"flex",gap:8}}>
-          <button onClick={copy} style={{flex:1,padding:"12px",borderRadius:12,border:"none",background:copied?"#5BAD6F":"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{copied?"✓ Copied!":"Copy to clipboard"}</button>
-          <button onClick={onClose} style={{padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Close</button>
-        </div>
-      </div>
-    </div>
-  );
-}
+
 
 function BrainDumpModal({ areas, onAddMany, onClose, learned={} }) {
   const [text, setText] = useState("");
@@ -429,34 +414,7 @@ function BrainDumpModal({ areas, onAddMany, onClose, learned={} }) {
   );
 }
 
-function UploadModal({ areas, onAddMany, onClose }) {
-  const [preview,setPreview]=useState(null); const [parsed,setParsed]=useState([]); const [dragging,setDragging]=useState(false); const fileRef=useRef(null);
-  const handleFile=async f=>{ const tasks=await parseUploadedFile(f,areas); setParsed(tasks);setPreview({name:f.name,count:tasks.length}); };
-  return (
-    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div style={{background:"#fff",borderRadius:22,padding:26,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.18)"}}>
-        <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,marginBottom:4}}>📎 Import Tasks</h2>
-        {!preview?(
-          <div onDragOver={e=>{e.preventDefault();setDragging(true)}} onDragLeave={()=>setDragging(false)} onDrop={e=>{e.preventDefault();setDragging(false);const f=e.dataTransfer.files[0];if(f)handleFile(f);}} onClick={()=>fileRef.current?.click()} style={{border:`2px dashed ${dragging?"#3AABB5":"#ddd"}`,borderRadius:16,padding:"36px 20px",textAlign:"center",cursor:"pointer",background:dragging?"#E8F7F8":"#fafafa",marginTop:12}}>
-            <div style={{fontSize:40,marginBottom:8}}>📂</div>
-            <p style={{fontWeight:700,color:"#888",margin:0,fontFamily:"'DM Sans',sans-serif"}}>Drop CSV / TXT here or tap to browse</p>
-            <input ref={fileRef} type="file" accept=".csv,.txt" style={{display:"none"}} onChange={e=>{if(e.target.files[0])handleFile(e.target.files[0]);}}/>
-          </div>
-        ):(
-          <div style={{marginTop:12}}>
-            <div style={{background:"#e8f5e9",borderRadius:14,padding:"12px 14px",marginBottom:14}}><p style={{margin:0,fontWeight:800,color:"#5BAD6F",fontSize:14,fontFamily:"'DM Sans',sans-serif"}}>✓ {preview.name} — {preview.count} tasks ready</p></div>
-            <div style={{maxHeight:180,overflowY:"auto",marginBottom:12}}>{parsed.map((t,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 10px",background:"#fafafa",borderRadius:10,marginBottom:4}}><span style={{fontSize:12,color:"#ccc"}}>{i+1}.</span><span style={{fontSize:13,flex:1,color:"#333",fontFamily:"'DM Sans',sans-serif"}}>{t.title}</span><span style={{fontSize:13}}>{areas.find(a=>a.id===t.area)?.emoji}</span></div>)}</div>
-          </div>
-        )}
-        <div style={{display:"flex",gap:8,marginTop:12}}>
-          {preview&&<button onClick={()=>{onAddMany(parsed);onClose();}} style={{flex:1,padding:"12px",borderRadius:12,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Import {parsed.length} tasks ✓</button>}
-          <button onClick={onClose} style={{padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
-          {preview&&<button onClick={()=>{setPreview(null);setParsed([]);}} style={{padding:"12px 14px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Re-upload</button>}
-        </div>
-      </div>
-    </div>
-  );
-}
+
 
 function ReassignPicker({ task, areas, onPick, onClose }) {
   return (
@@ -757,8 +715,6 @@ export default function App() {
   const [showAdd,setShowAdd]       = useState(false);
   const [showDump,setShowDump]     = useState(false);
   const [showVoice,setShowVoice]   = useState(false);
-  const [showUpload,setShowUpload] = useState(false);
-  const [showTemplate,setShowTemplate] = useState(false);
   const [showSettings,setShowSettings] = useState(false);
   const [showNotes,setShowNotes]   = useState(false);
   const [notes,setNotes]           = useState("");
@@ -824,7 +780,6 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
       {editTask      && <TaskModal areas={areas} onSave={t=>{saveTask(t);setEditTask(null);}} onClose={()=>setEditTask(null)} existing={editTask} learned={learned}/>}
       {showDump      && <BrainDumpModal areas={areas} onAddMany={addMany} onClose={()=>setShowDump(false)}/>}
       {showVoice     && <VoiceDumpModal areas={areas} onAddMany={addMany} onClose={()=>setShowVoice(false)}/>}
-      {showUpload    && <UploadModal areas={areas} onAddMany={addMany} onClose={()=>setShowUpload(false)}/>}
       {showTemplate  && <TemplateModal onClose={()=>setShowTemplate(false)}/>}
       {showNotes     && <NotesModal notes={notes} onSave={setNotes} onClose={()=>setShowNotes(false)}/>}
       {showSettings  && <SettingsPanel appName={appName} setAppName={setAppName} appLogo={appLogo} setAppLogo={setAppLogo} areas={areas} setAreas={setAreas} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} onClose={()=>setShowSettings(false)}/>}
@@ -858,7 +813,7 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
             </div>
           </div>
           <div style={{display:"flex",gap:5,marginBottom:12,flexWrap:"wrap"}}>
-            {[{label:"🧠 Dump",action:()=>setShowDump(true)},{label:"🎤 Voice",action:()=>setShowVoice(true)},{label:"📎 Import",action:()=>setShowUpload(true)},{label:"📥 Template",action:()=>setShowTemplate(true)}].map(b=>(
+            {[{label:"🧠 Dump",action:()=>setShowDump(true)},{label:"🎤 Voice",action:()=>setShowVoice(true)},].map(b=>(
               <button key={b.label} onClick={b.action} style={{padding:"5px 12px",borderRadius:20,border:"2px solid rgba(255,255,255,0.12)",background:"rgba(255,255,255,0.06)",color:"rgba(255,255,255,0.7)",fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}}>{b.label}</button>
             ))}
           </div>
