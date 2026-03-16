@@ -230,28 +230,17 @@ function OneThingSection({ tasks, oneThing, onSet, onClear }) {
       <div style={{fontSize:12,color:"rgba(255,255,255,0.5)",marginBottom:10}}>{isSet?"Update your focus for today:":"What's the one thing that matters most today?"}</div>
       {todayTasks.length>0&&(
         <div style={{display:"flex",flexWrap:"wrap",gap:5,marginBottom:8}}>
-          {todayTasks.slice(0,4).map(t=>(
+          {todayTasks.map(t=>(
             <button key={t.id} onClick={()=>{onSet(t.title);setEditing(false);}} style={{padding:"4px 10px",borderRadius:20,border:"2px solid rgba(126,217,160,0.3)",background:"rgba(126,217,160,0.08)",color:"#7ed9a0",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{t.title}</button>
           ))}
         </div>
       )}
       <div style={{display:"flex",gap:7}}>
-        <OneThingInput onSet={t=>{onSet(t);setEditing(false);}} defaultVal={isSet?oneThing.text:""} />
       </div>
     </div>
   );
 }
-function OneThingInput({ onSet, defaultVal="" }) {
-  const [val,setVal]=useState(defaultVal);
-  return (
-    <div style={{display:"flex",gap:7,width:"100%"}}>
-      <input value={val} onChange={e=>setVal(e.target.value)} onKeyDown={e=>e.key==="Enter"&&val.trim()&&onSet(val.trim())}
-        placeholder="Or type your own…"
-        style={{flex:1,padding:"8px 12px",borderRadius:10,border:"2px solid rgba(126,217,160,0.3)",background:"rgba(255,255,255,0.06)",color:"#fff",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/>
-      <button onClick={()=>val.trim()&&onSet(val.trim())} style={{padding:"8px 14px",borderRadius:10,border:"none",background:"#3AABB5",color:"#fff",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Set ✓</button>
-    </div>
-  );
-}
+
 
 function TaskCard({ task, areas, onComplete, onDelete, onBreakdown, onFocus, onEdit, soundEnabled, compact=false }) {
   const area=areas.find(a=>a.id===task.area)||areas[0];
