@@ -719,8 +719,6 @@ export default function App() {
   const [showNotes,setShowNotes]   = useState(false);
   const [notes,setNotes]           = useState("");
   const [soundEnabled,setSoundEnabled] = useState(true);
-  const [filterEnergy,setFilterEnergy] = useState(null);
-  const [brainLimit,setBrainLimit] = useState(3);
   const [focusTask,setFocusTask]   = useState(null);
   const [breakdownTask,setBreakdownTask] = useState(null);
   const [editTask,setEditTask]     = useState(null);
@@ -770,8 +768,6 @@ export default function App() {
 
 const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneThing(val);oneThingRef.current=val;},[]);  const incomplete=tasks.filter(t=>!t.done);
   const done=tasks.filter(t=>t.done);
-  const brainPool=(filterEnergy?incomplete.filter(t=>t.energy===filterEnergy):incomplete).filter(t=>t.horizon==="today"||t.horizon==="week");
-  const brainTasks=brainPool.slice(0,brainLimit);
 
   return (
     <div style={{minHeight:"100vh",background:"#F2F1EF",fontFamily:"'DM Sans',sans-serif"}}>
@@ -829,32 +825,14 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
         {view==="brain"&&(
           <div>
             <OneThingSection tasks={tasks} oneThing={oneThing} onSet={setOneThingFn} onClear={()=>setOneThing(null)}/>
-            <div style={{background:"linear-gradient(135deg,#fff9e6,#fff5d0)",borderRadius:18,padding:"14px 16px",marginBottom:16,border:"1.5px solid #f0d060"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
-                <div>
-                  <h2 style={{fontSize:14,fontWeight:800,color:"#9a7200",margin:"0 0 2px",fontFamily:"'DM Sans',sans-serif"}}>⚡ Your Brain Right Now</h2>
-                  <p style={{fontSize:12,color:"rgba(154,114,0,0.6)",margin:0}}>Only these exist right now. Everything else can wait.</p>
-                </div>
-                <button onClick={()=>setShowAdd(true)} style={{padding:"6px 12px",borderRadius:10,border:"none",background:"#9a7200",color:"#fff",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",whiteSpace:"nowrap",flexShrink:0}}>+ Add</button>
-              </div>
-              <div style={{display:"flex",gap:5,marginBottom:6,flexWrap:"wrap",alignItems:"center"}}>
-                <span style={{fontSize:11,fontWeight:700,color:"#9a7200"}}>Energy:</span>
-                <button onClick={()=>setFilterEnergy(null)} style={{padding:"3px 9px",borderRadius:20,border:`2px solid ${!filterEnergy?"#9a7200":"#e5c830"}`,background:!filterEnergy?"#9a7200":"transparent",color:!filterEnergy?"#fff":"#9a7200",fontSize:11,fontWeight:700,cursor:"pointer"}}>All</button>
-                {ENERGY.map(en=><button key={en.id} onClick={()=>setFilterEnergy(en.id===filterEnergy?null:en.id)} style={{padding:"3px 9px",borderRadius:20,border:`2px solid ${filterEnergy===en.id?en.color:"#e5c830"}`,background:filterEnergy===en.id?en.color+"22":"transparent",color:filterEnergy===en.id?en.color:"#9a7200",fontSize:11,fontWeight:700,cursor:"pointer"}}>{en.emoji} {en.label}</button>)}
-              </div>
-              <div style={{display:"flex",gap:5,alignItems:"center"}}>
-                <span style={{fontSize:11,fontWeight:700,color:"#9a7200"}}>Show:</span>
-                {[3,5,7].map(n=><button key={n} onClick={()=>setBrainLimit(n)} style={{padding:"3px 9px",borderRadius:20,border:`2px solid ${brainLimit===n?"#9a7200":"#e5c830"}`,background:brainLimit===n?"#9a7200":"transparent",color:brainLimit===n?"#fff":"#9a7200",fontSize:11,fontWeight:700,cursor:"pointer"}}>{n}</button>)}
-              </div>
-            </div>
-            {brainTasks.length===0?(
+  
+            {incomplete.length===0?(
               <div style={{textAlign:"center",padding:"36px 20px",color:"#bbb"}}>
                 <div style={{fontSize:44}}>🎉</div>
                 <p style={{fontWeight:700,fontSize:15,fontFamily:"'DM Sans',sans-serif"}}>Nothing queued!</p>
                 <button onClick={()=>setShowAdd(true)} style={{marginTop:10,padding:"8px 18px",borderRadius:12,border:"none",background:"#3AABB5",color:"#fff",fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>+ Add a task</button>
               </div>
-            ):brainTasks.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(task, mode)=>mode==='reassign'?setReassignTask(task):setEditTask(task)} soundEnabled={soundEnabled}/>)}
-            {incomplete.length>brainLimit&&<p style={{textAlign:"center",fontSize:12,color:"#bbb",marginTop:6}}>+{incomplete.length-brainLimit} more hiding away. You'll get there. 🙂</p>}
+            ):incomplete.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(task, mode)=>mode==='reassign'?setReassignTask(task):setEditTask(task)} soundEnabled={soundEnabled}/>)}
             {done.length>0&&(
               <div style={{marginTop:22}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
