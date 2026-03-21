@@ -155,21 +155,24 @@ function StepConversation({ userData, setUserData, next }) {
                 </button>
               ))}
             </div>
-          ) : (
-            <div style={{ display: "flex", gap: 8 }}>
-              <input
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && handleAnswer()}
-                placeholder={q.placeholder}
-                autoFocus
-                style={{ flex: 1, padding: "14px 16px", borderRadius: 14, border: "2px solid #e5e5e5", fontSize: 15, fontFamily: "'DM Sans', sans-serif", outline: "none" }}
-              />
-              <button onClick={() => handleAnswer()}
-                disabled={!input.trim() && !q.optional}
-                style={{ padding: "14px 18px", borderRadius: 14, border: "none", background: (input.trim() || q.optional) ? "linear-gradient(135deg,#3AABB5,#4F86C6)" : "#e5e5e5", color: (input.trim() || q.optional) ? "#fff" : "#aaa", fontSize: 15, fontWeight: 800, cursor: (input.trim() || q.optional) ? "pointer" : "default" }}>
-                {q.optional && !input.trim() ? "Skip" : "→"}
-              </button>
+) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ display: "flex", gap: 8 }}>
+                <textarea
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  placeholder={q.placeholder}
+                  autoFocus
+                  rows={3}
+                  style={{ flex: 1, padding: "14px 16px", borderRadius: 14, border: "2px solid #e5e5e5", fontSize: 15, fontFamily: "'DM Sans', sans-serif", outline: "none", resize: "none", lineHeight: 1.5 }}
+                />
+                <button onClick={() => handleAnswer()}
+                  disabled={!input.trim() && !q.optional}
+                  style={{ padding: "14px 18px", borderRadius: 14, border: "none", background: (input.trim() || q.optional) ? "linear-gradient(135deg,#3AABB5,#4F86C6)" : "#e5e5e5", color: (input.trim() || q.optional) ? "#fff" : "#aaa", fontSize: 15, fontWeight: 800, cursor: (input.trim() || q.optional) ? "pointer" : "default", alignSelf: "flex-end" }}>
+                  {q.optional && !input.trim() ? "Skip" : "→"}
+                </button>
+              </div>
+              {q.optional && <p style={{ fontSize: 12, color: "#bbb", margin: 0, paddingLeft: 4 }}>Hit Enter for each new item, then → to send</p>}
             </div>
           )}
         </div>
