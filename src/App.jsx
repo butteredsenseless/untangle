@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";import OnboardingFlow from "./Onboarding.jsx";
 
 const DEFAULT_AREAS = [
   { id:"work",      label:"Work & Career",            emoji:"💼", color:"#4F86C6", bg:"#EBF2FB", tags:["work","career","job","meeting","email"], custom:false },
@@ -751,6 +751,7 @@ export default function App() {
   const [view,setView]             = useState("brain");
   const [activeArea,setActiveArea] = useState(DEFAULT_AREAS[0].id);
   const [showAdd,setShowAdd]       = useState(false);
+  const [onboarded, setOnboarded] = useState(() => !!localStorage.getItem("untangle_onboarded"));
   const [showDump,setShowDump]     = useState(false);
   const [showVoice,setShowVoice]   = useState(false);
   const [showSettings,setShowSettings] = useState(false);
@@ -809,6 +810,7 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
 
   return (
     <div style={{minHeight:"100vh",background:"#F2F1EF",fontFamily:"'DM Sans',sans-serif"}}>
+      {!onboarded && <OnboardingFlow areas={areas} onComplete={() => { localStorage.setItem("untangle_onboarded", "1"); setOnboarded(true); }} />}
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
       {showAdd       && <TaskModal areas={areas} onSave={t=>{addTask(t);}} onClose={()=>setShowAdd(false)} learned={learned}/>}
       {editTask      && <TaskModal areas={areas} onSave={t=>{saveTask(t);setEditTask(null);}} onClose={()=>setEditTask(null)} existing={editTask} learned={learned}/>}
