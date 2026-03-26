@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";import OnboardingFlow from "./Onboarding.jsx";
+import { useState, useEffect, useRef, useCallback } from "react";import OnboardingFlow from "./Onboarding.jsx";import { askAlexander } from "./alexander.js";
 
 const DEFAULT_AREAS = [
   { id:"work",      label:"Work & Career",            emoji:"💼", color:"#4F86C6", bg:"#EBF2FB", tags:["work","career","job","meeting","email"], custom:false },
@@ -50,59 +50,6 @@ Plan monthly budget #finance,finance,month,high,monthly,,`;
 
 const uid = () => Math.random().toString(36).slice(2,9);
 
-async function askAlexander(input, areas, context = {}, learned = {}) {
-  console.log("API key:", import.meta.env.VITE_ANTHROPIC_API_KEY);
-  console.log("Learned:", learned);
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
-  const bucketList = areas.map(a => `${a.id}: ${a.label} (${a.emoji})`).join('\n');
-  
-  const prompt = `You are Alexander, an AI assistant for Untangle — an ADHD life management app.
-
-The user has typed: "${input}"
-
-Available buckets:
-${bucketList}
-${Object.keys(learned).length > 0 ? `\nLearned corrections:\n${Object.entries(learned).map(([k,v])=>`- "${k}" goes in ${v.to} (corrected ${v.count} time${v.count>1?'s':''})`).join('\n')}` : ''}
-
-Analyse the input and respond with ONLY a JSON object, no markdown:
-{
-  "title": "keep the user's original wording, only fix typos or remove hashtags — never rewrite or interpret",
-  "area": "bucket id from the list above",
-  "type": "task|recurring|deadline|goal|project",
-  "recur": "none|daily|weekday|weekly|monthly",
-  "dailyTarget": 1,
-  "deadline": "natural language deadline or empty string",
-  "horizon": "today|week|month|project",
-  "confidence": "high|medium|low",
-  "nudge": "optional short message if this looks like a project or goal, otherwise empty string"
-}
-
-Rules:
-- NEVER rewrite the task title. Keep the user's own words.
-- If the task mentions a frequency like "twice a day" or "3 times daily", set dailyTarget to that number and recur to "daily" — do NOT create multiple tasks.
-- If the input sounds like a goal (e.g. "lose weight", "be happier"), set nudge to a gentle message.
-- If the input sounds like a project (multiple steps implied), set nudge to a gentle message.`;
-
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true"
-    },
-    body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 800,
-      messages: [{ role: "user", content: prompt }]
-    })
-  });
-
-  const data = await response.json();
-  console.log("Alexander response:", data);
-  const text = data.content?.map(c => c.text || "").join("") || "{}";
-  return JSON.parse(text.replace(/```json|```/g, "").trim());
-}
 
 const todayStr = () => new Date().toISOString().slice(0,10);
 const colorBg = c => c+"22";
@@ -203,7 +150,8 @@ function ConfettiPop({ x, y }) {
 }
 function OneThingSection({ tasks, oneThing, onSet, onClear }) {
   const [editing, setEditing] = useState(false);
-  const todayTasks = tasks.filter(t=>!t.done&&(t.horizon==="today"||t.horizon==="week"));
+  const seen = new Set();
+  const todayTasks = tasks.filter(t=>!t.done&&(t.horizon==="today"||t.horizon==="week")&&!seen.has(t.id)&&seen.add(t.id));
   const isSet = oneThing && oneThing.date === todayStr();
   if (isSet && !editing) {
     return (
@@ -211,7 +159,7 @@ function OneThingSection({ tasks, oneThing, onSet, onClear }) {
         <div style={{display:"flex",alignItems:"flex-start",gap:12}}>
           <div style={{width:34,height:34,borderRadius:10,background:"linear-gradient(135deg,#2d8c55,#3AABB5)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>🎯</div>
           <div style={{flex:1}}>
-            <div style={{fontSize:10,fontWeight:800,color:"#4ade80",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:3,fontFamily:"'DM Sans',sans-serif"}}>The One Thing</div>
+            <div style={{fontSize:10,fontWeight:800,color:"#4ade80",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:3,fontFamily:"'DM Sans',sans-serif"}}>Today's Knot</div>
             <div style={{fontSize:15,fontWeight:800,color:"#fff",fontFamily:"'DM Sans',sans-serif",lineHeight:1.3}}>{oneThing.text}</div>
 <div style={{fontSize:11,color:"rgba(255,255,255,0.35)",marginTop:3}}>{oneThing.completed?"🎉 You've untangled today's knot! The main thing is done.":"Focus here first. Everything else can wait."}</div>
           </div>
@@ -226,7 +174,7 @@ function OneThingSection({ tasks, oneThing, onSet, onClear }) {
   }
   return (
     <div style={{background:"linear-gradient(135deg,#1a3a2a,#1e4d35)",border:"2px solid #2d6e4a",borderRadius:16,padding:"14px 16px",marginBottom:16,boxShadow:"0 4px 20px rgba(45,110,74,0.2)"}}>
-      <div style={{fontFamily:"'DM Sans',sans-serif",fontWeight:800,fontSize:13,color:"#7ed9a0",marginBottom:3}}>🎯 The One Thing</div>
+      <div style={{fontFamily:"'DM Sans',sans-serif",fontWeight:800,fontSize:13,color:"#7ed9a0",marginBottom:3}}>🎯 Today's Knot</div>
       <div style={{fontSize:12,color:"rgba(255,255,255,0.5)",marginBottom:10}}>{isSet?"Update your focus for today:":"What's the one thing that matters most today?"}</div>
       {todayTasks.length>0&&(
         <div style={{display:"flex",flexWrap:"wrap",gap:5,marginBottom:8}}>
@@ -810,7 +758,7 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
 
   return (
     <div style={{minHeight:"100vh",background:"#F2F1EF",fontFamily:"'DM Sans',sans-serif"}}>
-      {!onboarded && <OnboardingFlow areas={areas} onComplete={() => { localStorage.setItem("untangle_onboarded", "1"); setOnboarded(true); }} />}
+      {!onboarded && <OnboardingFlow areas={areas} onAddTasks={addMany} onSetOneThing={setOneThingFn} onComplete={() => { localStorage.setItem("untangle_onboarded", "1"); setOnboarded(true); }} />}
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
       {showAdd       && <TaskModal areas={areas} onSave={t=>{addTask(t);}} onClose={()=>setShowAdd(false)} learned={learned}/>}
       {editTask      && <TaskModal areas={areas} onSave={t=>{saveTask(t);setEditTask(null);}} onClose={()=>setEditTask(null)} existing={editTask} learned={learned}/>}
@@ -853,7 +801,7 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
             ))}
           </div>
           <div style={{display:"flex",gap:2,overflowX:"auto"}}>
-            {[{id:"brain",label:"⚡ Today Brain"},{id:"calendar",label:"📅 Calendar"},{id:"area",label:"🗂️ By Area"},{id:"stats",label:"📊 Progress"}].map(v=>(
+            {[{id:"brain",label:"⚡ Today's Knot"},{id:"calendar",label:"📅 Calendar"},{id:"area",label:"🗂️ By Area"},{id:"stats",label:"📊 Progress"}].map(v=>(
               <button key={v.id} onClick={()=>setView(v.id)} style={{padding:"9px 14px",borderRadius:"12px 12px 0 0",fontSize:12,fontWeight:700,cursor:"pointer",border:"none",whiteSpace:"nowrap",background:view===v.id?"#F2F1EF":"transparent",color:view===v.id?"#152232":"rgba(255,255,255,0.5)",flexShrink:0}}>{v.label}</button>
             ))}
           </div>
