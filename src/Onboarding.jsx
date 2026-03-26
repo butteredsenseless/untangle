@@ -22,6 +22,7 @@ function makeTask(raw, result, areas) {
     done: false,
     createdAt: Date.now(),
     subtasks: [],
+    projectId: null,
     aiSorted: true
   };
 }
