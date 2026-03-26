@@ -789,9 +789,10 @@ const OVERWHELM_WORDS = ["overwhelm","too much","exhausted","stressed","can't","
 
 function DailyPlanModal({ tasks, projects, areas, userName, planningPref, onAddTask, onConfirm, onEscape, onClose }) {
   const nameStr = userName ? `, ${userName}` : "";
-  const greeting = planningPref === "evening"
-    ? `Evening${nameStr} — let's take a couple of minutes to plan tomorrow.`
-    : `Morning${nameStr} — let's take a couple of minutes to plan your day.`;
+  const hour = new Date().getHours();
+  const timeWord = hour < 12 ? "Morning" : hour < 17 ? "Afternoon" : "Evening";
+  const planDay = hour < 17 ? "your day" : "tomorrow";
+  const greeting = `${timeWord}${nameStr} — let's take a couple of minutes to plan ${planDay}.`;
 
   const [messages, setMessages] = useState([]);
   const [phase, setPhase] = useState("init");
