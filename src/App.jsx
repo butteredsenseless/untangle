@@ -50,6 +50,18 @@ Plan monthly budget #finance,finance,month,high,monthly,,`;
 
 const uid = () => Math.random().toString(36).slice(2,9);
 
+function suggestProject(taskTitle, areaProjects, learnedProjects) {
+  if (!areaProjects.length) return null;
+  const key = taskTitle.toLowerCase().slice(0, 30);
+  if (learnedProjects[key]) return learnedProjects[key].projectId;
+  const lowerTitle = taskTitle.toLowerCase();
+  for (const p of areaProjects) {
+    const words = p.name.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+    if (words.length && words.some(w => lowerTitle.includes(w))) return p.id;
+  }
+  return null;
+}
+
 
 const todayStr = () => new Date().toISOString().slice(0,10);
 const colorBg = c => c+"22";
@@ -424,21 +436,21 @@ function ReassignPicker({ task, areas, onPick, onClose }) {
     </div>
   );
 }
-function ProjectModal({ areas, defaultBucketId, onSave, onClose }) {
-  const [name, setName] = useState("");
-  const [emoji, setEmoji] = useState("");
-  const [bucketId, setBucketId] = useState(defaultBucketId || areas[0]?.id);
+function ProjectModal({ areas, defaultBucketId, onSave, onClose, existing=null, onDelete }) {
+  const [name, setName] = useState(existing?.name || "");
+  const [emoji, setEmoji] = useState(existing?.emoji || "");
+  const [bucketId, setBucketId] = useState(existing?.bucketId || defaultBucketId || areas[0]?.id);
   const selectedArea = areas.find(a => a.id === bucketId) || areas[0];
 
   const save = () => {
     if (!name.trim()) return;
     onSave({
-      id: uid(),
+      id: existing?.id || uid(),
       name: name.trim(),
       bucketId,
       colour: selectedArea.color,
       emoji: emoji.trim() || selectedArea.emoji,
-      createdAt: Date.now()
+      createdAt: existing?.createdAt || Date.now()
     });
   };
 
@@ -446,7 +458,7 @@ function ProjectModal({ areas, defaultBucketId, onSave, onClose }) {
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:1000}} onClick={onClose}>
       <div style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"28px 20px 36px",width:"100%",maxWidth:480}} onClick={e=>e.stopPropagation()}>
         <div style={{textAlign:"center",marginBottom:20}}>
-          <div style={{fontSize:18,fontWeight:900,color:"#222",fontFamily:"'DM Sans',sans-serif"}}>New Project</div>
+          <div style={{fontSize:18,fontWeight:900,color:"#222",fontFamily:"'DM Sans',sans-serif"}}>{existing ? "Edit Project" : "New Project"}</div>
         </div>
         <div style={{display:"flex",gap:8,marginBottom:14,alignItems:"center"}}>
           <input value={emoji} onChange={e=>setEmoji(e.target.value.slice(-2))} placeholder={selectedArea.emoji} maxLength={2}
@@ -467,31 +479,46 @@ function ProjectModal({ areas, defaultBucketId, onSave, onClose }) {
         </div>
         <button onClick={save} disabled={!name.trim()}
           style={{width:"100%",padding:"14px",borderRadius:14,border:"none",background:name.trim() ? `linear-gradient(135deg,${selectedArea.color},${selectedArea.color}cc)` : "#e5e5e5",color:name.trim()?"#fff":"#aaa",fontSize:15,fontWeight:900,cursor:name.trim()?"pointer":"default",fontFamily:"'DM Sans',sans-serif"}}>
-          Create Project
+          {existing ? "Save changes" : "Create Project"}
         </button>
         <button onClick={onClose} style={{width:"100%",marginTop:10,padding:"10px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
+        {existing && (
+          <button onClick={() => onDelete(existing.id)}
+            style={{width:"100%",marginTop:8,padding:"10px",borderRadius:12,border:"2px solid #ffdddd",background:"#fff8f8",color:"#e05c5c",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
+            Delete project
+          </button>
+        )}
       </div>
     </div>
   );
 }
-function TaskModal({ areas, onSave, onClose, existing=null, learned={} }) {
+function TaskModal({ areas, onSave, onClose, existing=null, learned={}, projects=[], learnedProjects={}, onLearnProject }) {
   const isEdit=!!existing;
   const [raw,setRaw]=useState(existing?.title||""); const [area,setArea]=useState(existing?.area||areas[0]?.id); const [horizon,setHorizon]=useState(existing?.horizon||"today"); const [energy,setEnergy]=useState(existing?.energy||"medium"); const [note,setNote]=useState(existing?.note||""); const [deadline,setDeadline]=useState(existing?.deadline||""); const [recur,setRecur]=useState(existing?.recur||"none"); const [recurFreq,setRecurFreq]=useState(existing?.recurFreq||1); const [recurDays,setRecurDays]=useState(existing?.recurDays||[]); const [recurTime,setRecurTime]=useState(existing?.recurTime||""); const [dailyTarget,setDailyTarget]=useState(existing?.dailyTarget||1); const [tags,setTags]=useState([]);
   const [aiLoading, setAiLoading] = useState(false);
+  const [projectId, setProjectId] = useState(existing?.projectId || null);
+  const aiSuggestedProjectRef = useRef(null);
 const go = async () => {
   if (!raw.trim()) return;
   if (isEdit) {
-    onSave({ id: existing.id, title: raw.trim(), area, horizon, energy, note, deadline, recur, recurFreq, recurDays, recurTime, dailyTarget: Number(dailyTarget) || 1, dailyCount: existing?.dailyCount || 0, done: existing?.done || false, createdAt: existing?.createdAt || Date.now(), subtasks: existing?.subtasks || [], projectId: existing?.projectId || null });
+    onSave({ id: existing.id, title: raw.trim(), area, horizon, energy, note, deadline, recur, recurFreq, recurDays, recurTime, dailyTarget: Number(dailyTarget) || 1, dailyCount: existing?.dailyCount || 0, done: existing?.done || false, createdAt: existing?.createdAt || Date.now(), subtasks: existing?.subtasks || [], projectId });
     onClose();
     return;
   }
   setAiLoading(true);
   try {
     const result = await askAlexander(raw, areas, {}, learned);
+    const finalArea = areas.find(a => a.id===result.area) ? result.area : areas[0].id;
+    const areaProjects = projects.filter(p => p.bucketId===finalArea);
+    const suggested = suggestProject(raw, areaProjects, learnedProjects);
+    const finalProjectId = projectId !== null ? projectId : suggested;
+    if (onLearnProject && finalProjectId && finalProjectId !== suggested) {
+      onLearnProject(raw.toLowerCase().slice(0, 30), finalProjectId);
+    }
     onSave({
       id: uid(),
       title: result.title || raw.trim(),
-      area: areas.find(a => a.id === result.area) ? result.area : areas[0].id,
+      area: finalArea,
       horizon: result.horizon || horizon,
       energy,
       note,
@@ -503,25 +530,26 @@ const go = async () => {
       done: false,
       createdAt: Date.now(),
       subtasks: [],
-      projectId: null,
+      projectId: finalProjectId,
       aiSorted: true,
       aiNudge: result.nudge || ""
     });
   } catch (e) {
-    // fallback to manual if AI fails
-    onSave({ id: uid(), title: raw.trim(), area, horizon, energy, note, deadline, recur, recurFreq, recurDays, recurTime, dailyTarget: Number(dailyTarget) || 1, dailyCount: 0, done: false, createdAt: Date.now(), subtasks: [], projectId: null });
+    onSave({ id: uid(), title: raw.trim(), area, horizon, energy, note, deadline, recur, recurFreq, recurDays, recurTime, dailyTarget: Number(dailyTarget) || 1, dailyCount: 0, done: false, createdAt: Date.now(), subtasks: [], projectId });
   }
   setAiLoading(false);
   onClose();
 };
   const toggleDay=d=>setRecurDays(p=>p.includes(d)?p.filter(x=>x!==d):[...p,d]);
+  const bucketProjects = projects.filter(p => p.bucketId === area);
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div style={{background:"#fff",borderRadius:22,padding:26,width:"100%",maxWidth:500,boxShadow:"0 24px 64px rgba(0,0,0,0.18)",maxHeight:"92vh",overflowY:"auto"}}>
         <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,marginBottom:5}}>{isEdit?"✏️ Edit task":"✨ Add a task"}</h2>
         <input value={raw} onChange={e=>setRaw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()} autoFocus placeholder="What needs doing? #work #weekly" style={{width:"100%",padding:"12px 14px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:15,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",marginBottom:8}}/>
         {tags.length>0&&<div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:10}}>{tags.map(t=><span key={t} style={{fontSize:11,background:"#e8f5e9",color:"#5BAD6F",padding:"2px 8px",borderRadius:20,fontWeight:700}}>#{t}</span>)}</div>}
-        <div style={{marginBottom:12}}><label style={lbl}>Area</label><div style={{display:"flex",flexWrap:"wrap",gap:5}}>{areas.map(a=><button key={a.id} onClick={()=>setArea(a.id)} style={{padding:"4px 9px",borderRadius:20,fontSize:11,fontWeight:700,cursor:"pointer",border:`2px solid ${a.color}`,background:area===a.id?a.color:(a.bg||colorBg(a.color)),color:area===a.id?"#fff":a.color}}>{a.emoji} {a.label}</button>)}</div></div>
+        <div style={{marginBottom:12}}><label style={lbl}>Area</label><div style={{display:"flex",flexWrap:"wrap",gap:5}}>{areas.map(a=><button key={a.id} onClick={()=>{setArea(a.id);setProjectId(prev=>projects.find(x=>x.id===prev&&x.bucketId===a.id)?prev:null);}} style={{padding:"4px 9px",borderRadius:20,fontSize:11,fontWeight:700,cursor:"pointer",border:`2px solid ${a.color}`,background:area===a.id?a.color:(a.bg||colorBg(a.color)),color:area===a.id?"#fff":a.color}}>{a.emoji} {a.label}</button>)}</div></div>
+        {bucketProjects.length>0&&<div style={{marginBottom:12}}><div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}><label style={lbl}>Project (optional)</label>{projectId&&projectId===aiSuggestedProjectRef.current&&<span style={{fontSize:10,color:"#3AABB5",fontWeight:700,fontFamily:"'DM Sans',sans-serif",background:"#E8F7F8",padding:"2px 7px",borderRadius:20}}>✦ Alexander suggests</span>}</div><div style={{display:"flex",flexWrap:"wrap",gap:5}}>{bucketProjects.map(p=><button key={p.id} onClick={()=>setProjectId(prev=>prev===p.id?null:p.id)} style={{padding:"4px 9px",borderRadius:20,fontSize:11,fontWeight:700,cursor:"pointer",border:`2px solid ${projectId===p.id?p.colour:"#e5e5e5"}`,background:projectId===p.id?p.colour+"22":"#fff",color:projectId===p.id?p.colour:"#aaa",fontFamily:"'DM Sans',sans-serif"}}>{p.emoji} {p.name}</button>)}</div></div>}
         <div style={{display:"flex",gap:10,marginBottom:12}}>
           <div style={{flex:1}}><label style={lbl}>When?</label>{HORIZONS.map(h=><button key={h.id} onClick={()=>setHorizon(h.id)} style={{display:"block",width:"100%",textAlign:"left",marginBottom:4,padding:"6px 10px",borderRadius:10,fontSize:12,fontWeight:700,cursor:"pointer",border:`2px solid ${horizon===h.id?"#3AABB5":"#e5e5e5"}`,background:horizon===h.id?"#E8F7F8":"#fafafa",color:horizon===h.id?"#3AABB5":"#999",fontFamily:"'DM Sans',sans-serif"}}>{h.icon} {h.label}</button>)}</div>
           <div style={{flex:1}}><label style={lbl}>Energy</label>{ENERGY.map(en=><button key={en.id} onClick={()=>setEnergy(en.id)} style={{display:"block",width:"100%",textAlign:"left",marginBottom:4,padding:"6px 10px",borderRadius:10,fontSize:12,fontWeight:700,cursor:"pointer",border:`2px solid ${energy===en.id?en.color:"#e5e5e5"}`,background:energy===en.id?en.color+"22":"#fafafa",color:energy===en.id?en.color:"#999",fontFamily:"'DM Sans',sans-serif"}}>{en.emoji} {en.label}</button>)}</div>
@@ -766,6 +794,9 @@ export default function App() {
   const [learned, setLearned] = useState(() => { try { return JSON.parse(localStorage.getItem("ut-learned") || "{}"); } catch { return {}; } });
   const [projects, setProjects]     = useState([]);
   const [showCreateProject, setShowCreateProject] = useState(false);
+  const [expandedProjects, setExpandedProjects] = useState(new Set());
+  const [editingProject,   setEditingProject]   = useState(null);
+  const [learnedProjects,  setLearnedProjects]  = useState(() => { try { return JSON.parse(localStorage.getItem("ut-learned-projects")||"{}"); } catch { return {}; } });
   const [loaded,setLoaded]         = useState(false);
 
   useEffect(()=>{
@@ -787,6 +818,7 @@ export default function App() {
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-notes",notes); },[notes,loaded]);
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-sound",String(soundEnabled)); },[soundEnabled,loaded]);
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-projects",JSON.stringify(projects)); },[projects,loaded]);
+  useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-learned-projects",JSON.stringify(learnedProjects)); },[learnedProjects,loaded]);
 
   useEffect(()=>{ if(!loaded)return; setTasks(p=>p.map(t=>t.recur&&t.recur!=="none"&&t.done&&shouldRecurToday(t)?{...t,done:false,lastRecurDate:todayStr(),dailyCount:0}:t)); },[loaded]);
   useEffect(()=>{ if(!loaded)return; const today=todayStr(); setTasks(p=>p.map(t=>t.dailyTarget>1&&t.lastCountDate&&t.lastCountDate!==today?{...t,dailyCount:0,done:false}:t)); },[loaded]);
@@ -795,6 +827,9 @@ export default function App() {
   const addTask=useCallback(t=>setTasks(p=>[t,...p]),[]);
   const addMany=useCallback(ts=>setTasks(p=>[...ts,...p]),[]);
   const addProject=useCallback(p=>setProjects(prev=>[p,...prev]),[]);
+  const updateProject=useCallback(p=>setProjects(prev=>prev.map(x=>x.id===p.id?p:x)),[]);
+  const deleteProject=useCallback(id=>setProjects(prev=>prev.filter(x=>x.id!==id)),[]);
+  const learnProjectFn=useCallback((titleKey,projectId)=>{ setLearnedProjects(prev=>{ const updated={...prev,[titleKey]:{projectId,count:(prev[titleKey]?.count||0)+1}}; localStorage.setItem("ut-learned-projects",JSON.stringify(updated)); return updated; }); },[]);
   const deleteTask=useCallback(id=>setTasks(p=>p.filter(t=>t.id!==id)),[]);
   const clearDone=useCallback(()=>setTasks(p=>p.filter(t=>!t.done)),[]);
   const saveTask=useCallback(t=>setTasks(p=>p.map(x=>x.id===t.id?t:x)),[]);
@@ -818,8 +853,8 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
     <div style={{minHeight:"100vh",background:"#F2F1EF",fontFamily:"'DM Sans',sans-serif"}}>
       {!onboarded && <OnboardingFlow areas={areas} onAddTasks={addMany} onSetOneThing={setOneThingFn} onComplete={() => { localStorage.setItem("untangle_onboarded", "1"); setOnboarded(true); }} />}
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-      {showAdd       && <TaskModal areas={areas} onSave={t=>{addTask(t);}} onClose={()=>setShowAdd(false)} learned={learned}/>}
-      {editTask      && <TaskModal areas={areas} onSave={t=>{saveTask(t);setEditTask(null);}} onClose={()=>setEditTask(null)} existing={editTask} learned={learned}/>}
+      {showAdd       && <TaskModal areas={areas} onSave={t=>{addTask(t);}} onClose={()=>setShowAdd(false)} learned={learned} projects={projects} learnedProjects={learnedProjects} onLearnProject={learnProjectFn}/>}
+      {editTask      && <TaskModal areas={areas} onSave={t=>{saveTask(t);setEditTask(null);}} onClose={()=>setEditTask(null)} existing={editTask} learned={learned} projects={projects} learnedProjects={learnedProjects} onLearnProject={learnProjectFn}/>}
       {showDump      && <BrainDumpModal areas={areas} onAddMany={addMany} onClose={()=>setShowDump(false)}/>}
       {showVoice     && <VoiceDumpModal areas={areas} onAddMany={addMany} onClose={()=>setShowVoice(false)}/>}
       {showNotes     && <NotesModal notes={notes} onSave={setNotes} onClose={()=>setShowNotes(false)}/>}
@@ -837,6 +872,7 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
 }} onClose={()=>setReassignTask(null)}/>}
       {breakdownTask && <AiBreakdownModal task={breakdownTask} onSave={saveSubtasks} onClose={()=>setBreakdownTask(null)}/>}
       {showCreateProject && <ProjectModal areas={areas} defaultBucketId={activeArea} onSave={p=>{addProject(p);setShowCreateProject(false);}} onClose={()=>setShowCreateProject(false)}/>}
+      {editingProject && <ProjectModal areas={areas} defaultBucketId={editingProject.bucketId} existing={editingProject} onSave={p=>{updateProject(p);setEditingProject(null);}} onDelete={id=>{deleteProject(id);setEditingProject(null);}} onClose={()=>setEditingProject(null)}/>}
 
       <div style={{background:"linear-gradient(160deg,#0f1923 0%,#152232 60%,#1a2d3a 100%)",padding:"18px 20px 0",boxShadow:"0 4px 24px rgba(0,0,0,0.2)"}}>
         <div style={{maxWidth:680,margin:"0 auto"}}>
@@ -900,7 +936,7 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
               <button onClick={()=>setShowCreateProject(true)} style={{padding:"7px 14px",borderRadius:10,border:"2px solid #e0e0e0",background:"#fff",color:"#555",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>＋ New Project</button>
               <button onClick={()=>setShowAdd(true)} style={{padding:"7px 14px",borderRadius:10,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>+ Add task</button>
             </div>
-            {projects.filter(p=>p.bucketId===activeArea).map(p=>{ const count=tasks.filter(t=>t.projectId===p.id&&!t.done).length; return <div key={p.id} style={{background:"#fff",borderRadius:14,padding:"12px 16px",marginBottom:8,display:"flex",alignItems:"center",gap:12,boxShadow:"0 1px 4px rgba(0,0,0,0.06)",borderLeft:`4px solid ${p.colour}`}}><span style={{fontSize:20}}>{p.emoji}</span><span style={{flex:1,fontSize:14,fontWeight:800,color:"#333",fontFamily:"'DM Sans',sans-serif"}}>{p.name}</span><span style={{fontSize:12,color:"#aaa",fontWeight:600,fontFamily:"'DM Sans',sans-serif"}}>{count} task{count!==1?"s":""}</span><span style={{fontSize:14,color:"#ccc"}}>›</span></div>; })}
+            {projects.filter(p=>p.bucketId===activeArea).map(p=>{ const isExpanded=expandedProjects.has(p.id); const projectTasks=tasks.filter(t=>t.projectId===p.id&&!t.done); const count=projectTasks.length; return <div key={p.id} style={{marginBottom:8}}><div onClick={()=>setExpandedProjects(prev=>{const next=new Set(prev);next.has(p.id)?next.delete(p.id):next.add(p.id);return next;})} style={{background:"#fff",borderRadius:isExpanded?"14px 14px 0 0":14,padding:"12px 16px",display:"flex",alignItems:"center",gap:12,boxShadow:"0 1px 4px rgba(0,0,0,0.06)",borderLeft:`4px solid ${p.colour}`,cursor:"pointer"}}><span style={{fontSize:20}}>{p.emoji}</span><span style={{flex:1,fontSize:14,fontWeight:800,color:"#333",fontFamily:"'DM Sans',sans-serif"}}>{p.name}</span><span style={{fontSize:12,color:"#aaa",fontWeight:600,fontFamily:"'DM Sans',sans-serif"}}>{count} task{count!==1?"s":""}</span><button onClick={e=>{e.stopPropagation();setEditingProject(p);}} style={{background:"none",border:"none",color:"#ccc",fontSize:15,cursor:"pointer",padding:"2px 4px",lineHeight:1}}>✎</button><span style={{fontSize:14,color:"#bbb",display:"inline-block",transform:isExpanded?"rotate(90deg)":"rotate(0deg)",transition:"transform 0.18s"}}>›</span></div>{isExpanded&&<div style={{background:"#fafafa",borderRadius:"0 0 14px 14px",borderLeft:`4px solid ${p.colour}`,padding:"8px 12px 10px",boxShadow:"0 2px 6px rgba(0,0,0,0.04)"}}>{projectTasks.length===0?<p style={{fontSize:12,color:"#bbb",textAlign:"center",padding:"10px 0",fontFamily:"'DM Sans',sans-serif"}}>No tasks yet</p>:projectTasks.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(t,mode)=>mode==='reassign'?setReassignTask(t):setEditTask(t)} soundEnabled={soundEnabled}/>)}</div>}</div>; })}
             {tasks.filter(t=>t.area===activeArea).length===0?<div style={{textAlign:"center",padding:"36px 20px",color:"#bbb"}}><div style={{fontSize:38}}>{areas.find(a=>a.id===activeArea)?.emoji}</div><p style={{fontWeight:700,fontFamily:"'DM Sans',sans-serif"}}>Nothing here</p></div>
             :HORIZONS.map(h=>{ const group=tasks.filter(t=>t.area===activeArea&&t.horizon===h.id&&!t.done); if(!group.length)return null; return <div key={h.id} style={{marginBottom:18}}><h3 style={{fontSize:11,fontWeight:800,color:"#bbb",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:7,fontFamily:"'DM Sans',sans-serif"}}>{h.icon} {h.label}</h3>{group.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(task, mode)=>mode==='reassign'?setReassignTask(task):setEditTask(task)} soundEnabled={soundEnabled}/>)}</div>; })}
           </div>
