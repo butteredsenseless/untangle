@@ -48,3 +48,49 @@ Rules:
   const text = data.content?.map(c => c.text || "").join("") || "{}";
   return JSON.parse(text.replace(/```json|```/g, "").trim());
 }
+
+export async function askAlexanderForPlan(tasks, projects, focus, userName, areas) {
+  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
+  const hour = new Date().getHours();
+  const timeOfDay = hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening";
+
+  const taskList = tasks
+    .filter(t => !t.done && (focus === "all" || t.area === focus || t.projectId === focus))
+    .map(t => `- [${t.id}] ${t.title} (area:${t.area}, horizon:${t.horizon}${t.deadline ? ", deadline:" + t.deadline : ""}, created:${new Date(t.createdAt).toISOString().slice(0, 10)})`)
+    .join("\n");
+
+  const prompt = `You are Alexander, planning assistant for Untangle.
+User: ${userName || "there"}
+Time: ${timeOfDay}
+Focus: ${focus === "all" ? "Mix of everything" : projects.find(p => p.id === focus)?.name || focus}
+
+Tasks available:
+${taskList || "(none)"}
+
+Select 3–5 tasks for today. Prioritise: (1) deadlines first, (2) oldest tasks, (3) variety across areas.
+Respond with ONLY a JSON array of task IDs, no markdown:
+["id1","id2","id3"]`;
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    },
+    body: JSON.stringify({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 200,
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+
+  const data = await response.json();
+  const text = data.content?.map(c => c.text || "").join("") || "[]";
+  try {
+    return JSON.parse(text.replace(/```json|```/g, "").trim());
+  } catch {
+    return [];
+  }
+}

@@ -49,7 +49,7 @@ export default function OnboardingFlow({ onComplete, onAddTasks, onSetOneThing, 
     <StepBrainDump areas={areas} onAddTasks={handleAddTasks} next={next} />,
     <StepBuckets areas={areas} next={next} />,
     <StepTodaysKnot tasks={addedTasks} areas={areas} onSet={onSetOneThing} next={next} />,
-    <StepSignOff onComplete={onComplete} />
+    <StepSignOff onComplete={() => onComplete(userData)} />
   ];
 
   return (

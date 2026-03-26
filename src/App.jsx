@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";import OnboardingFlow from "./Onboarding.jsx";import { askAlexander } from "./alexander.js";
+import { useState, useEffect, useRef, useCallback } from "react";import OnboardingFlow from "./Onboarding.jsx";import { askAlexander, askAlexanderForPlan } from "./alexander.js";
 
 const DEFAULT_AREAS = [
   { id:"work",      label:"Work & Career",            emoji:"💼", color:"#4F86C6", bg:"#EBF2FB", tags:["work","career","job","meeting","email"], custom:false },
@@ -202,7 +202,7 @@ function OneThingSection({ tasks, oneThing, onSet, onClear }) {
 }
 
 
-function TaskCard({ task, areas, onComplete, onDelete, onBreakdown, onFocus, onEdit, soundEnabled, compact=false }) {
+function TaskCard({ task, areas, onComplete, onUncomplete, onDelete, onBreakdown, onFocus, onEdit, soundEnabled, compact=false }) {
   const area=areas.find(a=>a.id===task.area)||areas[0];
   const energy=ENERGY.find(e=>e.id===task.energy);
   const recur=RECUR_OPTIONS.find(r=>r.id===task.recur);
@@ -212,7 +212,7 @@ function TaskCard({ task, areas, onComplete, onDelete, onBreakdown, onFocus, onE
   const cardRef=useRef(null);
   const touchStart=useRef(null);
   const handleComplete=()=>{
-    if(task.done) return;
+    if(task.done){ onUncomplete?.(task.id); return; }
     if(task.dailyTarget>1) {
       const newCount=(task.dailyCount||0)+1;
       if(newCount>=task.dailyTarget) {
@@ -607,7 +607,7 @@ function NotesModal({ notes, onSave, onClose }) {
   );
 }
 
-function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAreas, soundEnabled, setSoundEnabled, onClose }) {
+function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAreas, soundEnabled, setSoundEnabled, planningPref, setPlanningPref, notificationsEnabled, setNotificationsEnabled, onClose }) {
   const [newLabel,setNewLabel]=useState(""); const [newEmoji,setNewEmoji]=useState("⭐"); const [newColor,setNewColor]=useState("#4F86C6"); const [editId,setEditId]=useState(null); const [editLabel,setEditLabel]=useState(""); const logoRef=useRef(null);
   const addArea=()=>{ if(!newLabel.trim())return; const id=newLabel.toLowerCase().replace(/\s+/g,"_")+"_"+uid(); setAreas(p=>[...p,{id,label:newLabel.trim(),emoji:newEmoji,color:newColor,bg:colorBg(newColor),tags:[newLabel.toLowerCase()],custom:true}]); setNewLabel("");setNewEmoji("⭐");setNewColor("#4F86C6"); };
   const handleLogo=e=>{ const f=e.target.files[0];if(!f)return; const r=new FileReader();r.onload=ev=>setAppLogo(ev.target.result);r.readAsDataURL(f); };
@@ -635,6 +635,24 @@ function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAre
             <span style={{fontSize:13,color:"#555",fontFamily:"'DM Sans',sans-serif"}}>Play sounds on completion & timer</span>
             <button onClick={()=>setSoundEnabled(!soundEnabled)} style={{width:44,height:24,borderRadius:12,border:"none",background:soundEnabled?"#3AABB5":"#ddd",cursor:"pointer",position:"relative",transition:"background 0.2s"}}>
               <div style={{width:18,height:18,borderRadius:"50%",background:"#fff",position:"absolute",top:3,left:soundEnabled?23:3,transition:"left 0.2s",boxShadow:"0 1px 4px rgba(0,0,0,0.2)"}}/>
+            </button>
+          </div>
+        </div>
+        <div style={{background:"#fafafa",borderRadius:14,padding:"14px 16px",marginBottom:16}}>
+          <label style={lbl}>Daily planning time</label>
+          <div style={{display:"flex",gap:8,marginBottom:8}}>
+            {[{id:"morning",label:"☀️ Morning"},{id:"evening",label:"🌙 Evening"}].map(p=>(
+              <button key={p.id} onClick={()=>setPlanningPref(p.id)} style={{flex:1,padding:"9px",borderRadius:11,border:`2px solid ${planningPref===p.id?"#3AABB5":"#e5e5e5"}`,background:planningPref===p.id?"#e8f7f8":"#fff",color:planningPref===p.id?"#3AABB5":"#888",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{p.label}</button>
+            ))}
+          </div>
+          <p style={{fontSize:11,color:"#bbb",margin:0,fontFamily:"'DM Sans',sans-serif"}}>{planningPref==="morning"?"Opens automatically between 6–11am":"Opens automatically between 6–11pm"}</p>
+        </div>
+        <div style={{background:"#fafafa",borderRadius:14,padding:"14px 16px",marginBottom:16}}>
+          <label style={lbl}>Planning reminders</label>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <span style={{fontSize:13,color:"#555",fontFamily:"'DM Sans',sans-serif"}}>Remind me to plan my day</span>
+            <button onClick={()=>{ if(!notificationsEnabled){ Notification.requestPermission().then(p=>{ if(p==="granted")setNotificationsEnabled(true); }); } else { setNotificationsEnabled(false); } }} style={{width:44,height:24,borderRadius:12,border:"none",background:notificationsEnabled?"#3AABB5":"#ddd",cursor:"pointer",position:"relative",transition:"background 0.2s"}}>
+              <div style={{width:18,height:18,borderRadius:"50%",background:"#fff",position:"absolute",top:3,left:notificationsEnabled?23:3,transition:"left 0.2s",boxShadow:"0 1px 4px rgba(0,0,0,0.2)"}}/>
             </button>
           </div>
         </div>
@@ -767,6 +785,201 @@ function StatsView({ tasks, areas, streak, done }) {
   );
 }
 
+const OVERWHELM_WORDS = ["overwhelm","too much","exhausted","stressed","can't","cannot","drowning","anxious","falling apart","can't cope","burnt out"];
+
+function DailyPlanModal({ tasks, projects, areas, userName, planningPref, onAddTask, onConfirm, onEscape, onClose }) {
+  const nameStr = userName ? `, ${userName}` : "";
+  const greeting = planningPref === "evening"
+    ? `Evening${nameStr} — let's take a couple of minutes to plan tomorrow.`
+    : `Morning${nameStr} — let's take a couple of minutes to plan your day.`;
+
+  const [messages, setMessages] = useState([]);
+  const [phase, setPhase] = useState("init");
+  const [focus, setFocus] = useState(null);
+  const [suggested, setSuggested] = useState([]);
+  const [selected, setSelected] = useState(new Set());
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showOverwhelmPrompt, setShowOverwhelmPrompt] = useState(false);
+  const bottomRef = useRef(null);
+
+  const addMsg = (type, text) => setMessages(m => [...m, { type, text }]);
+  const initDone = useRef(false);
+
+  useEffect(() => {
+    if (initDone.current) return;
+    initDone.current = true;
+    setTimeout(() => {
+      addMsg("alex", greeting);
+      setTimeout(() => {
+        addMsg("alex", "What's the focus today?");
+        setPhase("focus");
+      }, 900);
+    }, 300);
+  }, []);
+
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+
+  const isOverwhelmed = text => OVERWHELM_WORDS.some(w => text.toLowerCase().includes(w));
+
+  const handleFocusPick = async (focusId, focusLabel) => {
+    setFocus(focusId);
+    addMsg("user", focusLabel);
+    setPhase("suggesting");
+    setTimeout(() => addMsg("alex", "Let me look at what's waiting…"), 400);
+    setLoading(true);
+    try {
+      const ids = await askAlexanderForPlan(tasks, projects, focusId, userName, areas);
+      setSuggested(ids);
+      setSelected(new Set(ids));
+    } catch { setSuggested([]); }
+    setLoading(false);
+    setTimeout(() => {
+      addMsg("alex", "Here's what I'd suggest for today. Tap to include or leave out:");
+      setPhase("chips");
+    }, 300);
+  };
+
+  const handleAddTyped = async () => {
+    const raw = input.trim();
+    if (!raw) return;
+    if (isOverwhelmed(raw)) {
+      addMsg("user", raw);
+      setInput("");
+      setTimeout(() => {
+        addMsg("alex", "Sounds like a lot. Want to just empty your mind instead?");
+        setShowOverwhelmPrompt(true);
+      }, 500);
+      return;
+    }
+    addMsg("user", raw);
+    setInput("");
+    setLoading(true);
+    let area = areas[0]?.id || "work";
+    let title = raw;
+    try {
+      const result = await askAlexander(raw, areas, {}, {});
+      const r = Array.isArray(result) ? result[0] : result;
+      if (r.area && areas.find(a => a.id === r.area)) area = r.area;
+      if (r.title) title = r.title;
+    } catch {}
+    setLoading(false);
+    const newTask = { id: uid(), title, area, horizon: "today", energy: "medium", note: "", deadline: "", recur: "none", recurFreq: 1, recurDays: [], recurTime: "", dailyTarget: 1, dailyCount: 0, done: false, createdAt: Date.now(), subtasks: [], projectId: null, aiSorted: true };
+    onAddTask(newTask);
+    setSuggested(prev => [...prev, newTask.id]);
+    setSelected(prev => { const next = new Set(prev); next.add(newTask.id); return next; });
+  };
+
+  const handleConfirm = () => {
+    addMsg("alex", "All set — here's your day. Go get it. ✦");
+    setPhase("confirm");
+    setTimeout(() => onConfirm([...selected]), 1800);
+  };
+
+  const focusOptions = [
+    ...projects.map(p => ({ id: p.id, label: `${p.emoji} ${p.name}` })),
+    { id: "all", label: "Mix of everything" }
+  ];
+
+  const bubbleStyle = (type) => ({
+    maxWidth: "78%",
+    padding: "12px 16px",
+    borderRadius: type === "alex" ? "18px 18px 18px 4px" : "18px 18px 4px 18px",
+    background: type === "alex" ? "#fff" : "linear-gradient(135deg,#3AABB5,#4F86C6)",
+    color: type === "alex" ? "#333" : "#fff",
+    fontSize: 15, fontWeight: 600,
+    boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+    lineHeight: 1.5, fontFamily: "'DM Sans',sans-serif"
+  });
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(15,25,35,0.85)",zIndex:1200,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
+      <style>{`@keyframes fadein { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }`}</style>
+      <div style={{background:"#f7f8fa",borderRadius:22,width:"100%",maxWidth:480,maxHeight:"88vh",display:"flex",flexDirection:"column",boxShadow:"0 24px 64px rgba(0,0,0,0.3)",overflow:"hidden"}}>
+        {/* Header */}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 18px 12px",borderBottom:"1px solid #ebebeb",background:"#fff"}}>
+          <span style={{fontSize:14,fontWeight:800,color:"#333",fontFamily:"'DM Sans',sans-serif"}}>✦ Plan your day</span>
+          <button onClick={onClose} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#bbb",lineHeight:1}}>×</button>
+        </div>
+
+        {/* Chat area */}
+        <div style={{flex:1,overflowY:"auto",padding:"16px",display:"flex",flexDirection:"column",gap:12}}>
+          {messages.map((msg, i) => (
+            <div key={i} style={{animation:"fadein 0.3s ease",display:"flex",justifyContent:msg.type==="user"?"flex-end":"flex-start",alignItems:"flex-end",gap:8}}>
+              {msg.type==="alex"&&<div style={{fontSize:18,marginBottom:2}}>🧠</div>}
+              <div style={bubbleStyle(msg.type)}>{msg.text}</div>
+            </div>
+          ))}
+          {loading&&<div style={{animation:"fadein 0.3s ease",display:"flex",alignItems:"flex-end",gap:8}}><div style={{fontSize:18}}>🧠</div><div style={{...bubbleStyle("alex"),color:"#3AABB5"}}>Thinking…</div></div>}
+          <div ref={bottomRef}/>
+        </div>
+
+        {/* Input area */}
+        <div style={{padding:"12px 16px 16px",background:"#fff",borderTop:"1px solid #ebebeb"}}>
+          {phase==="focus"&&(
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {focusOptions.map(opt=>(
+                <button key={opt.id} onClick={()=>handleFocusPick(opt.id,opt.label)}
+                  style={{padding:"11px 14px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#333",fontSize:14,fontWeight:700,cursor:"pointer",textAlign:"left",fontFamily:"'DM Sans',sans-serif"}}>
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {phase==="chips"&&(
+            <div>
+              {/* Task chips */}
+              <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}}>
+                {suggested.map(id=>{
+                  const task=tasks.find(t=>t.id===id); if(!task)return null;
+                  const isOn=selected.has(id);
+                  const area=areas.find(a=>a.id===task.area)||areas[0];
+                  return (
+                    <button key={id} onClick={()=>setSelected(prev=>{const next=new Set(prev);isOn?next.delete(id):next.add(id);return next;})}
+                      style={{padding:"7px 12px",borderRadius:20,fontSize:12,fontWeight:700,cursor:"pointer",
+                        border:`2px solid ${isOn?area.color:"#e0e0e0"}`,
+                        background:isOn?area.color+"22":"#fff",
+                        color:isOn?area.color:"#999",
+                        fontFamily:"'DM Sans',sans-serif",
+                        opacity:isOn?1:0.45,
+                        transition:"all 0.15s"}}>
+                      {area.emoji} {task.title.length>28?task.title.slice(0,28)+"…":task.title}
+                    </button>
+                  );
+                })}
+              </div>
+              {/* Overwhelm prompt */}
+              {showOverwhelmPrompt&&(
+                <div style={{display:"flex",gap:8,marginBottom:10}}>
+                  <button onClick={onEscape} style={{flex:1,padding:"9px",borderRadius:11,border:"none",background:"#3AABB5",color:"#fff",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Yes, brain dump</button>
+                  <button onClick={()=>setShowOverwhelmPrompt(false)} style={{flex:1,padding:"9px",borderRadius:11,border:"2px solid #e5e5e5",background:"#fff",color:"#555",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>I'm ok, carry on</button>
+                </div>
+              )}
+              {/* Free text add */}
+              {!showOverwhelmPrompt&&(
+                <div style={{display:"flex",gap:8,marginBottom:10}}>
+                  <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")handleAddTyped();}} placeholder="Type a task to add…" style={{flex:1,padding:"10px 13px",borderRadius:11,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/>
+                  <button onClick={handleAddTyped} disabled={!input.trim()} style={{padding:"10px 14px",borderRadius:11,border:"none",background:input.trim()?"linear-gradient(135deg,#3AABB5,#4F86C6)":"#e5e5e5",color:input.trim()?"#fff":"#aaa",fontSize:13,fontWeight:800,cursor:input.trim()?"pointer":"default"}}>+</button>
+                </div>
+              )}
+              <button onClick={handleConfirm} style={{width:"100%",padding:"11px",borderRadius:12,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
+                That's my day →
+              </button>
+            </div>
+          )}
+
+          {(phase==="focus"||phase==="chips")&&(
+            <button onClick={onEscape} style={{width:"100%",marginTop:10,padding:"8px",borderRadius:10,border:"1px solid #e5e5e5",background:"transparent",color:"#bbb",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
+              Not feeling it — just empty my mind instead
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const lbl={display:"block",fontSize:10,fontWeight:800,color:"#bbb",letterSpacing:"0.09em",textTransform:"uppercase",marginBottom:6,fontFamily:"'DM Sans',sans-serif"};
 export default function App() {
   const [tasks,setTasks]           = useState([]);
@@ -797,6 +1010,11 @@ export default function App() {
   const [expandedProjects, setExpandedProjects] = useState(new Set());
   const [editingProject,   setEditingProject]   = useState(null);
   const [learnedProjects,  setLearnedProjects]  = useState(() => { try { return JSON.parse(localStorage.getItem("ut-learned-projects")||"{}"); } catch { return {}; } });
+  const [userData,         setUserData]         = useState(() => { try { return JSON.parse(localStorage.getItem("ut-user-data")||"null"); } catch { return null; } });
+  const [planningPref,     setPlanningPref]     = useState(() => localStorage.getItem("ut-planning-pref") || "morning");
+  const [todayPlanDate,    setTodayPlanDate]    = useState(() => localStorage.getItem("ut-today-plan-date") || "");
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => localStorage.getItem("ut-notifications") === "true");
+  const [showPlanModal,    setShowPlanModal]    = useState(false);
   const [loaded,setLoaded]         = useState(false);
 
   useEffect(()=>{
@@ -819,10 +1037,14 @@ export default function App() {
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-sound",String(soundEnabled)); },[soundEnabled,loaded]);
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-projects",JSON.stringify(projects)); },[projects,loaded]);
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-learned-projects",JSON.stringify(learnedProjects)); },[learnedProjects,loaded]);
+  useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-planning-pref",planningPref); },[planningPref,loaded]);
+  useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-today-plan-date",todayPlanDate); },[todayPlanDate,loaded]);
+  useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-notifications",String(notificationsEnabled)); },[notificationsEnabled,loaded]);
 
   useEffect(()=>{ if(!loaded)return; setTasks(p=>p.map(t=>t.recur&&t.recur!=="none"&&t.done&&shouldRecurToday(t)?{...t,done:false,lastRecurDate:todayStr(),dailyCount:0}:t)); },[loaded]);
   useEffect(()=>{ if(!loaded)return; const today=todayStr(); setTasks(p=>p.map(t=>t.dailyTarget>1&&t.lastCountDate&&t.lastCountDate!==today?{...t,dailyCount:0,done:false}:t)); },[loaded]);
   useEffect(()=>{ if(oneThing&&oneThing.date!==todayStr())setOneThing(null); },[oneThing]);
+  useEffect(()=>{ if(!loaded||!onboarded)return; if(todayPlanDate===todayStr())return; const hour=new Date().getHours(); const isMorning=planningPref==="morning"&&hour>=6&&hour<11; const isEvening=planningPref==="evening"&&hour>=18&&hour<23; if(isMorning||isEvening)setShowPlanModal(true); },[loaded]);
 
   const addTask=useCallback(t=>setTasks(p=>[t,...p]),[]);
   const addMany=useCallback(ts=>setTasks(p=>[...ts,...p]),[]);
@@ -831,6 +1053,7 @@ export default function App() {
   const deleteProject=useCallback(id=>setProjects(prev=>prev.filter(x=>x.id!==id)),[]);
   const learnProjectFn=useCallback((titleKey,projectId)=>{ setLearnedProjects(prev=>{ const updated={...prev,[titleKey]:{projectId,count:(prev[titleKey]?.count||0)+1}}; localStorage.setItem("ut-learned-projects",JSON.stringify(updated)); return updated; }); },[]);
   const deleteTask=useCallback(id=>setTasks(p=>p.filter(t=>t.id!==id)),[]);
+  const uncompleteTask=useCallback(id=>setTasks(p=>p.map(t=>t.id===id?{...t,done:false,dailyCount:0}:t)),[]);
   const clearDone=useCallback(()=>setTasks(p=>p.filter(t=>!t.done)),[]);
   const saveTask=useCallback(t=>setTasks(p=>p.map(x=>x.id===t.id?t:x)),[]);
   const saveSubtasks=useCallback((id,st)=>{ setTasks(p=>p.map(t=>t.id===id?{...t,subtasks:st}:t)); setBreakdownTask(null); },[]);
@@ -851,14 +1074,14 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
 
   return (
     <div style={{minHeight:"100vh",background:"#F2F1EF",fontFamily:"'DM Sans',sans-serif"}}>
-      {!onboarded && <OnboardingFlow areas={areas} onAddTasks={addMany} onSetOneThing={setOneThingFn} onComplete={() => { localStorage.setItem("untangle_onboarded", "1"); setOnboarded(true); }} />}
+      {!onboarded && <OnboardingFlow areas={areas} onAddTasks={addMany} onSetOneThing={setOneThingFn} onComplete={(ud) => { localStorage.setItem("untangle_onboarded", "1"); if(ud){ localStorage.setItem("ut-user-data",JSON.stringify(ud)); setUserData(ud); } setOnboarded(true); }} />}
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
       {showAdd       && <TaskModal areas={areas} onSave={t=>{addTask(t);}} onClose={()=>setShowAdd(false)} learned={learned} projects={projects} learnedProjects={learnedProjects} onLearnProject={learnProjectFn}/>}
       {editTask      && <TaskModal areas={areas} onSave={t=>{saveTask(t);setEditTask(null);}} onClose={()=>setEditTask(null)} existing={editTask} learned={learned} projects={projects} learnedProjects={learnedProjects} onLearnProject={learnProjectFn}/>}
       {showDump      && <BrainDumpModal areas={areas} onAddMany={addMany} onClose={()=>setShowDump(false)}/>}
       {showVoice     && <VoiceDumpModal areas={areas} onAddMany={addMany} onClose={()=>setShowVoice(false)}/>}
       {showNotes     && <NotesModal notes={notes} onSave={setNotes} onClose={()=>setShowNotes(false)}/>}
-      {showSettings  && <SettingsPanel appName={appName} setAppName={setAppName} appLogo={appLogo} setAppLogo={setAppLogo} areas={areas} setAreas={setAreas} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} onClose={()=>setShowSettings(false)}/>}
+      {showSettings  && <SettingsPanel appName={appName} setAppName={setAppName} appLogo={appLogo} setAppLogo={setAppLogo} areas={areas} setAreas={setAreas} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} planningPref={planningPref} setPlanningPref={setPlanningPref} notificationsEnabled={notificationsEnabled} setNotificationsEnabled={setNotificationsEnabled} onClose={()=>setShowSettings(false)}/>}
       {focusTask     && <FocusTimer task={focusTask} areas={areas} onDone={()=>setFocusTask(null)} onComplete={completeTask} soundEnabled={soundEnabled}/>}
       {reassignTask && <ReassignPicker task={reassignTask} areas={areas} onPick={(area)=>{
   saveTask({...reassignTask,area});
@@ -873,6 +1096,7 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
       {breakdownTask && <AiBreakdownModal task={breakdownTask} onSave={saveSubtasks} onClose={()=>setBreakdownTask(null)}/>}
       {showCreateProject && <ProjectModal areas={areas} defaultBucketId={activeArea} onSave={p=>{addProject(p);setShowCreateProject(false);}} onClose={()=>setShowCreateProject(false)}/>}
       {editingProject && <ProjectModal areas={areas} defaultBucketId={editingProject.bucketId} existing={editingProject} onSave={p=>{updateProject(p);setEditingProject(null);}} onDelete={id=>{deleteProject(id);setEditingProject(null);}} onClose={()=>setEditingProject(null)}/>}
+      {showPlanModal && <DailyPlanModal tasks={incomplete} projects={projects} areas={areas} userName={userData?.name||null} planningPref={planningPref} onAddTask={addTask} onConfirm={ids=>{ setTasks(p=>p.map(t=>ids.includes(t.id)?{...t,horizon:"today"}:t)); setTodayPlanDate(todayStr()); setShowPlanModal(false); }} onEscape={()=>{ setShowPlanModal(false); setShowDump(true); }} onClose={()=>setShowPlanModal(false)}/>}
 
       <div style={{background:"linear-gradient(160deg,#0f1923 0%,#152232 60%,#1a2d3a 100%)",padding:"18px 20px 0",boxShadow:"0 4px 24px rgba(0,0,0,0.2)"}}>
         <div style={{maxWidth:680,margin:"0 auto"}}>
@@ -894,9 +1118,10 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
             {[{label:"🧠 Dump",action:()=>setShowDump(true)},{label:"🎤 Voice",action:()=>setShowVoice(true)},].map(b=>(
               <button key={b.label} onClick={b.action} style={{padding:"5px 12px",borderRadius:20,border:"2px solid rgba(255,255,255,0.12)",background:"rgba(255,255,255,0.06)",color:"rgba(255,255,255,0.7)",fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}}>{b.label}</button>
             ))}
+            {todayPlanDate!==todayStr()&&<button onClick={()=>setShowPlanModal(true)} style={{padding:"5px 12px",borderRadius:20,border:"2px solid rgba(58,171,181,0.4)",background:"rgba(58,171,181,0.12)",color:"rgba(255,255,255,0.85)",fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>Plan day ✦</button>}
           </div>
           <div style={{display:"flex",gap:2,overflowX:"auto"}}>
-            {[{id:"brain",label:"⚡ Today's Knot"},{id:"calendar",label:"📅 Calendar"},{id:"area",label:"🗂️ By Area"},{id:"stats",label:"📊 Progress"}].map(v=>(
+            {[{id:"today",label:"📋 Today"},{id:"brain",label:"⚡ Today's Knot"},{id:"calendar",label:"📅 Calendar"},{id:"area",label:"🗂️ By Area"},{id:"stats",label:"📊 Progress"}].map(v=>(
               <button key={v.id} onClick={()=>setView(v.id)} style={{padding:"9px 14px",borderRadius:"12px 12px 0 0",fontSize:12,fontWeight:700,cursor:"pointer",border:"none",whiteSpace:"nowrap",background:view===v.id?"#F2F1EF":"transparent",color:view===v.id?"#152232":"rgba(255,255,255,0.5)",flexShrink:0}}>{v.label}</button>
             ))}
           </div>
@@ -904,6 +1129,26 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
       </div>
 
       <div style={{maxWidth:680,margin:"0 auto",padding:"20px 16px"}}>
+        {view==="today"&&(
+          <div>
+            {todayPlanDate!==todayStr()&&(
+              <div style={{background:"#fff",borderRadius:16,padding:"16px 18px",marginBottom:16,boxShadow:"0 2px 8px rgba(0,0,0,0.05)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                <div>
+                  <div style={{fontSize:14,fontWeight:800,color:"#333",fontFamily:"'DM Sans',sans-serif"}}>Want to plan your day?</div>
+                  <div style={{fontSize:12,color:"#aaa",marginTop:2,fontFamily:"'DM Sans',sans-serif"}}>Alexander can pick 3–5 tasks to focus on.</div>
+                </div>
+                <button onClick={()=>setShowPlanModal(true)} style={{padding:"8px 14px",borderRadius:11,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",whiteSpace:"nowrap"}}>Plan day ✦</button>
+              </div>
+            )}
+            {(()=>{ const todayTasks=incomplete.filter(t=>t.horizon==="today"); return todayTasks.length===0?(<div style={{textAlign:"center",padding:"36px 20px",color:"#bbb"}}><div style={{fontSize:44}}>📋</div><p style={{fontWeight:700,fontSize:15,fontFamily:"'DM Sans',sans-serif"}}>{todayPlanDate===todayStr()?"All done for today!":"No tasks planned yet"}</p></div>):todayTasks.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(t,mode)=>mode==='reassign'?setReassignTask(t):setEditTask(t)} soundEnabled={soundEnabled}/>); })()}
+            {done.filter(t=>t.lastCountDate===todayStr()).length>0&&(
+              <div style={{marginTop:22}}>
+                <div style={{fontSize:11,fontWeight:800,color:"#bbb",letterSpacing:"0.09em",textTransform:"uppercase",marginBottom:10,fontFamily:"'DM Sans',sans-serif"}}>Done today</div>
+                {done.filter(t=>t.lastCountDate===todayStr()).map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onUncomplete={uncompleteTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(t,mode)=>mode==='reassign'?setReassignTask(t):setEditTask(t)} soundEnabled={soundEnabled}/>)}
+              </div>
+            )}
+          </div>
+        )}
         {view==="brain"&&(
           <div>
             <OneThingSection tasks={tasks} oneThing={oneThing} onSet={setOneThingFn} onClear={()=>setOneThing(null)}/>
@@ -921,7 +1166,7 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
                   <h3 style={{fontSize:11,fontWeight:800,color:"#bbb",margin:0,letterSpacing:"0.08em",textTransform:"uppercase"}}>✅ Done ({done.length})</h3>
                   <button onClick={clearDone} style={{fontSize:11,color:"#ccc",background:"none",border:"1px solid #e0e0e0",borderRadius:8,padding:"2px 8px",cursor:"pointer"}}>Clear</button>
                 </div>
-                {done.slice(0,4).map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} compact soundEnabled={soundEnabled}/>)}
+                {done.slice(0,4).map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onUncomplete={uncompleteTask} onDelete={deleteTask} compact soundEnabled={soundEnabled}/>)}
               </div>
             )}
           </div>
