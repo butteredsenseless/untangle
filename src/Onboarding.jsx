@@ -190,7 +190,7 @@ function StepConversation({ userData, setUserData, next }) {
                     onKeyDown={e => { if (e.key === 'Enter') handleAnswer(); }}
                     placeholder={q.placeholder}
                     autoFocus
-                    style={{ flex: 1, padding: "14px 16px", borderRadius: 14, border: "2px solid #e5e5e5", fontSize: 15, fontFamily: "'DM Sans', sans-serif", outline: "none", lineHeight: 1.5 }}
+                    style={{ flex: 1, padding: "16px 16px", borderRadius: 14, border: "2px solid #e5e5e5", fontSize: 15, fontFamily: "'DM Sans', sans-serif", outline: "none", lineHeight: 1.5 }}
                   />
                 ) : (
                   <textarea
@@ -200,12 +200,12 @@ function StepConversation({ userData, setUserData, next }) {
                     placeholder={q.placeholder}
                     autoFocus
                     rows={3}
-                    style={{ flex: 1, padding: "14px 16px", borderRadius: 14, border: "2px solid #e5e5e5", fontSize: 15, fontFamily: "'DM Sans', sans-serif", outline: "none", resize: "none", lineHeight: 1.5 }}
+                    style={{ flex: 1, padding: "16px 16px", borderRadius: 14, border: "2px solid #e5e5e5", fontSize: 15, fontFamily: "'DM Sans', sans-serif", outline: "none", resize: "none", lineHeight: 1.5 }}
                   />
                 )}
                 <button onClick={() => handleAnswer()}
                   disabled={!input.trim() && !q.optional}
-                  style={{ padding: "14px 18px", borderRadius: 14, border: "none", background: (input.trim() || q.optional) ? "linear-gradient(135deg,#3AABB5,#4F86C6)" : "#e5e5e5", color: (input.trim() || q.optional) ? "#fff" : "#aaa", fontSize: 15, fontWeight: 800, cursor: (input.trim() || q.optional) ? "pointer" : "default", alignSelf: "flex-end" }}>
+                  style={{ padding: "16px 16px", borderRadius: 14, border: "none", background: (input.trim() || q.optional) ? "linear-gradient(135deg,#3AABB5,#4F86C6)" : "#e5e5e5", color: (input.trim() || q.optional) ? "#fff" : "#aaa", fontSize: 15, fontWeight: 800, cursor: (input.trim() || q.optional) ? "pointer" : "default", alignSelf: "flex-end" }}>
                   {q.optional && !input.trim() ? "Skip" : "→"}
                 </button>
               </div>
@@ -244,7 +244,7 @@ function StepFirstTask({ areas, onAddTasks, next }) {
   return (
     <div style={{ maxWidth: 480, width: "100%" }}>
       <p style={{ fontSize: 24, fontWeight: 800, marginBottom: 8 }}>Let's show you how this works</p>
-      <p style={{ fontSize: 15, color: "#aaa", marginBottom: 20 }}>Type your first task below — if it has a deadline or repeats, just say so. Alexander will sort it instantly.</p>
+      <p style={{ fontSize: 15, color: "#aaa", marginBottom: 24 }}>Type your first task below — if it has a deadline or repeats, just say so. Alexander will sort it instantly.</p>
 
       {!sorted && (
         <div style={{ marginBottom: 12 }}>
@@ -257,14 +257,14 @@ function StepFirstTask({ areas, onAddTasks, next }) {
               placeholder="Type a task…"
               autoFocus
               disabled={loading}
-              style={{ flex: 1, padding: "14px 16px", borderRadius: 14, border: "2px solid #e5e5e5", fontSize: 15, fontFamily: "'DM Sans', sans-serif", outline: "none" }}
+              style={{ flex: 1, padding: "16px 16px", borderRadius: 14, border: "2px solid #e5e5e5", fontSize: 15, fontFamily: "'DM Sans', sans-serif", outline: "none" }}
             />
             <button onClick={handleSubmit} disabled={!input.trim() || loading}
-              style={{ padding: "14px 18px", borderRadius: 14, border: "none", background: input.trim() && !loading ? "linear-gradient(135deg,#3AABB5,#4F86C6)" : "#e5e5e5", color: input.trim() && !loading ? "#fff" : "#aaa", fontSize: 15, fontWeight: 800, cursor: input.trim() && !loading ? "pointer" : "default" }}>
+              style={{ padding: "16px 16px", borderRadius: 14, border: "none", background: input.trim() && !loading ? "linear-gradient(135deg,#3AABB5,#4F86C6)" : "#e5e5e5", color: input.trim() && !loading ? "#fff" : "#aaa", fontSize: 15, fontWeight: 800, cursor: input.trim() && !loading ? "pointer" : "default" }}>
               {loading ? "…" : "→"}
             </button>
           </div>
-          <p style={{ fontSize: 11, color: "#bbb", margin: 0, paddingLeft: 2 }}>Try something like: <em>walk the dog twice daily</em> or <em>book the ferry before 15th April</em></p>
+          <p style={{ fontSize: 11, color: "#bbb", margin: 0, paddingLeft: 4 }}>Try something like: <em>walk the dog twice daily</em> or <em>book the ferry before 15th April</em></p>
         </div>
       )}
 
@@ -274,15 +274,15 @@ function StepFirstTask({ areas, onAddTasks, next }) {
 
       {sorted && (
         <div style={{ animation: "fadein 0.3s ease" }}>
-          <div style={{ background: "#fff", borderRadius: 16, padding: "14px 16px", border: "2px solid #e5e5e5", marginBottom: 20, display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ background: "#fff", borderRadius: 16, padding: "16px 16px", border: "2px solid #e5e5e5", marginBottom: 24, display: "flex", alignItems: "center", gap: 12 }}>
             <div style={{ fontSize: 24 }}>{sorted.area.emoji}</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 15, fontWeight: 800, color: "#333" }}>{sorted.title}</div>
-              <div style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>{sorted.area.label}</div>
+              <div style={{ fontSize: 11, color: "#aaa", marginTop: 4 }}>{sorted.area.label}</div>
             </div>
             <div style={{ fontSize: 19, color: "#4ade80" }}>✓</div>
           </div>
-          <button onClick={next} style={{ width: "100%", padding: 14, borderRadius: 14, border: "none", background: "linear-gradient(135deg,#3AABB5,#4F86C6)", color: "#fff", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>
+          <button onClick={next} style={{ width: "100%", padding: 16, borderRadius: 14, border: "none", background: "linear-gradient(135deg,#3AABB5,#4F86C6)", color: "#fff", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>
             Continue →
           </button>
         </div>
@@ -326,7 +326,7 @@ function StepBrainDump({ areas, onAddTasks, next }) {
   return (
     <div style={{ maxWidth: 480, width: "100%" }}>
       <p style={{ fontSize: 24, fontWeight: 800, marginBottom: 8 }}>Now try a brain dump</p>
-      <p style={{ fontSize: 15, color: "#aaa", marginBottom: 20 }}>
+      <p style={{ fontSize: 15, color: "#aaa", marginBottom: 24 }}>
         Add up to {MAX} tasks — one at a time. Alexander will sort each one into the right bucket as you go. No tags, no categories. Just type.{" "}
         <span style={{ color: "#3AABB5", fontWeight: 800 }}>({sorted.length}/{MAX})</span>
       </p>
@@ -334,7 +334,7 @@ function StepBrainDump({ areas, onAddTasks, next }) {
       {sorted.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
           {sorted.map((s, i) => (
-            <div key={i} style={{ animation: "fadein 0.3s ease", background: "#fff", borderRadius: 14, padding: "12px 14px", border: "2px solid #e5e5e5", display: "flex", alignItems: "center", gap: 10 }}>
+            <div key={i} style={{ animation: "fadein 0.3s ease", background: "#fff", borderRadius: 14, padding: "12px 16px", border: "2px solid #e5e5e5", display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ fontSize: 24 }}>{s.area.emoji}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 15, fontWeight: 800, color: "#333" }}>{s.title}</div>
@@ -360,17 +360,17 @@ function StepBrainDump({ areas, onAddTasks, next }) {
             onKeyDown={e => { if (e.key === "Enter") handleSubmit(); }}
             placeholder={`Task ${sorted.length + 1} of ${MAX}…`}
             disabled={loading}
-            style={{ flex: 1, padding: "14px 16px", borderRadius: 14, border: "2px solid #e5e5e5", fontSize: 15, fontFamily: "'DM Sans', sans-serif", outline: "none" }}
+            style={{ flex: 1, padding: "16px 16px", borderRadius: 14, border: "2px solid #e5e5e5", fontSize: 15, fontFamily: "'DM Sans', sans-serif", outline: "none" }}
           />
           <button onClick={handleSubmit} disabled={!input.trim() || loading}
-            style={{ padding: "14px 18px", borderRadius: 14, border: "none", background: input.trim() && !loading ? "linear-gradient(135deg,#3AABB5,#4F86C6)" : "#e5e5e5", color: input.trim() && !loading ? "#fff" : "#aaa", fontSize: 15, fontWeight: 800, cursor: input.trim() && !loading ? "pointer" : "default" }}>
+            style={{ padding: "16px 16px", borderRadius: 14, border: "none", background: input.trim() && !loading ? "linear-gradient(135deg,#3AABB5,#4F86C6)" : "#e5e5e5", color: input.trim() && !loading ? "#fff" : "#aaa", fontSize: 15, fontWeight: 800, cursor: input.trim() && !loading ? "pointer" : "default" }}>
             {loading ? "…" : "→"}
           </button>
         </div>
       )}
 
       {done && (
-        <button onClick={next} style={{ width: "100%", padding: 14, borderRadius: 14, border: "none", background: "linear-gradient(135deg,#3AABB5,#4F86C6)", color: "#fff", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>
+        <button onClick={next} style={{ width: "100%", padding: 16, borderRadius: 14, border: "none", background: "linear-gradient(135deg,#3AABB5,#4F86C6)", color: "#fff", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>
           Continue →
         </button>
       )}
@@ -388,16 +388,16 @@ function StepBuckets({ areas, next }) {
   return (
     <div style={{ maxWidth: 480, width: "100%" }}>
       <p style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, textAlign: "center" }}>Here are your buckets</p>
-      <p style={{ fontSize: 15, color: "#aaa", marginBottom: 20, textAlign: "center" }}>These are the buckets Alexander just sorted your tasks into — you can customise them anytime.</p>
+      <p style={{ fontSize: 15, color: "#aaa", marginBottom: 24, textAlign: "center" }}>These are the buckets Alexander just sorted your tasks into — you can customise them anytime.</p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 24 }}>
         {areas.map(a => (
-          <div key={a.id} style={{ padding: "14px 10px", borderRadius: 14, background: "#fff", border: "2px solid #e5e5e5", textAlign: "center" }}>
+          <div key={a.id} style={{ padding: "16px 8px", borderRadius: 14, background: "#fff", border: "2px solid #e5e5e5", textAlign: "center" }}>
             <div style={{ fontSize: 24 }}>{a.emoji}</div>
             <div style={{ fontSize: 11, fontWeight: 800, color: "#555", marginTop: 4 }}>{a.label}</div>
           </div>
         ))}
       </div>
-      <button onClick={next} style={{ width: "100%", padding: 14, borderRadius: 14, border: "none", background: "linear-gradient(135deg,#3AABB5,#4F86C6)", color: "#fff", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>
+      <button onClick={next} style={{ width: "100%", padding: 16, borderRadius: 14, border: "none", background: "linear-gradient(135deg,#3AABB5,#4F86C6)", color: "#fff", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>
         Let's go →
       </button>
     </div>
@@ -415,10 +415,10 @@ function StepTodaysKnot({ tasks, areas, onSet, next }) {
   return (
     <div style={{ maxWidth: 480, width: "100%" }}>
       <p style={{ fontSize: 24, fontWeight: 800, marginBottom: 8 }}>What's your Today's Knot?</p>
-      <p style={{ fontSize: 15, color: "#aaa", marginBottom: 20 }}>The one thing that matters most today. Everything else can wait.</p>
+      <p style={{ fontSize: 15, color: "#aaa", marginBottom: 24 }}>The one thing that matters most today. Everything else can wait.</p>
 
       {tasks.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
           {tasks.map((t, i) => (
             <button key={i} onClick={() => handlePick(t.title)}
               style={{
@@ -438,7 +438,7 @@ function StepTodaysKnot({ tasks, areas, onSet, next }) {
       )}
 
       {selected ? (
-        <button onClick={next} style={{ width: "100%", padding: 14, borderRadius: 14, border: "none", background: "linear-gradient(135deg,#3AABB5,#4F86C6)", color: "#fff", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>
+        <button onClick={next} style={{ width: "100%", padding: 16, borderRadius: 14, border: "none", background: "linear-gradient(135deg,#3AABB5,#4F86C6)", color: "#fff", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>
           Let's go →
         </button>
       ) : (
@@ -456,7 +456,7 @@ function StepSignOff({ onComplete }) {
       <div style={{ fontSize: 64, marginBottom: 16 }}>🧠</div>
       <p style={{ fontSize: 24, fontWeight: 800, marginBottom: 8 }}>Your brain is a little more untangled.</p>
       <p style={{ fontSize: 15, color: "#aaa", marginBottom: 32 }}>Alexander is ready when you are.</p>
-      <button onClick={onComplete} style={{ width: "100%", padding: 14, borderRadius: 14, border: "none", background: "linear-gradient(135deg,#3AABB5,#4F86C6)", color: "#fff", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>
+      <button onClick={onComplete} style={{ width: "100%", padding: 16, borderRadius: 14, border: "none", background: "linear-gradient(135deg,#3AABB5,#4F86C6)", color: "#fff", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>
         Let's untangle this →
       </button>
     </div>
