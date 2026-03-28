@@ -172,7 +172,7 @@ function OneThingSection({ tasks, oneThing, onSet, onClear }) {
           <div style={{width:34,height:34,borderRadius:10,background:"linear-gradient(135deg,#2d8c55,#3AABB5)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}}>🎯</div>
           <div style={{flex:1}}>
             <div style={{fontSize:11,fontWeight:800,color:"#4ade80",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:3,fontFamily:"'DM Sans',sans-serif"}}>Today's Knot</div>
-            <div style={{fontSize:15,fontWeight:800,color:"#fff",fontFamily:"'DM Sans',sans-serif",lineHeight:1.3}}>{oneThing.text}</div>
+            <div style={{fontSize:15,fontWeight:800,color:"#fff",fontFamily:"'DM Sans',sans-serif",lineHeight:1.5}}>{oneThing.text}</div>
 <div style={{fontSize:11,color:"rgba(255,255,255,0.35)",marginTop:3}}>{oneThing.completed?"🎉 You've untangled today's knot! The main thing is done.":"Focus here first. Everything else can wait."}</div>
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:4}}>
@@ -335,7 +335,7 @@ for (let i = 0; i < lines.length; i++) {
             <p style={{fontSize:11,color:"#aaa",marginTop:10}}>{status}</p>
           </div>
         )}
-        <textarea value={transcript} onChange={e=>setTranscript(e.target.value)} placeholder="Your speech appears here…" rows={6} style={{width:"100%",padding:"11px 13px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:15,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",resize:"vertical",lineHeight:1.7}}/>
+        <textarea value={transcript} onChange={e=>setTranscript(e.target.value)} placeholder="Your speech appears here…" rows={6} style={{width:"100%",padding:"11px 13px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:15,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",resize:"vertical",lineHeight:1.5}}/>
         <div style={{display:"flex",gap:8,marginTop:12}}>
           <button onClick={handleImport} disabled={!transcript.trim()} style={{flex:1,padding:"12px",borderRadius:12,border:"none",background:transcript.trim()?"linear-gradient(135deg,#3AABB5,#4F86C6)":"#e5e5e5",color:transcript.trim()?"#fff":"#aaa",fontSize:15,fontWeight:800,cursor:transcript.trim()?"pointer":"default",fontFamily:"'DM Sans',sans-serif"}}>Import tasks ✓</button>
           <button onClick={onClose} style={{padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
@@ -398,7 +398,7 @@ function BrainDumpModal({ areas, onAddMany, onClose, learned={} }) {
       <div style={{background:"#fff",borderRadius:22,padding:26,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.18)"}}>
         <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,marginBottom:4}}>🧠 Brain Dump</h2>
         <p style={{fontSize:13,color:"#aaa",marginBottom:14}}>One task per line. Just type naturally — Alexander will sort them.</p>
-        <textarea value={text} onChange={e=>setText(e.target.value)} autoFocus placeholder={"call the dentist\npay council tax\nwalk the dog every morning"} rows={10} style={{width:"100%",padding:"12px 14px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:15,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",resize:"vertical",lineHeight:1.8}} disabled={loading}/>
+        <textarea value={text} onChange={e=>setText(e.target.value)} autoFocus placeholder={"call the dentist\npay council tax\nwalk the dog every morning"} rows={10} style={{width:"100%",padding:"12px 14px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:15,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",resize:"vertical",lineHeight:1.5}} disabled={loading}/>
         {loading && (
           <div style={{marginTop:10,textAlign:"center"}}>
             <div style={{fontSize:13,color:"#3AABB5",fontWeight:800,fontFamily:"'DM Sans',sans-serif"}}>Alexander is sorting task {progress} of {text.split("\n").filter(l=>l.trim()).length}…</div>
@@ -601,7 +601,7 @@ function NotesModal({ notes, onSave, onClose }) {
           <button onClick={()=>{onSave(text);onClose();}} style={{padding:"7px 14px",borderRadius:10,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Save ✓</button>
         </div>
         <p style={{fontSize:11,color:"#aaa",margin:"0 0 12px"}}>Packing lists, random thoughts, things to look up. Not a task — just a place to think.</p>
-        <textarea value={text} onChange={e=>setText(e.target.value)} autoFocus placeholder={"Packing for trip:\n- passport\n- charger\n\nThings to Google:\n- best coffee Oxford"} style={{flex:1,minHeight:280,padding:"12px 14px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:15,fontFamily:"'DM Sans',sans-serif",outline:"none",resize:"none",lineHeight:1.7}}/>
+        <textarea value={text} onChange={e=>setText(e.target.value)} autoFocus placeholder={"Packing for trip:\n- passport\n- charger\n\nThings to Google:\n- best coffee Oxford"} style={{flex:1,minHeight:280,padding:"12px 14px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:15,fontFamily:"'DM Sans',sans-serif",outline:"none",resize:"none",lineHeight:1.5}}/>
       </div>
     </div>
   );
@@ -716,7 +716,7 @@ function FocusTimer({ task, areas, onDone, onComplete, soundEnabled }) {
     <div style={{position:"fixed",inset:0,background:"#080e12",zIndex:2000,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Sans',sans-serif"}}>
       <div style={{textAlign:"center",maxWidth:340,padding:20,width:"100%"}}>
         <div style={{fontSize:11,color:"rgba(255,255,255,0.3)",fontWeight:800,letterSpacing:"0.15em",marginBottom:8}}>FOCUS MODE</div>
-        <div style={{fontSize:19,color:"#fff",fontWeight:800,marginBottom:24,lineHeight:1.3,padding:"0 20px"}}>{task?.title}</div>
+        <div style={{fontSize:19,color:"#fff",fontWeight:800,marginBottom:24,lineHeight:1.2,padding:"0 20px"}}>{task?.title}</div>
         <div style={{position:"relative",width:200,height:200,margin:"0 auto 28px"}}>
           <svg width="200" height="200" viewBox="0 0 200 200" style={{transform:"rotate(-90deg)"}}>
             <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="12"/>
