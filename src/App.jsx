@@ -494,7 +494,7 @@ function ProjectModal({ areas, defaultBucketId, onSave, onClose, existing=null, 
 }
 function TaskModal({ areas, onSave, onClose, existing=null, learned={}, projects=[], learnedProjects={}, onLearnProject }) {
   const isEdit=!!existing;
-  const [raw,setRaw]=useState(existing?.title||""); const [area,setArea]=useState(existing?.area||areas[0]?.id); const [horizon,setHorizon]=useState(existing?.horizon||"today"); const [energy,setEnergy]=useState(existing?.energy||"medium"); const [note,setNote]=useState(existing?.note||""); const [deadline,setDeadline]=useState(existing?.deadline||""); const [recur,setRecur]=useState(existing?.recur||"none"); const [recurFreq,setRecurFreq]=useState(existing?.recurFreq||1); const [recurDays,setRecurDays]=useState(existing?.recurDays||[]); const [recurTime,setRecurTime]=useState(existing?.recurTime||""); const [dailyTarget,setDailyTarget]=useState(existing?.dailyTarget||1); const [tags,setTags]=useState([]);
+  const [raw,setRaw]=useState(existing?.title||""); const [area,setArea]=useState(existing?.area||areas[0]?.id); const [horizon,setHorizon]=useState(existing?.horizon||"week"); const [energy,setEnergy]=useState(existing?.energy||"medium"); const [note,setNote]=useState(existing?.note||""); const [deadline,setDeadline]=useState(existing?.deadline||""); const [recur,setRecur]=useState(existing?.recur||"none"); const [recurFreq,setRecurFreq]=useState(existing?.recurFreq||1); const [recurDays,setRecurDays]=useState(existing?.recurDays||[]); const [recurTime,setRecurTime]=useState(existing?.recurTime||""); const [dailyTarget,setDailyTarget]=useState(existing?.dailyTarget||1); const [tags,setTags]=useState([]);
   const [aiLoading, setAiLoading] = useState(false);
   const [projectId, setProjectId] = useState(existing?.projectId || null);
   const aiSuggestedProjectRef = useRef(null);
@@ -897,7 +897,7 @@ function DailyPlanModal({ tasks, projects, areas, userName, planningPref, onAddT
       if (r.title) title = r.title;
     } catch {}
     setLoading(false);
-    const newTask = { id: uid(), title, area, horizon: "today", energy: "medium", note: "", deadline: "", recur: "none", recurFreq: 1, recurDays: [], recurTime: "", dailyTarget: 1, dailyCount: 0, done: false, createdAt: Date.now(), subtasks: [], projectId: null, aiSorted: true };
+    const newTask = { id: uid(), title, area, horizon: "week", energy: "medium", note: "", deadline: "", recur: "none", recurFreq: 1, recurDays: [], recurTime: "", dailyTarget: 1, dailyCount: 0, done: false, createdAt: Date.now(), subtasks: [], projectId: null, aiSorted: true };
     onAddTask(newTask);
     setSuggested(prev => [...prev, newTask.id]);
     setSelected(prev => { const next = new Set(prev); next.add(newTask.id); return next; });
@@ -1039,7 +1039,7 @@ export default function App() {
   const [lastDoneDate,setLastDoneDate] = useState(null);
   const [oneThing,setOneThing]     = useState(null);
   const oneThingRef = useRef(null);
-  const [view,setView]             = useState("brain");
+  const [view,setView]             = useState("today");
   const [activeArea,setActiveArea] = useState(DEFAULT_AREAS[0].id);
   const [showAdd,setShowAdd]       = useState(false);
   const [onboarded, setOnboarded] = useState(() => !!localStorage.getItem("untangle_onboarded"));
@@ -1097,6 +1097,8 @@ export default function App() {
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-away-welcome-back",String(showWelcomeBack)); },[showWelcomeBack,loaded]);
 
   const isCurrentlyAway = awayMode.enabled && !!awayMode.to && awayMode.to >= todayStr();
+  const prevAwayEnabled = useRef(awayMode.enabled);
+  useEffect(()=>{ if(!loaded)return; if(prevAwayEnabled.current&&!awayMode.enabled){ setTodayPlanDate(""); } prevAwayEnabled.current=awayMode.enabled; },[awayMode.enabled,loaded]);
 
   useEffect(()=>{ if(!loaded)return; if(isCurrentlyAway)return; setTasks(p=>p.map(t=>t.recur&&t.recur!=="none"&&t.done&&shouldRecurToday(t)?{...t,done:false,lastRecurDate:todayStr(),dailyCount:0}:t)); },[loaded]);
   useEffect(()=>{ if(!loaded)return; const today=todayStr(); setTasks(p=>p.map(t=>t.dailyTarget>1&&t.lastCountDate&&t.lastCountDate!==today?{...t,dailyCount:0,done:false}:t)); },[loaded]);
@@ -1178,7 +1180,7 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
             {todayPlanDate!==todayStr()&&!isCurrentlyAway&&<button onClick={()=>setShowPlanModal(true)} style={{padding:"5px 12px",borderRadius:20,border:"2px solid rgba(58,171,181,0.4)",background:"rgba(58,171,181,0.12)",color:"rgba(255,255,255,0.85)",fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>Plan day ✦</button>}
           </div>
           <div style={{display:"flex",gap:2,overflowX:"auto"}}>
-            {[{id:"today",label:"📋 Today"},{id:"brain",label:"⚡ Today's Knot"},{id:"calendar",label:"📅 Calendar"},{id:"area",label:"🗂️ By Area"},{id:"stats",label:"📊 Progress"}].map(v=>(
+            {[{id:"today",label:"📋 Today"},{id:"calendar",label:"📅 Calendar"},{id:"area",label:"🗂️ By Area"},{id:"stats",label:"📊 Progress"}].map(v=>(
               <button key={v.id} onClick={()=>setView(v.id)} style={{padding:"9px 14px",borderRadius:"12px 12px 0 0",fontSize:12,fontWeight:700,cursor:"pointer",border:"none",whiteSpace:"nowrap",background:view===v.id?"#F2F1EF":"transparent",color:view===v.id?"#152232":"rgba(255,255,255,0.5)",flexShrink:0}}>{v.label}</button>
             ))}
           </div>
@@ -1188,6 +1190,7 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
       <div style={{maxWidth:680,margin:"0 auto",padding:"20px 16px"}}>
         {view==="today"&&(
           <div>
+            <OneThingSection tasks={tasks} oneThing={oneThing} onSet={setOneThingFn} onClear={()=>setOneThing(null)}/>
             {showWelcomeBack&&(
               <div style={{background:"linear-gradient(135deg,#3AABB5,#4F86C6)",borderRadius:16,padding:"16px 18px",marginBottom:16,boxShadow:"0 2px 8px rgba(0,0,0,0.08)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                 <div>
@@ -1218,29 +1221,7 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
             )}
           </div>
         )}
-        {view==="brain"&&(
-          <div>
-            <OneThingSection tasks={tasks} oneThing={oneThing} onSet={setOneThingFn} onClear={()=>setOneThing(null)}/>
-  
-            {incomplete.length===0?(
-              <div style={{textAlign:"center",padding:"36px 20px",color:"#bbb"}}>
-                <div style={{fontSize:44}}>🎉</div>
-                <p style={{fontWeight:700,fontSize:15,fontFamily:"'DM Sans',sans-serif"}}>Nothing queued!</p>
-                <button onClick={()=>setShowAdd(true)} style={{marginTop:10,padding:"8px 18px",borderRadius:12,border:"none",background:"#3AABB5",color:"#fff",fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>+ Add a task</button>
-              </div>
-            ):incomplete.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(task, mode)=>mode==='reassign'?setReassignTask(task):setEditTask(task)} soundEnabled={soundEnabled}/>)}
-            {done.length>0&&(
-              <div style={{marginTop:22}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-                  <h3 style={{fontSize:11,fontWeight:800,color:"#bbb",margin:0,letterSpacing:"0.08em",textTransform:"uppercase"}}>✅ Done ({done.length})</h3>
-                  <button onClick={clearDone} style={{fontSize:11,color:"#ccc",background:"none",border:"1px solid #e0e0e0",borderRadius:8,padding:"2px 8px",cursor:"pointer"}}>Clear</button>
-                </div>
-                {done.slice(0,4).map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onUncomplete={uncompleteTask} onDelete={deleteTask} compact soundEnabled={soundEnabled}/>)}
-              </div>
-            )}
-          </div>
-        )}
-        {view==="calendar"&&<CalendarView tasks={tasks} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(task, mode)=>mode==='reassign'?setReassignTask(task):setEditTask(task)} soundEnabled={soundEnabled}/>}
+{view==="calendar"&&<CalendarView tasks={tasks} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(task, mode)=>mode==='reassign'?setReassignTask(task):setEditTask(task)} soundEnabled={soundEnabled}/>}
         {view==="area"&&(
           <div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(110px,1fr))",gap:7,marginBottom:18}}>
