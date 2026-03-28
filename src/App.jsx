@@ -607,7 +607,7 @@ function NotesModal({ notes, onSave, onClose }) {
   );
 }
 
-function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAreas, soundEnabled, setSoundEnabled, planningPref, setPlanningPref, notificationsEnabled, setNotificationsEnabled, onClose }) {
+function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAreas, soundEnabled, setSoundEnabled, planningPref, setPlanningPref, notificationsEnabled, setNotificationsEnabled, awayMode, setAwayMode, onClose }) {
   const [newLabel,setNewLabel]=useState(""); const [newEmoji,setNewEmoji]=useState("⭐"); const [newColor,setNewColor]=useState("#4F86C6"); const [editId,setEditId]=useState(null); const [editLabel,setEditLabel]=useState(""); const logoRef=useRef(null);
   const addArea=()=>{ if(!newLabel.trim())return; const id=newLabel.toLowerCase().replace(/\s+/g,"_")+"_"+uid(); setAreas(p=>[...p,{id,label:newLabel.trim(),emoji:newEmoji,color:newColor,bg:colorBg(newColor),tags:[newLabel.toLowerCase()],custom:true}]); setNewLabel("");setNewEmoji("⭐");setNewColor("#4F86C6"); };
   const handleLogo=e=>{ const f=e.target.files[0];if(!f)return; const r=new FileReader();r.onload=ev=>setAppLogo(ev.target.result);r.readAsDataURL(f); };
@@ -655,6 +655,30 @@ function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAre
               <div style={{width:18,height:18,borderRadius:"50%",background:"#fff",position:"absolute",top:3,left:notificationsEnabled?23:3,transition:"left 0.2s",boxShadow:"0 1px 4px rgba(0,0,0,0.2)"}}/>
             </button>
           </div>
+        </div>
+        <div style={{background:"#fafafa",borderRadius:14,padding:"14px 16px",marginBottom:16}}>
+          <label style={lbl}>Away mode</label>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:awayMode.enabled?10:0}}>
+            <span style={{fontSize:13,color:"#555",fontFamily:"'DM Sans',sans-serif"}}>Pause planning nudges while you're away</span>
+            <button onClick={()=>setAwayMode(m=>({...m,enabled:!m.enabled}))} style={{width:44,height:24,borderRadius:12,border:"none",background:awayMode.enabled?"#3AABB5":"#ddd",cursor:"pointer",position:"relative",transition:"background 0.2s"}}>
+              <div style={{width:18,height:18,borderRadius:"50%",background:"#fff",position:"absolute",top:3,left:awayMode.enabled?23:3,transition:"left 0.2s",boxShadow:"0 1px 4px rgba(0,0,0,0.2)"}}/>
+            </button>
+          </div>
+          {awayMode.enabled&&(
+            <div style={{display:"flex",gap:8,alignItems:"center"}}>
+              <div style={{display:"flex",flexDirection:"column",flex:1}}>
+                <span style={{fontSize:10,color:"#bbb",fontWeight:700,fontFamily:"'DM Sans',sans-serif",marginBottom:3,textTransform:"uppercase",letterSpacing:"0.07em"}}>From</span>
+                <input type="date" value={awayMode.from} onChange={e=>setAwayMode(m=>({...m,from:e.target.value}))} style={{padding:"8px 10px",borderRadius:10,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none",width:"100%",boxSizing:"border-box"}}/>
+              </div>
+              <div style={{display:"flex",flexDirection:"column",flex:1}}>
+                <span style={{fontSize:10,color:"#bbb",fontWeight:700,fontFamily:"'DM Sans',sans-serif",marginBottom:3,textTransform:"uppercase",letterSpacing:"0.07em"}}>Until</span>
+                <input type="date" value={awayMode.to} min={awayMode.from||todayStr()} onChange={e=>setAwayMode(m=>({...m,to:e.target.value}))} style={{padding:"8px 10px",borderRadius:10,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none",width:"100%",boxSizing:"border-box"}}/>
+              </div>
+            </div>
+          )}
+          {awayMode.enabled&&!awayMode.to&&(
+            <p style={{fontSize:11,color:"#bbb",margin:"8px 0 0",fontFamily:"'DM Sans',sans-serif"}}>Set an end date so Alexander can welcome you back.</p>
+          )}
         </div>
         <label style={lbl}>Life areas</label>
         <div style={{marginBottom:14}}>
@@ -1039,6 +1063,8 @@ export default function App() {
   const [planningPref,     setPlanningPref]     = useState(() => localStorage.getItem("ut-planning-pref") || "morning");
   const [todayPlanDate,    setTodayPlanDate]    = useState(() => localStorage.getItem("ut-today-plan-date") || "");
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => localStorage.getItem("ut-notifications") === "true");
+  const [awayMode, setAwayMode] = useState({ enabled: false, from: "", to: "" });
+  const [showWelcomeBack, setShowWelcomeBack] = useState(() => localStorage.getItem("ut-away-welcome-back") === "true");
   const [showPlanModal,    setShowPlanModal]    = useState(false);
   const [loaded,setLoaded]         = useState(false);
 
@@ -1047,6 +1073,8 @@ export default function App() {
       const t=localStorage.getItem("ut-tasks"); const a=localStorage.getItem("ut-areas"); const n=localStorage.getItem("ut-name"); const l=localStorage.getItem("ut-logo"); const s=localStorage.getItem("ut-streak"); const d=localStorage.getItem("ut-lastdone"); const ot=localStorage.getItem("ut-onething"); const nt=localStorage.getItem("ut-notes"); const snd=localStorage.getItem("ut-sound");
       const pj=localStorage.getItem("ut-projects");
       if(t)setTasks(JSON.parse(t)); if(a)setAreas(JSON.parse(a)); if(n)setAppName(n); if(l)setAppLogo(l); if(s)setStreak(Number(s)); if(d)setLastDoneDate(d); if(ot)setOneThing(JSON.parse(ot)); if(nt)setNotes(nt); if(snd!==null)setSoundEnabled(snd==="true"); if(pj)setProjects(JSON.parse(pj));
+      const aw=localStorage.getItem("ut-away-mode");
+      if(aw){ const parsed=JSON.parse(aw); if(parsed.enabled&&parsed.to&&parsed.to<todayStr()){ const cleared={...parsed,enabled:false}; setAwayMode(cleared); localStorage.setItem("ut-away-mode",JSON.stringify(cleared)); localStorage.setItem("ut-away-welcome-back","true"); setShowWelcomeBack(true); }else{ setAwayMode(parsed); } }
     } catch {}
     setLoaded(true);
   },[]);
@@ -1065,11 +1093,15 @@ export default function App() {
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-planning-pref",planningPref); },[planningPref,loaded]);
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-today-plan-date",todayPlanDate); },[todayPlanDate,loaded]);
   useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-notifications",String(notificationsEnabled)); },[notificationsEnabled,loaded]);
+  useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-away-mode",JSON.stringify(awayMode)); },[awayMode,loaded]);
+  useEffect(()=>{ if(!loaded)return; localStorage.setItem("ut-away-welcome-back",String(showWelcomeBack)); },[showWelcomeBack,loaded]);
 
-  useEffect(()=>{ if(!loaded)return; setTasks(p=>p.map(t=>t.recur&&t.recur!=="none"&&t.done&&shouldRecurToday(t)?{...t,done:false,lastRecurDate:todayStr(),dailyCount:0}:t)); },[loaded]);
+  const isCurrentlyAway = awayMode.enabled && !!awayMode.to && awayMode.to >= todayStr();
+
+  useEffect(()=>{ if(!loaded)return; if(isCurrentlyAway)return; setTasks(p=>p.map(t=>t.recur&&t.recur!=="none"&&t.done&&shouldRecurToday(t)?{...t,done:false,lastRecurDate:todayStr(),dailyCount:0}:t)); },[loaded]);
   useEffect(()=>{ if(!loaded)return; const today=todayStr(); setTasks(p=>p.map(t=>t.dailyTarget>1&&t.lastCountDate&&t.lastCountDate!==today?{...t,dailyCount:0,done:false}:t)); },[loaded]);
   useEffect(()=>{ if(oneThing&&oneThing.date!==todayStr())setOneThing(null); },[oneThing]);
-  useEffect(()=>{ if(!loaded||!onboarded)return; if(todayPlanDate===todayStr())return; const hour=new Date().getHours(); const isMorning=planningPref==="morning"&&hour>=6&&hour<11; const isEvening=planningPref==="evening"&&hour>=18&&hour<23; if(isMorning||isEvening)setShowPlanModal(true); },[loaded]);
+  useEffect(()=>{ if(!loaded||!onboarded)return; if(isCurrentlyAway)return; if(todayPlanDate===todayStr())return; const hour=new Date().getHours(); const isMorning=planningPref==="morning"&&hour>=6&&hour<11; const isEvening=planningPref==="evening"&&hour>=18&&hour<23; if(isMorning||isEvening)setShowPlanModal(true); },[loaded]);
 
   const addTask=useCallback(t=>setTasks(p=>[t,...p]),[]);
   const addMany=useCallback(ts=>setTasks(p=>[...ts,...p]),[]);
@@ -1106,7 +1138,7 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
       {showDump      && <BrainDumpModal areas={areas} onAddMany={addMany} onClose={()=>setShowDump(false)}/>}
       {showVoice     && <VoiceDumpModal areas={areas} onAddMany={addMany} onClose={()=>setShowVoice(false)}/>}
       {showNotes     && <NotesModal notes={notes} onSave={setNotes} onClose={()=>setShowNotes(false)}/>}
-      {showSettings  && <SettingsPanel appName={appName} setAppName={setAppName} appLogo={appLogo} setAppLogo={setAppLogo} areas={areas} setAreas={setAreas} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} planningPref={planningPref} setPlanningPref={setPlanningPref} notificationsEnabled={notificationsEnabled} setNotificationsEnabled={setNotificationsEnabled} onClose={()=>setShowSettings(false)}/>}
+      {showSettings  && <SettingsPanel appName={appName} setAppName={setAppName} appLogo={appLogo} setAppLogo={setAppLogo} areas={areas} setAreas={setAreas} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} planningPref={planningPref} setPlanningPref={setPlanningPref} notificationsEnabled={notificationsEnabled} setNotificationsEnabled={setNotificationsEnabled} awayMode={awayMode} setAwayMode={setAwayMode} onClose={()=>setShowSettings(false)}/>}
       {focusTask     && <FocusTimer task={focusTask} areas={areas} onDone={()=>setFocusTask(null)} onComplete={completeTask} soundEnabled={soundEnabled}/>}
       {reassignTask && <ReassignPicker task={reassignTask} areas={areas} onPick={(area)=>{
   saveTask({...reassignTask,area});
@@ -1130,7 +1162,7 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
               {appLogo?<img src={appLogo} style={{width:38,height:38,borderRadius:11,objectFit:"cover",border:"2px solid rgba(255,255,255,0.15)"}}/>:<UntangleLogo size={38}/>}
               <div>
                 <div style={{color:"#fff",fontSize:20,fontWeight:900,letterSpacing:"-0.5px"}}>{appName}</div>
-                <div style={{color:"rgba(255,255,255,0.35)",fontSize:11,fontWeight:500}}>{incomplete.length} tasks to untangle{streak>0?` · 🔥 ${streak} days`:""}</div>
+                <div style={{color:"rgba(255,255,255,0.35)",fontSize:11,fontWeight:500}}>{incomplete.length} tasks to untangle{streak>0?` · 🔥 ${streak} days`:""}{isCurrentlyAway&&awayMode.to?` · ✈ Away until ${new Date(awayMode.to+"T00:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"})}`:""}</div>
               </div>
             </div>
             <div style={{display:"flex",gap:6,alignItems:"center"}}>
@@ -1143,7 +1175,7 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
             {[{label:"🧠 Dump",action:()=>setShowDump(true)},{label:"🎤 Voice",action:()=>setShowVoice(true)},].map(b=>(
               <button key={b.label} onClick={b.action} style={{padding:"5px 12px",borderRadius:20,border:"2px solid rgba(255,255,255,0.12)",background:"rgba(255,255,255,0.06)",color:"rgba(255,255,255,0.7)",fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}}>{b.label}</button>
             ))}
-            {todayPlanDate!==todayStr()&&<button onClick={()=>setShowPlanModal(true)} style={{padding:"5px 12px",borderRadius:20,border:"2px solid rgba(58,171,181,0.4)",background:"rgba(58,171,181,0.12)",color:"rgba(255,255,255,0.85)",fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>Plan day ✦</button>}
+            {todayPlanDate!==todayStr()&&!isCurrentlyAway&&<button onClick={()=>setShowPlanModal(true)} style={{padding:"5px 12px",borderRadius:20,border:"2px solid rgba(58,171,181,0.4)",background:"rgba(58,171,181,0.12)",color:"rgba(255,255,255,0.85)",fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>Plan day ✦</button>}
           </div>
           <div style={{display:"flex",gap:2,overflowX:"auto"}}>
             {[{id:"today",label:"📋 Today"},{id:"brain",label:"⚡ Today's Knot"},{id:"calendar",label:"📅 Calendar"},{id:"area",label:"🗂️ By Area"},{id:"stats",label:"📊 Progress"}].map(v=>(
@@ -1156,7 +1188,19 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
       <div style={{maxWidth:680,margin:"0 auto",padding:"20px 16px"}}>
         {view==="today"&&(
           <div>
-            {todayPlanDate!==todayStr()&&(
+            {showWelcomeBack&&(
+              <div style={{background:"linear-gradient(135deg,#3AABB5,#4F86C6)",borderRadius:16,padding:"16px 18px",marginBottom:16,boxShadow:"0 2px 8px rgba(0,0,0,0.08)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                <div>
+                  <div style={{fontSize:14,fontWeight:800,color:"#fff",fontFamily:"'DM Sans',sans-serif"}}>Welcome back — want to see what's waiting?</div>
+                  <div style={{fontSize:12,color:"rgba(255,255,255,0.75)",marginTop:2,fontFamily:"'DM Sans',sans-serif"}}>Alexander can pick up where you left off.</div>
+                </div>
+                <div style={{display:"flex",gap:8,alignItems:"center",flexShrink:0,marginLeft:12}}>
+                  <button onClick={()=>{setShowWelcomeBack(false);setShowPlanModal(true);}} style={{padding:"8px 14px",borderRadius:11,border:"2px solid rgba(255,255,255,0.5)",background:"rgba(255,255,255,0.15)",color:"#fff",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",whiteSpace:"nowrap"}}>Plan my day</button>
+                  <button onClick={()=>setShowWelcomeBack(false)} style={{background:"none",border:"none",color:"rgba(255,255,255,0.5)",fontSize:18,cursor:"pointer",lineHeight:1,padding:"4px"}}>×</button>
+                </div>
+              </div>
+            )}
+            {todayPlanDate!==todayStr()&&!isCurrentlyAway&&(
               <div style={{background:"#fff",borderRadius:16,padding:"16px 18px",marginBottom:16,boxShadow:"0 2px 8px rgba(0,0,0,0.05)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                 <div>
                   <div style={{fontSize:14,fontWeight:800,color:"#333",fontFamily:"'DM Sans',sans-serif"}}>Want to plan your day?</div>
