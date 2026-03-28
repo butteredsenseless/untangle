@@ -176,7 +176,7 @@ function OneThingSection({ tasks, oneThing, onSet, onClear }) {
 <div style={{fontSize:11,color:"rgba(255,255,255,0.35)",marginTop:3}}>{oneThing.completed?"🎉 You've untangled today's knot! The main thing is done.":"Focus here first. Everything else can wait."}</div>
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:4}}>
-            <button onClick={()=>setEditing(true)} style={{background:"rgba(255,255,255,0.1)",border:"none",color:"rgba(255,255,255,0.5)",fontSize:11,fontWeight:700,cursor:"pointer",padding:"3px 8px",borderRadius:8,fontFamily:"'DM Sans',sans-serif"}}>Edit</button>
+            <button onClick={()=>setEditing(true)} style={{background:"rgba(255,255,255,0.1)",border:"none",color:"rgba(255,255,255,0.5)",fontSize:11,fontWeight:800,cursor:"pointer",padding:"3px 8px",borderRadius:8,fontFamily:"'DM Sans',sans-serif"}}>Edit</button>
             <button onClick={onClear} style={{background:"none",border:"none",color:"rgba(255,255,255,0.2)",fontSize:15,cursor:"pointer",padding:"2px 4px",lineHeight:1}}>×</button>
           </div>
         </div>
@@ -191,7 +191,7 @@ function OneThingSection({ tasks, oneThing, onSet, onClear }) {
       {todayTasks.length>0&&(
         <div style={{display:"flex",flexWrap:"wrap",gap:5,marginBottom:8}}>
           {todayTasks.map(t=>(
-            <button key={t.id} onClick={()=>{onSet(t.title);setEditing(false);}} style={{padding:"4px 10px",borderRadius:20,border:"2px solid rgba(126,217,160,0.3)",background:"rgba(126,217,160,0.08)",color:"#7ed9a0",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{t.title}</button>
+            <button key={t.id} onClick={()=>{onSet(t.title);setEditing(false);}} style={{padding:"4px 10px",borderRadius:20,border:"2px solid rgba(126,217,160,0.3)",background:"rgba(126,217,160,0.08)",color:"#7ed9a0",fontSize:11,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{t.title}</button>
           ))}
         </div>
       )}
@@ -244,7 +244,7 @@ function TaskCard({ task, areas, onComplete, onUncomplete, onDelete, onBreakdown
         {pop&&<ConfettiPop x={pop.x} y={pop.y}/>}
         {isCountTask?(
           <button onClick={handleComplete} style={{width:28,height:28,minWidth:28,borderRadius:10,border:`2px solid ${area.color}`,background:colorBg(area.color),cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",marginTop:1,flexDirection:"column",padding:0}}>
-            <span style={{fontSize:11,fontWeight:900,color:area.color,lineHeight:1}}>{task.dailyCount||0}</span>
+            <span style={{fontSize:11,fontWeight:800,color:area.color,lineHeight:1}}>{task.dailyCount||0}</span>
             <span style={{fontSize:11,color:area.color,lineHeight:1}}>/{task.dailyTarget}</span>
           </button>
         ):(
@@ -256,13 +256,13 @@ function TaskCard({ task, areas, onComplete, onUncomplete, onDelete, onBreakdown
           <div style={{display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
             <span style={{fontFamily:"'DM Sans',sans-serif",fontSize:15,fontWeight:600,color:"#1a1a1a",textDecoration:task.done?"line-through":"none"}}>{task.title}</span>
             {energy&&<span title={energy.label} style={{fontSize:13}}>{energy.emoji}</span>}
-            {recur?.id!=="none"&&<span style={{fontSize:11,background:"#f0f0ff",color:"#8B6FBE",padding:"2px 6px",borderRadius:20,fontWeight:700}}>🔁 {recur.label}{task.recurFreq>1?` ×${task.recurFreq}`:""}</span>}
+            {recur?.id!=="none"&&<span style={{fontSize:11,background:"#f0f0ff",color:"#8B6FBE",padding:"2px 6px",borderRadius:20,fontWeight:800}}>🔁 {recur.label}{task.recurFreq>1?` ×${task.recurFreq}`:""}</span>}
           </div>
           {isCountTask&&<div style={{marginTop:5,height:4,background:"#f0f0f0",borderRadius:20,overflow:"hidden"}}><div style={{height:"100%",width:`${countProgress*100}%`,background:area.color,borderRadius:20,transition:"width 0.4s"}}/></div>}
           {task.note&&<div style={{fontSize:11,color:"#aaa",marginTop:2,fontFamily:"'DM Sans',sans-serif"}}>{task.note}</div>}
           {task.aiNudge&&<div style={{fontSize:11,color:"#8B6FBE",marginTop:4,fontFamily:"'DM Sans',sans-serif",background:"#F3EFFB",padding:"4px 8px",borderRadius:8}}>💡 {task.aiNudge}</div>}
           <div style={{display:"flex",gap:5,marginTop:5,flexWrap:"wrap"}}>
-            <span onClick={()=>onEdit&&onEdit(task,'reassign')} style={{fontSize:11,background:area.bg||colorBg(area.color),color:area.color,padding:"2px 8px",borderRadius:20,fontWeight:700,fontFamily:"'DM Sans',sans-serif",cursor:"pointer",userSelect:"none"}}>{area.emoji} {area.label} ✎</span>
+            <span onClick={()=>onEdit&&onEdit(task,'reassign')} style={{fontSize:11,background:area.bg||colorBg(area.color),color:area.color,padding:"2px 8px",borderRadius:20,fontWeight:800,fontFamily:"'DM Sans',sans-serif",cursor:"pointer",userSelect:"none"}}>{area.emoji} {area.label} ✎</span>
             {task.deadline&&<span style={{fontSize:11,background:"#fff3e0",color:"#E09B3D",padding:"2px 8px",borderRadius:20,fontWeight:600}}>📅 {task.deadline}</span>}
             {task.recurTime&&<span style={{fontSize:11,background:"#f0f0ff",color:"#8B6FBE",padding:"2px 8px",borderRadius:20,fontWeight:600}}>🕐 {task.recurTime}</span>}
           </div>
@@ -329,7 +329,7 @@ for (let i = 0; i < lines.length; i++) {
       <div style={{background:"#fff",borderRadius:22,padding:26,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.2)"}}>
         <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,marginBottom:4}}>🎤 Voice Brain Dump</h2>
         <p style={{fontSize:11,color:"#aaa",marginBottom:18}}>Works in Chrome, Safari, Edge. Each sentence becomes a task.</p>
-        {!supported?<div style={{background:"#fff8e1",borderRadius:12,padding:14,marginBottom:16}}><p style={{fontSize:13,color:"#b8860b",fontWeight:700,margin:0}}>⚠️ Try Chrome or Safari, or paste below.</p></div>:(
+        {!supported?<div style={{background:"#fff8e1",borderRadius:12,padding:14,marginBottom:16}}><p style={{fontSize:13,color:"#b8860b",fontWeight:800,margin:0}}>⚠️ Try Chrome or Safari, or paste below.</p></div>:(
           <div style={{textAlign:"center",marginBottom:18}}>
             <button onClick={toggle} style={{width:76,height:76,borderRadius:"50%",border:"none",background:listening?"#E05C3A":"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:32,cursor:"pointer",boxShadow:listening?"0 0 0 10px rgba(224,92,58,0.2)":"0 4px 20px rgba(58,171,181,0.4)",animation:listening?"mpulse 1.5s infinite":"none"}}>{listening?"⏹":"🎤"}</button>
             <p style={{fontSize:11,color:"#aaa",marginTop:10}}>{status}</p>
@@ -338,7 +338,7 @@ for (let i = 0; i < lines.length; i++) {
         <textarea value={transcript} onChange={e=>setTranscript(e.target.value)} placeholder="Your speech appears here…" rows={6} style={{width:"100%",padding:"11px 13px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:15,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",resize:"vertical",lineHeight:1.7}}/>
         <div style={{display:"flex",gap:8,marginTop:12}}>
           <button onClick={handleImport} disabled={!transcript.trim()} style={{flex:1,padding:"12px",borderRadius:12,border:"none",background:transcript.trim()?"linear-gradient(135deg,#3AABB5,#4F86C6)":"#e5e5e5",color:transcript.trim()?"#fff":"#aaa",fontSize:15,fontWeight:800,cursor:transcript.trim()?"pointer":"default",fontFamily:"'DM Sans',sans-serif"}}>Import tasks ✓</button>
-          <button onClick={onClose} style={{padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
+          <button onClick={onClose} style={{padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
         </div>
         <style>{`@keyframes mpulse{0%,100%{box-shadow:0 0 0 10px rgba(224,92,58,0.2)}50%{box-shadow:0 0 0 18px rgba(224,92,58,0.08)}}`}</style>
       </div>
@@ -401,13 +401,13 @@ function BrainDumpModal({ areas, onAddMany, onClose, learned={} }) {
         <textarea value={text} onChange={e=>setText(e.target.value)} autoFocus placeholder={"call the dentist\npay council tax\nwalk the dog every morning"} rows={10} style={{width:"100%",padding:"12px 14px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:15,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",resize:"vertical",lineHeight:1.8}} disabled={loading}/>
         {loading && (
           <div style={{marginTop:10,textAlign:"center"}}>
-            <div style={{fontSize:13,color:"#3AABB5",fontWeight:700,fontFamily:"'DM Sans',sans-serif"}}>Alexander is sorting task {progress} of {text.split("\n").filter(l=>l.trim()).length}…</div>
+            <div style={{fontSize:13,color:"#3AABB5",fontWeight:800,fontFamily:"'DM Sans',sans-serif"}}>Alexander is sorting task {progress} of {text.split("\n").filter(l=>l.trim()).length}…</div>
             <div style={{marginTop:6,background:"#f0f0f0",borderRadius:20,height:6}}><div style={{width:`${(progress/text.split("\n").filter(l=>l.trim()).length)*100}%`,height:"100%",background:"linear-gradient(90deg,#3AABB5,#4F86C6)",borderRadius:20,transition:"width 0.4s"}}/></div>
           </div>
         )}
         <div style={{display:"flex",gap:8,marginTop:14}}>
           <button onClick={go} disabled={!text.trim()||loading} style={{flex:1,padding:"12px",borderRadius:12,border:"none",background:text.trim()&&!loading?"linear-gradient(135deg,#3AABB5,#4F86C6)":"#e5e5e5",color:text.trim()&&!loading?"#fff":"#aaa",fontSize:15,fontWeight:800,cursor:text.trim()&&!loading?"pointer":"default",fontFamily:"'DM Sans',sans-serif"}}>{loading?"Sorting…":"Let Alexander sort these ✓"}</button>
-          <button onClick={onClose} disabled={loading} style={{padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
+          <button onClick={onClose} disabled={loading} style={{padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
         </div>
       </div>
     </div>
@@ -426,12 +426,12 @@ function ReassignPicker({ task, areas, onPick, onClose }) {
           {areas.map(a=>(
             <button key={a.id} onClick={()=>onPick(a.id)} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",borderRadius:12,border:`2px solid ${task.area===a.id?a.color:"#e5e5e5"}`,background:task.area===a.id?(a.bg||colorBg(a.color)):"#fafafa",cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
               <span style={{fontSize:19}}>{a.emoji}</span>
-              <span style={{fontSize:13,fontWeight:700,color:task.area===a.id?a.color:"#555"}}>{a.label}</span>
+              <span style={{fontSize:13,fontWeight:800,color:task.area===a.id?a.color:"#555"}}>{a.label}</span>
               {task.area===a.id&&<span style={{marginLeft:"auto",fontSize:11,color:a.color,fontWeight:800}}>current</span>}
             </button>
           ))}
         </div>
-        <button onClick={onClose} style={{width:"100%",marginTop:12,padding:"10px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
+        <button onClick={onClose} style={{width:"100%",marginTop:12,padding:"10px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
       </div>
     </div>
   );
@@ -458,33 +458,33 @@ function ProjectModal({ areas, defaultBucketId, onSave, onClose, existing=null, 
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:1000}} onClick={onClose}>
       <div style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"28px 20px 36px",width:"100%",maxWidth:480}} onClick={e=>e.stopPropagation()}>
         <div style={{textAlign:"center",marginBottom:20}}>
-          <div style={{fontSize:19,fontWeight:900,color:"#222",fontFamily:"'DM Sans',sans-serif"}}>{existing ? "Edit Project" : "New Project"}</div>
+          <div style={{fontSize:19,fontWeight:800,color:"#222",fontFamily:"'DM Sans',sans-serif"}}>{existing ? "Edit Project" : "New Project"}</div>
         </div>
         <div style={{display:"flex",gap:8,marginBottom:14,alignItems:"center"}}>
           <input value={emoji} onChange={e=>setEmoji(e.target.value.slice(-2))} placeholder={selectedArea.emoji} maxLength={2}
             style={{width:44,height:44,borderRadius:12,border:"2px solid #e5e5e5",textAlign:"center",fontSize:19,fontFamily:"'DM Sans',sans-serif",outline:"none",flexShrink:0}} />
           <input value={name} onChange={e=>setName(e.target.value)} placeholder="Project name" autoFocus
-            style={{flex:1,height:44,borderRadius:12,border:"2px solid #e5e5e5",padding:"0 14px",fontSize:15,fontWeight:700,fontFamily:"'DM Sans',sans-serif",outline:"none",color:"#222"}} />
+            style={{flex:1,height:44,borderRadius:12,border:"2px solid #e5e5e5",padding:"0 14px",fontSize:15,fontWeight:800,fontFamily:"'DM Sans',sans-serif",outline:"none",color:"#222"}} />
         </div>
         <div style={{marginBottom:18}}>
-          <div style={{fontSize:11,fontWeight:700,color:"#aaa",marginBottom:8,textTransform:"uppercase",letterSpacing:1,fontFamily:"'DM Sans',sans-serif"}}>Bucket</div>
+          <div style={{fontSize:11,fontWeight:800,color:"#aaa",marginBottom:8,textTransform:"uppercase",letterSpacing:1,fontFamily:"'DM Sans',sans-serif"}}>Bucket</div>
           <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
             {areas.map(a => (
               <button key={a.id} onClick={()=>setBucketId(a.id)}
-                style={{padding:"6px 12px",borderRadius:20,border:`2px solid ${bucketId===a.id ? a.color : "#e5e5e5"}`,background:bucketId===a.id ? colorBg(a.color) : "#fff",color:bucketId===a.id ? a.color : "#888",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
+                style={{padding:"6px 12px",borderRadius:20,border:`2px solid ${bucketId===a.id ? a.color : "#e5e5e5"}`,background:bucketId===a.id ? colorBg(a.color) : "#fff",color:bucketId===a.id ? a.color : "#888",fontSize:11,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
                 {a.emoji} {a.label}
               </button>
             ))}
           </div>
         </div>
         <button onClick={save} disabled={!name.trim()}
-          style={{width:"100%",padding:"14px",borderRadius:14,border:"none",background:name.trim() ? `linear-gradient(135deg,${selectedArea.color},${selectedArea.color}cc)` : "#e5e5e5",color:name.trim()?"#fff":"#aaa",fontSize:15,fontWeight:900,cursor:name.trim()?"pointer":"default",fontFamily:"'DM Sans',sans-serif"}}>
+          style={{width:"100%",padding:"14px",borderRadius:14,border:"none",background:name.trim() ? `linear-gradient(135deg,${selectedArea.color},${selectedArea.color}cc)` : "#e5e5e5",color:name.trim()?"#fff":"#aaa",fontSize:15,fontWeight:800,cursor:name.trim()?"pointer":"default",fontFamily:"'DM Sans',sans-serif"}}>
           {existing ? "Save changes" : "Create Project"}
         </button>
-        <button onClick={onClose} style={{width:"100%",marginTop:10,padding:"10px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
+        <button onClick={onClose} style={{width:"100%",marginTop:10,padding:"10px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
         {existing && (
           <button onClick={() => onDelete(existing.id)}
-            style={{width:"100%",marginTop:8,padding:"10px",borderRadius:12,border:"2px solid #ffdddd",background:"#fff8f8",color:"#e05c5c",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
+            style={{width:"100%",marginTop:8,padding:"10px",borderRadius:12,border:"2px solid #ffdddd",background:"#fff8f8",color:"#e05c5c",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
             Delete project
           </button>
         )}
@@ -547,35 +547,35 @@ const go = async () => {
       <div style={{background:"#fff",borderRadius:22,padding:26,width:"100%",maxWidth:500,boxShadow:"0 24px 64px rgba(0,0,0,0.18)",maxHeight:"92vh",overflowY:"auto"}}>
         <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,marginBottom:5}}>{isEdit?"✏️ Edit task":"✨ Add a task"}</h2>
         <input value={raw} onChange={e=>setRaw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()} autoFocus placeholder="What needs doing? #work #weekly" style={{width:"100%",padding:"12px 14px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:15,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",marginBottom:8}}/>
-        {tags.length>0&&<div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:10}}>{tags.map(t=><span key={t} style={{fontSize:11,background:"#e8f5e9",color:"#5BAD6F",padding:"2px 8px",borderRadius:20,fontWeight:700}}>#{t}</span>)}</div>}
-        <div style={{marginBottom:12}}><label style={lbl}>Area</label><div style={{display:"flex",flexWrap:"wrap",gap:5}}>{areas.map(a=><button key={a.id} onClick={()=>{setArea(a.id);setProjectId(prev=>projects.find(x=>x.id===prev&&x.bucketId===a.id)?prev:null);}} style={{padding:"4px 9px",borderRadius:20,fontSize:11,fontWeight:700,cursor:"pointer",border:`2px solid ${a.color}`,background:area===a.id?a.color:(a.bg||colorBg(a.color)),color:area===a.id?"#fff":a.color}}>{a.emoji} {a.label}</button>)}</div></div>
-        {bucketProjects.length>0&&<div style={{marginBottom:12}}><div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}><label style={lbl}>Project (optional)</label>{projectId&&projectId===aiSuggestedProjectRef.current&&<span style={{fontSize:11,color:"#3AABB5",fontWeight:700,fontFamily:"'DM Sans',sans-serif",background:"#E8F7F8",padding:"2px 7px",borderRadius:20}}>✦ Alexander suggests</span>}</div><div style={{display:"flex",flexWrap:"wrap",gap:5}}>{bucketProjects.map(p=><button key={p.id} onClick={()=>setProjectId(prev=>prev===p.id?null:p.id)} style={{padding:"4px 9px",borderRadius:20,fontSize:11,fontWeight:700,cursor:"pointer",border:`2px solid ${projectId===p.id?p.colour:"#e5e5e5"}`,background:projectId===p.id?p.colour+"22":"#fff",color:projectId===p.id?p.colour:"#aaa",fontFamily:"'DM Sans',sans-serif"}}>{p.emoji} {p.name}</button>)}</div></div>}
+        {tags.length>0&&<div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:10}}>{tags.map(t=><span key={t} style={{fontSize:11,background:"#e8f5e9",color:"#5BAD6F",padding:"2px 8px",borderRadius:20,fontWeight:800}}>#{t}</span>)}</div>}
+        <div style={{marginBottom:12}}><label style={lbl}>Area</label><div style={{display:"flex",flexWrap:"wrap",gap:5}}>{areas.map(a=><button key={a.id} onClick={()=>{setArea(a.id);setProjectId(prev=>projects.find(x=>x.id===prev&&x.bucketId===a.id)?prev:null);}} style={{padding:"4px 9px",borderRadius:20,fontSize:11,fontWeight:800,cursor:"pointer",border:`2px solid ${a.color}`,background:area===a.id?a.color:(a.bg||colorBg(a.color)),color:area===a.id?"#fff":a.color}}>{a.emoji} {a.label}</button>)}</div></div>
+        {bucketProjects.length>0&&<div style={{marginBottom:12}}><div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}><label style={lbl}>Project (optional)</label>{projectId&&projectId===aiSuggestedProjectRef.current&&<span style={{fontSize:11,color:"#3AABB5",fontWeight:800,fontFamily:"'DM Sans',sans-serif",background:"#E8F7F8",padding:"2px 7px",borderRadius:20}}>✦ Alexander suggests</span>}</div><div style={{display:"flex",flexWrap:"wrap",gap:5}}>{bucketProjects.map(p=><button key={p.id} onClick={()=>setProjectId(prev=>prev===p.id?null:p.id)} style={{padding:"4px 9px",borderRadius:20,fontSize:11,fontWeight:800,cursor:"pointer",border:`2px solid ${projectId===p.id?p.colour:"#e5e5e5"}`,background:projectId===p.id?p.colour+"22":"#fff",color:projectId===p.id?p.colour:"#aaa",fontFamily:"'DM Sans',sans-serif"}}>{p.emoji} {p.name}</button>)}</div></div>}
         <div style={{display:"flex",gap:10,marginBottom:12}}>
-          <div style={{flex:1}}><label style={lbl}>When?</label>{HORIZONS.map(h=><button key={h.id} onClick={()=>setHorizon(h.id)} style={{display:"block",width:"100%",textAlign:"left",marginBottom:4,padding:"6px 10px",borderRadius:10,fontSize:11,fontWeight:700,cursor:"pointer",border:`2px solid ${horizon===h.id?"#3AABB5":"#e5e5e5"}`,background:horizon===h.id?"#E8F7F8":"#fafafa",color:horizon===h.id?"#3AABB5":"#999",fontFamily:"'DM Sans',sans-serif"}}>{h.icon} {h.label}</button>)}</div>
-          <div style={{flex:1}}><label style={lbl}>Energy</label>{ENERGY.map(en=><button key={en.id} onClick={()=>setEnergy(en.id)} style={{display:"block",width:"100%",textAlign:"left",marginBottom:4,padding:"6px 10px",borderRadius:10,fontSize:11,fontWeight:700,cursor:"pointer",border:`2px solid ${energy===en.id?en.color:"#e5e5e5"}`,background:energy===en.id?en.color+"22":"#fafafa",color:energy===en.id?en.color:"#999",fontFamily:"'DM Sans',sans-serif"}}>{en.emoji} {en.label}</button>)}</div>
+          <div style={{flex:1}}><label style={lbl}>When?</label>{HORIZONS.map(h=><button key={h.id} onClick={()=>setHorizon(h.id)} style={{display:"block",width:"100%",textAlign:"left",marginBottom:4,padding:"6px 10px",borderRadius:10,fontSize:11,fontWeight:800,cursor:"pointer",border:`2px solid ${horizon===h.id?"#3AABB5":"#e5e5e5"}`,background:horizon===h.id?"#E8F7F8":"#fafafa",color:horizon===h.id?"#3AABB5":"#999",fontFamily:"'DM Sans',sans-serif"}}>{h.icon} {h.label}</button>)}</div>
+          <div style={{flex:1}}><label style={lbl}>Energy</label>{ENERGY.map(en=><button key={en.id} onClick={()=>setEnergy(en.id)} style={{display:"block",width:"100%",textAlign:"left",marginBottom:4,padding:"6px 10px",borderRadius:10,fontSize:11,fontWeight:800,cursor:"pointer",border:`2px solid ${energy===en.id?en.color:"#e5e5e5"}`,background:energy===en.id?en.color+"22":"#fafafa",color:energy===en.id?en.color:"#999",fontFamily:"'DM Sans',sans-serif"}}>{en.emoji} {en.label}</button>)}</div>
         </div>
         <div style={{background:"#f8f8f8",borderRadius:12,padding:"12px 14px",marginBottom:12}}>
           <label style={lbl}>Daily count target</label>
           <p style={{fontSize:11,color:"#aaa",margin:"0 0 8px"}}>For things done multiple times a day (e.g. water × 8, walk dog × 3)</p>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <button onClick={()=>setDailyTarget(Math.max(1,dailyTarget-1))} style={{width:28,height:28,borderRadius:8,border:"2px solid #e5e5e5",background:"#fff",fontSize:15,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700}}>−</button>
+            <button onClick={()=>setDailyTarget(Math.max(1,dailyTarget-1))} style={{width:28,height:28,borderRadius:8,border:"2px solid #e5e5e5",background:"#fff",fontSize:15,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800}}>−</button>
             <span style={{fontSize:15,fontWeight:800,color:"#333",minWidth:24,textAlign:"center",fontFamily:"'DM Sans',sans-serif"}}>{dailyTarget}</span>
-            <button onClick={()=>setDailyTarget(dailyTarget+1)} style={{width:28,height:28,borderRadius:8,border:"2px solid #e5e5e5",background:"#fff",fontSize:15,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700}}>+</button>
+            <button onClick={()=>setDailyTarget(dailyTarget+1)} style={{width:28,height:28,borderRadius:8,border:"2px solid #e5e5e5",background:"#fff",fontSize:15,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800}}>+</button>
             <span style={{fontSize:11,color:"#aaa"}}>{dailyTarget===1?"once (standard)":"per day"}</span>
           </div>
         </div>
         <div style={{marginBottom:12}}>
           <label style={lbl}>Repeats?</label>
-          <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:8}}>{RECUR_OPTIONS.map(r=><button key={r.id} onClick={()=>setRecur(r.id)} style={{padding:"5px 10px",borderRadius:20,fontSize:11,fontWeight:700,cursor:"pointer",border:`2px solid ${recur===r.id?"#8B6FBE":"#e5e5e5"}`,background:recur===r.id?"#F3EFFB":"#fafafa",color:recur===r.id?"#8B6FBE":"#999",fontFamily:"'DM Sans',sans-serif"}}>{r.id!=="none"?"🔁 ":""}{r.label}</button>)}</div>
+          <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:8}}>{RECUR_OPTIONS.map(r=><button key={r.id} onClick={()=>setRecur(r.id)} style={{padding:"5px 10px",borderRadius:20,fontSize:11,fontWeight:800,cursor:"pointer",border:`2px solid ${recur===r.id?"#8B6FBE":"#e5e5e5"}`,background:recur===r.id?"#F3EFFB":"#fafafa",color:recur===r.id?"#8B6FBE":"#999",fontFamily:"'DM Sans',sans-serif"}}>{r.id!=="none"?"🔁 ":""}{r.label}</button>)}</div>
           {recur==="weekly"&&(
             <div style={{background:"#f8f8f8",borderRadius:12,padding:"10px 12px",marginBottom:8}}>
               <p style={{fontSize:11,color:"#aaa",margin:"0 0 6px"}}>Which days?</p>
-              <div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:8}}>{DAYS_OF_WEEK.map((d,i)=><button key={i} onClick={()=>toggleDay(i)} style={{padding:"4px 8px",borderRadius:8,fontSize:11,fontWeight:700,cursor:"pointer",border:`2px solid ${recurDays.includes(i)?"#8B6FBE":"#e5e5e5"}`,background:recurDays.includes(i)?"#F3EFFB":"#fff",color:recurDays.includes(i)?"#8B6FBE":"#aaa"}}>{d}</button>)}</div>
+              <div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:8}}>{DAYS_OF_WEEK.map((d,i)=><button key={i} onClick={()=>toggleDay(i)} style={{padding:"4px 8px",borderRadius:8,fontSize:11,fontWeight:800,cursor:"pointer",border:`2px solid ${recurDays.includes(i)?"#8B6FBE":"#e5e5e5"}`,background:recurDays.includes(i)?"#F3EFFB":"#fff",color:recurDays.includes(i)?"#8B6FBE":"#aaa"}}>{d}</button>)}</div>
               <div style={{display:"flex",alignItems:"center",gap:8}}>
                 <span style={{fontSize:11,color:"#aaa"}}>Times per week:</span>
-                <button onClick={()=>setRecurFreq(Math.max(1,recurFreq-1))} style={{width:24,height:24,borderRadius:6,border:"2px solid #e5e5e5",background:"#fff",fontSize:15,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700}}>−</button>
+                <button onClick={()=>setRecurFreq(Math.max(1,recurFreq-1))} style={{width:24,height:24,borderRadius:6,border:"2px solid #e5e5e5",background:"#fff",fontSize:15,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800}}>−</button>
                 <span style={{fontSize:15,fontWeight:800,color:"#333",fontFamily:"'DM Sans',sans-serif"}}>{recurFreq}</span>
-                <button onClick={()=>setRecurFreq(recurFreq+1)} style={{width:24,height:24,borderRadius:6,border:"2px solid #e5e5e5",background:"#fff",fontSize:15,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700}}>+</button>
+                <button onClick={()=>setRecurFreq(recurFreq+1)} style={{width:24,height:24,borderRadius:6,border:"2px solid #e5e5e5",background:"#fff",fontSize:15,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800}}>+</button>
               </div>
             </div>
           )}
@@ -585,7 +585,7 @@ const go = async () => {
         <textarea value={note} onChange={e=>setNote(e.target.value)} placeholder="Notes (optional)" rows={2} style={{width:"100%",padding:"9px 13px",borderRadius:11,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",resize:"none",marginBottom:16}}/>
         <div style={{display:"flex",gap:8}}>
           <button onClick={go} style={{flex:1,padding:"12px",borderRadius:12,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{isEdit?"Save changes ✓":"Add it ✓"}</button>
-          <button onClick={onClose} style={{padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
+          <button onClick={onClose} style={{padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
         </div>
       </div>
     </div>
@@ -624,8 +624,8 @@ function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAre
           <label style={lbl}>App logo</label>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
             {appLogo?<img src={appLogo} style={{width:48,height:48,borderRadius:12,objectFit:"cover",border:"2px solid #e5e5e5"}}/>:<div style={{width:48,height:48,borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center"}}><UntangleLogo size={48}/></div>}
-            <button onClick={()=>logoRef.current?.click()} style={{padding:"8px 14px",borderRadius:11,border:"2px solid #e5e5e5",background:"#fff",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",color:"#555"}}>Upload logo</button>
-            {appLogo&&<button onClick={()=>setAppLogo(null)} style={{padding:"8px 10px",borderRadius:11,border:"2px solid #fee",background:"#fff",fontSize:11,fontWeight:700,cursor:"pointer",color:"#E05C3A"}}>Remove</button>}
+            <button onClick={()=>logoRef.current?.click()} style={{padding:"8px 14px",borderRadius:11,border:"2px solid #e5e5e5",background:"#fff",fontSize:11,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",color:"#555"}}>Upload logo</button>
+            {appLogo&&<button onClick={()=>setAppLogo(null)} style={{padding:"8px 10px",borderRadius:11,border:"2px solid #fee",background:"#fff",fontSize:11,fontWeight:800,cursor:"pointer",color:"#E05C3A"}}>Remove</button>}
             <input ref={logoRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleLogo}/>
           </div>
         </div>
@@ -642,7 +642,7 @@ function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAre
           <label style={lbl}>Daily planning time</label>
           <div style={{display:"flex",gap:8,marginBottom:8}}>
             {[{id:"morning",label:"☀️ Morning"},{id:"evening",label:"🌙 Evening"}].map(p=>(
-              <button key={p.id} onClick={()=>setPlanningPref(p.id)} style={{flex:1,padding:"9px",borderRadius:11,border:`2px solid ${planningPref===p.id?"#3AABB5":"#e5e5e5"}`,background:planningPref===p.id?"#e8f7f8":"#fff",color:planningPref===p.id?"#3AABB5":"#888",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{p.label}</button>
+              <button key={p.id} onClick={()=>setPlanningPref(p.id)} style={{flex:1,padding:"9px",borderRadius:11,border:`2px solid ${planningPref===p.id?"#3AABB5":"#e5e5e5"}`,background:planningPref===p.id?"#e8f7f8":"#fff",color:planningPref===p.id?"#3AABB5":"#888",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{p.label}</button>
             ))}
           </div>
           <p style={{fontSize:11,color:"#bbb",margin:0,fontFamily:"'DM Sans',sans-serif"}}>{planningPref==="morning"?"Opens automatically between 6–11am":"Opens automatically between 6–11pm"}</p>
@@ -667,11 +667,11 @@ function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAre
           {awayMode.enabled&&(
             <div style={{display:"flex",gap:8,alignItems:"center"}}>
               <div style={{display:"flex",flexDirection:"column",flex:1}}>
-                <span style={{fontSize:11,color:"#bbb",fontWeight:700,fontFamily:"'DM Sans',sans-serif",marginBottom:3,textTransform:"uppercase",letterSpacing:"0.07em"}}>From</span>
+                <span style={{fontSize:11,color:"#bbb",fontWeight:800,fontFamily:"'DM Sans',sans-serif",marginBottom:3,textTransform:"uppercase",letterSpacing:"0.07em"}}>From</span>
                 <input type="date" value={awayMode.from} onChange={e=>setAwayMode(m=>({...m,from:e.target.value}))} style={{padding:"8px 10px",borderRadius:10,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none",width:"100%",boxSizing:"border-box"}}/>
               </div>
               <div style={{display:"flex",flexDirection:"column",flex:1}}>
-                <span style={{fontSize:11,color:"#bbb",fontWeight:700,fontFamily:"'DM Sans',sans-serif",marginBottom:3,textTransform:"uppercase",letterSpacing:"0.07em"}}>Until</span>
+                <span style={{fontSize:11,color:"#bbb",fontWeight:800,fontFamily:"'DM Sans',sans-serif",marginBottom:3,textTransform:"uppercase",letterSpacing:"0.07em"}}>Until</span>
                 <input type="date" value={awayMode.to} min={awayMode.from||todayStr()} onChange={e=>setAwayMode(m=>({...m,to:e.target.value}))} style={{padding:"8px 10px",borderRadius:10,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none",width:"100%",boxSizing:"border-box"}}/>
               </div>
             </div>
@@ -686,7 +686,7 @@ function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAre
             <div key={a.id} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",background:"#fafafa",borderRadius:10,marginBottom:5,border:`2px solid ${a.color}18`}}>
               <span style={{fontSize:19}}>{a.emoji}</span>
               {editId===a.id?(<><input value={editLabel} onChange={e=>setEditLabel(e.target.value)} autoFocus style={{flex:1,padding:"4px 8px",borderRadius:8,border:"2px solid #3AABB5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/><button onClick={()=>{setAreas(p=>p.map(x=>x.id===a.id?{...x,label:editLabel}:x));setEditId(null);}} style={{padding:"4px 10px",borderRadius:8,border:"none",background:"#3AABB5",color:"#fff",fontSize:11,fontWeight:800,cursor:"pointer"}}>Save</button></>)
-              :(<><span style={{flex:1,fontSize:13,fontWeight:700,color:"#333",fontFamily:"'DM Sans',sans-serif"}}>{a.label}</span><button onClick={()=>{setEditId(a.id);setEditLabel(a.label);}} style={{padding:"3px 9px",borderRadius:8,border:"2px solid #e5e5e5",background:"#fff",fontSize:11,fontWeight:700,cursor:"pointer",color:"#888"}}>Rename</button>{a.custom&&<button onClick={()=>setAreas(p=>p.filter(x=>x.id!==a.id))} style={{padding:"3px 9px",borderRadius:8,border:"2px solid #fee",background:"#fff",fontSize:11,fontWeight:700,cursor:"pointer",color:"#E05C3A"}}>Delete</button>}</>)}
+              :(<><span style={{flex:1,fontSize:13,fontWeight:800,color:"#333",fontFamily:"'DM Sans',sans-serif"}}>{a.label}</span><button onClick={()=>{setEditId(a.id);setEditLabel(a.label);}} style={{padding:"3px 9px",borderRadius:8,border:"2px solid #e5e5e5",background:"#fff",fontSize:11,fontWeight:800,cursor:"pointer",color:"#888"}}>Rename</button>{a.custom&&<button onClick={()=>setAreas(p=>p.filter(x=>x.id!==a.id))} style={{padding:"3px 9px",borderRadius:8,border:"2px solid #fee",background:"#fff",fontSize:11,fontWeight:800,cursor:"pointer",color:"#E05C3A"}}>Delete</button>}</>)}
               <div style={{width:11,height:11,borderRadius:"50%",background:a.color,flexShrink:0}}/>
             </div>
           ))}
@@ -700,7 +700,7 @@ function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAre
           <div style={{display:"flex",gap:5,marginBottom:10,flexWrap:"wrap"}}>{PALETTE.map(c=><button key={c} onClick={()=>setNewColor(c)} style={{width:22,height:22,borderRadius:"50%",background:c,border:newColor===c?"3px solid #333":"2px solid transparent",cursor:"pointer"}}/>)}</div>
           <button onClick={addArea} disabled={!newLabel.trim()} style={{width:"100%",padding:"9px",borderRadius:11,border:"none",background:newLabel.trim()?"linear-gradient(135deg,#3AABB5,#4F86C6)":"#e5e5e5",color:newLabel.trim()?"#fff":"#aaa",fontSize:15,fontWeight:800,cursor:newLabel.trim()?"pointer":"default",fontFamily:"'DM Sans',sans-serif"}}>+ Add area</button>
         </div>
-        <button onClick={onClose} style={{width:"100%",padding:"11px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#888",fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",marginTop:6}}>Done ✓</button>
+        <button onClick={onClose} style={{width:"100%",padding:"11px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#888",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",marginTop:6}}>Done ✓</button>
       </div>
     </div>
   );
@@ -715,26 +715,26 @@ function FocusTimer({ task, areas, onDone, onComplete, soundEnabled }) {
   return (
     <div style={{position:"fixed",inset:0,background:"#080e12",zIndex:2000,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Sans',sans-serif"}}>
       <div style={{textAlign:"center",maxWidth:340,padding:20,width:"100%"}}>
-        <div style={{fontSize:11,color:"rgba(255,255,255,0.3)",fontWeight:700,letterSpacing:"0.15em",marginBottom:8}}>FOCUS MODE</div>
-        <div style={{fontSize:19,color:"#fff",fontWeight:700,marginBottom:24,lineHeight:1.3,padding:"0 20px"}}>{task?.title}</div>
+        <div style={{fontSize:11,color:"rgba(255,255,255,0.3)",fontWeight:800,letterSpacing:"0.15em",marginBottom:8}}>FOCUS MODE</div>
+        <div style={{fontSize:19,color:"#fff",fontWeight:800,marginBottom:24,lineHeight:1.3,padding:"0 20px"}}>{task?.title}</div>
         <div style={{position:"relative",width:200,height:200,margin:"0 auto 28px"}}>
           <svg width="200" height="200" viewBox="0 0 200 200" style={{transform:"rotate(-90deg)"}}>
             <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="12"/>
             <circle cx="100" cy="100" r="88" fill="none" stroke={area.color} strokeWidth="12" strokeDasharray={`${2*Math.PI*88}`} strokeDashoffset={`${2*Math.PI*88*(1-prog/100)}`} strokeLinecap="round" style={{transition:"stroke-dashoffset 1s linear",filter:`drop-shadow(0 0 8px ${area.color})`}}/>
           </svg>
           <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
-            <span style={{fontSize:44,fontWeight:900,color:finished?"#5BAD6F":"#fff",letterSpacing:"-2px"}}>{finished?"✓":`${m}:${s}`}</span>
+            <span style={{fontSize:44,fontWeight:800,color:finished?"#5BAD6F":"#fff",letterSpacing:"-2px"}}>{finished?"✓":`${m}:${s}`}</span>
           </div>
         </div>
         {!finished?(
           <div style={{display:"flex",gap:10,justifyContent:"center"}}>
             <button onClick={()=>setRunning(r=>!r)} style={{padding:"12px 28px",borderRadius:14,border:"none",background:area.color,color:"#fff",fontSize:15,fontWeight:800,cursor:"pointer"}}>{running?"⏸ Pause":"▶ Start"}</button>
-            <button onClick={onDone} style={{padding:"12px 16px",borderRadius:14,border:"2px solid rgba(255,255,255,0.1)",background:"transparent",color:"rgba(255,255,255,0.4)",fontSize:15,fontWeight:700,cursor:"pointer"}}>Exit</button>
+            <button onClick={onDone} style={{padding:"12px 16px",borderRadius:14,border:"2px solid rgba(255,255,255,0.1)",background:"transparent",color:"rgba(255,255,255,0.4)",fontSize:15,fontWeight:800,cursor:"pointer"}}>Exit</button>
           </div>
         ):(
           <div style={{display:"flex",gap:10,justifyContent:"center"}}>
             <button onClick={()=>{onComplete(task.id);onDone();}} style={{padding:"12px 22px",borderRadius:14,border:"none",background:"#5BAD6F",color:"#fff",fontSize:15,fontWeight:800,cursor:"pointer"}}>✓ Mark done!</button>
-            <button onClick={onDone} style={{padding:"12px 16px",borderRadius:14,border:"2px solid rgba(255,255,255,0.1)",background:"transparent",color:"rgba(255,255,255,0.4)",fontSize:15,fontWeight:700,cursor:"pointer"}}>Not done yet</button>
+            <button onClick={onDone} style={{padding:"12px 16px",borderRadius:14,border:"2px solid rgba(255,255,255,0.1)",background:"transparent",color:"rgba(255,255,255,0.4)",fontSize:15,fontWeight:800,cursor:"pointer"}}>Not done yet</button>
           </div>
         )}
       </div>
@@ -761,7 +761,7 @@ function AiBreakdownModal({ task, onSave, onClose }) {
           {subtasks.map((st,i)=><div key={i} style={{display:"flex",gap:8,padding:"8px 10px",background:"#fafafa",borderRadius:10,marginBottom:5}}><span style={{color:"#ccc",fontSize:13}}>{i+1}.</span><span style={{fontSize:15,fontFamily:"'DM Sans',sans-serif",color:"#333"}}>{st.title}</span></div>)}
           <div style={{display:"flex",gap:8,marginTop:14}}>
             <button onClick={()=>onSave(task.id,subtasks)} style={{flex:1,padding:"11px",borderRadius:12,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Save subtasks ✓</button>
-            <button onClick={onClose} style={{padding:"11px 14px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
+            <button onClick={onClose} style={{padding:"11px 14px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
           </div>
         </>)}
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
@@ -780,16 +780,16 @@ function CalendarView({ tasks, areas, onComplete, onDelete, onBreakdown, onFocus
   return (
     <div>
       <div style={{display:"flex",gap:5,marginBottom:12}}>
-        {["day","week","month"].map(m=><button key={m} onClick={()=>{setMode(m);setOffset(0);}} style={{padding:"7px 14px",borderRadius:10,border:`2px solid ${mode===m?"#3AABB5":"#e0e0e0"}`,background:mode===m?"#E8F7F8":"#fff",color:mode===m?"#3AABB5":"#999",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",textTransform:"capitalize"}}>{m}</button>)}
+        {["day","week","month"].map(m=><button key={m} onClick={()=>{setMode(m);setOffset(0);}} style={{padding:"7px 14px",borderRadius:10,border:`2px solid ${mode===m?"#3AABB5":"#e0e0e0"}`,background:mode===m?"#E8F7F8":"#fff",color:mode===m?"#3AABB5":"#999",fontSize:11,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",textTransform:"capitalize"}}>{m}</button>)}
       </div>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:"#fff",borderRadius:14,padding:"10px 14px",marginBottom:14,boxShadow:"0 1px 6px rgba(0,0,0,0.04)"}}>
         <button onClick={()=>setOffset(o=>o-1)} style={{width:32,height:32,borderRadius:8,border:"2px solid #e0e0e0",background:"#fff",cursor:"pointer",fontSize:15,display:"flex",alignItems:"center",justifyContent:"center"}}>←</button>
         <div style={{textAlign:"center"}}><div style={{fontWeight:800,fontSize:15,color:"#1a1a1a",fontFamily:"'DM Sans',sans-serif"}}>{range.label}</div><div style={{fontSize:11,color:"#aaa"}}>{visibleTasks.length} tasks</div></div>
         <button onClick={()=>setOffset(o=>o+1)} style={{width:32,height:32,borderRadius:8,border:"2px solid #e0e0e0",background:"#fff",cursor:"pointer",fontSize:15,display:"flex",alignItems:"center",justifyContent:"center"}}>→</button>
       </div>
-      {offset!==0&&<button onClick={()=>setOffset(0)} style={{width:"100%",padding:"7px",borderRadius:10,border:"2px solid #e0e0e0",background:"#fff",color:"#aaa",fontSize:11,fontWeight:700,cursor:"pointer",marginBottom:12,fontFamily:"'DM Sans',sans-serif"}}>Back to current {mode}</button>}
+      {offset!==0&&<button onClick={()=>setOffset(0)} style={{width:"100%",padding:"7px",borderRadius:10,border:"2px solid #e0e0e0",background:"#fff",color:"#aaa",fontSize:11,fontWeight:800,cursor:"pointer",marginBottom:12,fontFamily:"'DM Sans',sans-serif"}}>Back to current {mode}</button>}
       {["today","week","month"].filter(h=>mode==="day"?h==="today":mode==="week"?h!=="month":true).map(h=>{ const group=visibleTasks.filter(t=>t.horizon===h); if(!group.length)return null; const hor=HORIZONS.find(x=>x.id===h); return(<div key={h} style={{marginBottom:20}}><h3 style={{fontSize:11,fontWeight:800,color:"#bbb",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:8,fontFamily:"'DM Sans',sans-serif"}}>{hor.icon} {hor.label} · {group.length}</h3>{group.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={onComplete} onDelete={onDelete} onBreakdown={onBreakdown} onFocus={onFocus} onEdit={onEdit} soundEnabled={soundEnabled}/>)}</div>); })}
-      {visibleTasks.length===0&&<div style={{textAlign:"center",padding:"40px 20px",color:"#bbb"}}><div style={{fontSize:38}}>✨</div><p style={{fontWeight:700,fontFamily:"'DM Sans',sans-serif"}}>Nothing here</p></div>}
+      {visibleTasks.length===0&&<div style={{textAlign:"center",padding:"40px 20px",color:"#bbb"}}><div style={{fontSize:38}}>✨</div><p style={{fontWeight:800,fontFamily:"'DM Sans',sans-serif"}}>Nothing here</p></div>}
     </div>
   );
 }
@@ -799,11 +799,11 @@ function StatsView({ tasks, areas, streak, done }) {
   return (
     <div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
-        {[{v:`🔥 ${streak}`,l:"Day streak",c:"#E09B3D"},{v:done.length,l:"Tasks done",c:"#5BAD6F"},{v:incomplete.length,l:"Still to do",c:"#4F86C6"},{v:incomplete.filter(t=>t.recur&&t.recur!=="none").length,l:"Recurring",c:"#8B6FBE"}].map(s=><div key={s.l} style={{background:"#fff",borderRadius:14,padding:"14px 16px",boxShadow:"0 2px 8px rgba(0,0,0,0.04)"}}><div style={{fontSize:24,fontWeight:900,color:s.c,fontFamily:"'DM Sans',sans-serif"}}>{s.v}</div><div style={{fontSize:11,color:"#aaa",fontWeight:700,fontFamily:"'DM Sans',sans-serif"}}>{s.l}</div></div>)}
+        {[{v:`🔥 ${streak}`,l:"Day streak",c:"#E09B3D"},{v:done.length,l:"Tasks done",c:"#5BAD6F"},{v:incomplete.length,l:"Still to do",c:"#4F86C6"},{v:incomplete.filter(t=>t.recur&&t.recur!=="none").length,l:"Recurring",c:"#8B6FBE"}].map(s=><div key={s.l} style={{background:"#fff",borderRadius:14,padding:"14px 16px",boxShadow:"0 2px 8px rgba(0,0,0,0.04)"}}><div style={{fontSize:24,fontWeight:800,color:s.c,fontFamily:"'DM Sans',sans-serif"}}>{s.v}</div><div style={{fontSize:11,color:"#aaa",fontWeight:800,fontFamily:"'DM Sans',sans-serif"}}>{s.l}</div></div>)}
       </div>
       <div style={{background:"#fff",borderRadius:14,padding:"16px 18px",boxShadow:"0 2px 8px rgba(0,0,0,0.04)"}}>
         <h3 style={{fontSize:11,fontWeight:800,margin:"0 0 12px",color:"#888",fontFamily:"'DM Sans',sans-serif"}}>By area</h3>
-        {areas.map(a=>{ const n=incomplete.filter(t=>t.area===a.id).length,tot=tasks.filter(t=>t.area===a.id).length; if(!tot)return null; return <div key={a.id} style={{marginBottom:9}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:11,fontWeight:700,color:"#555",fontFamily:"'DM Sans',sans-serif"}}>{a.emoji} {a.label}</span><span style={{fontSize:11,color:"#bbb"}}>{n} left / {tot}</span></div><div style={{background:"#f0f0f0",borderRadius:20,height:6}}><div style={{width:`${Math.round(((tot-n)/tot)*100)}%`,height:"100%",background:a.color,borderRadius:20,transition:"width 0.6s"}}/></div></div>; })}
+        {areas.map(a=>{ const n=incomplete.filter(t=>t.area===a.id).length,tot=tasks.filter(t=>t.area===a.id).length; if(!tot)return null; return <div key={a.id} style={{marginBottom:9}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:11,fontWeight:800,color:"#555",fontFamily:"'DM Sans',sans-serif"}}>{a.emoji} {a.label}</span><span style={{fontSize:11,color:"#bbb"}}>{n} left / {tot}</span></div><div style={{background:"#f0f0f0",borderRadius:20,height:6}}><div style={{width:`${Math.round(((tot-n)/tot)*100)}%`,height:"100%",background:a.color,borderRadius:20,transition:"width 0.6s"}}/></div></div>; })}
       </div>
     </div>
   );
@@ -950,14 +950,14 @@ function DailyPlanModal({ tasks, projects, areas, userName, planningPref, onAddT
                 <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
                   {projects.map(p=>(
                     <button key={p.id} onClick={()=>handleFocusPick(p.id,`${p.emoji} ${p.name}`)}
-                      style={{padding:"8px 14px",borderRadius:20,border:"2px solid #e5e5e5",background:"#fff",color:"#333",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",whiteSpace:"nowrap"}}>
+                      style={{padding:"8px 14px",borderRadius:20,border:"2px solid #e5e5e5",background:"#fff",color:"#333",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",whiteSpace:"nowrap"}}>
                       {p.emoji} {p.name}
                     </button>
                   ))}
                 </div>
               )}
               <button onClick={()=>handleFocusPick("all","Mix of everything")}
-                style={{padding:"11px 14px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#333",fontSize:15,fontWeight:700,cursor:"pointer",textAlign:"left",fontFamily:"'DM Sans',sans-serif"}}>
+                style={{padding:"11px 14px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#333",fontSize:15,fontWeight:800,cursor:"pointer",textAlign:"left",fontFamily:"'DM Sans',sans-serif"}}>
                 Mix of everything
               </button>
             </div>
@@ -966,11 +966,11 @@ function DailyPlanModal({ tasks, projects, areas, userName, planningPref, onAddT
           {phase==="empty"&&(
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
               <button onClick={()=>setPhase("focus")}
-                style={{padding:"11px 14px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#333",fontSize:15,fontWeight:700,cursor:"pointer",textAlign:"left",fontFamily:"'DM Sans',sans-serif"}}>
+                style={{padding:"11px 14px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#333",fontSize:15,fontWeight:800,cursor:"pointer",textAlign:"left",fontFamily:"'DM Sans',sans-serif"}}>
                 Change focus
               </button>
               <button onClick={()=>handleFocusPick("all","Mix of everything")}
-                style={{padding:"11px 14px",borderRadius:12,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:15,fontWeight:700,cursor:"pointer",textAlign:"left",fontFamily:"'DM Sans',sans-serif"}}>
+                style={{padding:"11px 14px",borderRadius:12,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:15,fontWeight:800,cursor:"pointer",textAlign:"left",fontFamily:"'DM Sans',sans-serif"}}>
                 Mix of everything
               </button>
             </div>
@@ -986,7 +986,7 @@ function DailyPlanModal({ tasks, projects, areas, userName, planningPref, onAddT
                   const area=areas.find(a=>a.id===task.area)||areas[0];
                   return (
                     <button key={id} onClick={()=>setSelected(prev=>{const next=new Set(prev);isOn?next.delete(id):next.add(id);return next;})}
-                      style={{padding:"7px 12px",borderRadius:20,fontSize:11,fontWeight:700,cursor:"pointer",
+                      style={{padding:"7px 12px",borderRadius:20,fontSize:11,fontWeight:800,cursor:"pointer",
                         border:`2px solid ${isOn?area.color:"#e0e0e0"}`,
                         background:isOn?area.color+"22":"#fff",
                         color:isOn?area.color:"#999",
@@ -1002,7 +1002,7 @@ function DailyPlanModal({ tasks, projects, areas, userName, planningPref, onAddT
               {showOverwhelmPrompt&&(
                 <div style={{display:"flex",gap:8,marginBottom:10}}>
                   <button onClick={onEscape} style={{flex:1,padding:"9px",borderRadius:11,border:"none",background:"#3AABB5",color:"#fff",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Yes, brain dump</button>
-                  <button onClick={()=>setShowOverwhelmPrompt(false)} style={{flex:1,padding:"9px",borderRadius:11,border:"2px solid #e5e5e5",background:"#fff",color:"#555",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>I'm ok, carry on</button>
+                  <button onClick={()=>setShowOverwhelmPrompt(false)} style={{flex:1,padding:"9px",borderRadius:11,border:"2px solid #e5e5e5",background:"#fff",color:"#555",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>I'm ok, carry on</button>
                 </div>
               )}
               {/* Free text add */}
@@ -1163,8 +1163,8 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
             <div style={{display:"flex",alignItems:"center",gap:11}}>
               {appLogo?<img src={appLogo} style={{width:38,height:38,borderRadius:11,objectFit:"cover",border:"2px solid rgba(255,255,255,0.15)"}}/>:<UntangleLogo size={38}/>}
               <div>
-                <div style={{color:"#fff",fontSize:19,fontWeight:900,letterSpacing:"-0.5px"}}>{appName}</div>
-                <div style={{color:"rgba(255,255,255,0.35)",fontSize:11,fontWeight:500}}>{incomplete.length} tasks to untangle{streak>0?` · 🔥 ${streak} days`:""}{isCurrentlyAway&&awayMode.to?` · ✈ Away until ${new Date(awayMode.to+"T00:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"})}`:""}</div>
+                <div style={{color:"#fff",fontSize:19,fontWeight:800,letterSpacing:"-0.5px"}}>{appName}</div>
+                <div style={{color:"rgba(255,255,255,0.35)",fontSize:11,fontWeight:600}}>{incomplete.length} tasks to untangle{streak>0?` · 🔥 ${streak} days`:""}{isCurrentlyAway&&awayMode.to?` · ✈ Away until ${new Date(awayMode.to+"T00:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"})}`:""}</div>
               </div>
             </div>
             <div style={{display:"flex",gap:6,alignItems:"center"}}>
@@ -1177,11 +1177,11 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
             {[{label:"🧠 Dump",action:()=>setShowDump(true)},{label:"🎤 Voice",action:()=>setShowVoice(true)},].map(b=>(
               <button key={b.label} onClick={b.action} style={{padding:"5px 12px",borderRadius:20,border:"2px solid rgba(255,255,255,0.12)",background:"rgba(255,255,255,0.06)",color:"rgba(255,255,255,0.7)",fontSize:11,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}}>{b.label}</button>
             ))}
-            {todayPlanDate!==todayStr()&&!isCurrentlyAway&&<button onClick={()=>setShowPlanModal(true)} style={{padding:"5px 12px",borderRadius:20,border:"2px solid rgba(58,171,181,0.4)",background:"rgba(58,171,181,0.12)",color:"rgba(255,255,255,0.85)",fontSize:11,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>Plan day ✦</button>}
+            {todayPlanDate!==todayStr()&&!isCurrentlyAway&&<button onClick={()=>setShowPlanModal(true)} style={{padding:"5px 12px",borderRadius:20,border:"2px solid rgba(58,171,181,0.4)",background:"rgba(58,171,181,0.12)",color:"rgba(255,255,255,0.85)",fontSize:11,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap"}}>Plan day ✦</button>}
           </div>
           <div style={{display:"flex",gap:2,overflowX:"auto"}}>
             {[{id:"today",label:"📋 Today"},{id:"calendar",label:"📅 Calendar"},{id:"area",label:"🗂️ By Area"},{id:"stats",label:"📊 Progress"}].map(v=>(
-              <button key={v.id} onClick={()=>setView(v.id)} style={{padding:"9px 14px",borderRadius:"12px 12px 0 0",fontSize:11,fontWeight:700,cursor:"pointer",border:"none",whiteSpace:"nowrap",background:view===v.id?"#F2F1EF":"transparent",color:view===v.id?"#152232":"rgba(255,255,255,0.5)",flexShrink:0}}>{v.label}</button>
+              <button key={v.id} onClick={()=>setView(v.id)} style={{padding:"9px 14px",borderRadius:"12px 12px 0 0",fontSize:11,fontWeight:800,cursor:"pointer",border:"none",whiteSpace:"nowrap",background:view===v.id?"#F2F1EF":"transparent",color:view===v.id?"#152232":"rgba(255,255,255,0.5)",flexShrink:0}}>{v.label}</button>
             ))}
           </div>
         </div>
@@ -1212,7 +1212,7 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
                 <button onClick={()=>setShowPlanModal(true)} style={{padding:"8px 14px",borderRadius:11,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:11,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",whiteSpace:"nowrap"}}>Plan day ✦</button>
               </div>
             )}
-            {(()=>{ const todayTasks=incomplete.filter(t=>t.horizon==="today"); return todayTasks.length===0?(<div style={{textAlign:"center",padding:"36px 20px",color:"#bbb"}}><div style={{fontSize:44}}>📋</div><p style={{fontWeight:700,fontSize:15,fontFamily:"'DM Sans',sans-serif"}}>{todayPlanDate===todayStr()?"All done for today!":"No tasks planned yet"}</p></div>):todayTasks.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(t,mode)=>mode==='reassign'?setReassignTask(t):setEditTask(t)} soundEnabled={soundEnabled}/>); })()}
+            {(()=>{ const todayTasks=incomplete.filter(t=>t.horizon==="today"); return todayTasks.length===0?(<div style={{textAlign:"center",padding:"36px 20px",color:"#bbb"}}><div style={{fontSize:44}}>📋</div><p style={{fontWeight:800,fontSize:15,fontFamily:"'DM Sans',sans-serif"}}>{todayPlanDate===todayStr()?"All done for today!":"No tasks planned yet"}</p></div>):todayTasks.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(t,mode)=>mode==='reassign'?setReassignTask(t):setEditTask(t)} soundEnabled={soundEnabled}/>); })()}
             {done.filter(t=>t.lastCountDate===todayStr()).length>0&&(
               <div style={{marginTop:22}}>
                 <div style={{fontSize:11,fontWeight:800,color:"#bbb",letterSpacing:"0.09em",textTransform:"uppercase",marginBottom:10,fontFamily:"'DM Sans',sans-serif"}}>Done today</div>
@@ -1225,14 +1225,14 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
         {view==="area"&&(
           <div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(110px,1fr))",gap:7,marginBottom:18}}>
-              {areas.map(a=>{ const n=incomplete.filter(t=>t.area===a.id).length; const pn=projects.filter(p=>p.bucketId===a.id).length; return <button key={a.id} onClick={()=>setActiveArea(a.id)} style={{padding:"10px 8px",borderRadius:14,border:`2px solid ${activeArea===a.id?a.color:"#e0e0e0"}`,background:activeArea===a.id?(a.bg||colorBg(a.color)):"#fff",textAlign:"center",cursor:"pointer",boxShadow:activeArea===a.id?`0 4px 14px ${a.color}33`:"none",transition:"all 0.18s"}}><div style={{fontSize:19}}>{a.emoji}</div><div style={{fontSize:11,fontWeight:700,color:activeArea===a.id?a.color:"#aaa",marginTop:3,fontFamily:"'DM Sans',sans-serif"}}>{a.label}</div>{n>0&&<div style={{fontSize:11,color:a.color,fontWeight:800,marginTop:2}}>{n}</div>}{pn>0&&<div style={{fontSize:11,color:"#aaa",fontWeight:700,marginTop:1,fontFamily:"'DM Sans',sans-serif"}}>📁 {pn}</div>}</button>; })}
+              {areas.map(a=>{ const n=incomplete.filter(t=>t.area===a.id).length; const pn=projects.filter(p=>p.bucketId===a.id).length; return <button key={a.id} onClick={()=>setActiveArea(a.id)} style={{padding:"10px 8px",borderRadius:14,border:`2px solid ${activeArea===a.id?a.color:"#e0e0e0"}`,background:activeArea===a.id?(a.bg||colorBg(a.color)):"#fff",textAlign:"center",cursor:"pointer",boxShadow:activeArea===a.id?`0 4px 14px ${a.color}33`:"none",transition:"all 0.18s"}}><div style={{fontSize:19}}>{a.emoji}</div><div style={{fontSize:11,fontWeight:800,color:activeArea===a.id?a.color:"#aaa",marginTop:3,fontFamily:"'DM Sans',sans-serif"}}>{a.label}</div>{n>0&&<div style={{fontSize:11,color:a.color,fontWeight:800,marginTop:2}}>{n}</div>}{pn>0&&<div style={{fontSize:11,color:"#aaa",fontWeight:800,marginTop:1,fontFamily:"'DM Sans',sans-serif"}}>📁 {pn}</div>}</button>; })}
             </div>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
               <button onClick={()=>setShowCreateProject(true)} style={{padding:"7px 14px",borderRadius:10,border:"2px solid #e0e0e0",background:"#fff",color:"#555",fontSize:11,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>＋ New Project</button>
               <button onClick={()=>setShowAdd(true)} style={{padding:"7px 14px",borderRadius:10,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:11,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>+ Add task</button>
             </div>
             {projects.filter(p=>p.bucketId===activeArea).map(p=>{ const isExpanded=expandedProjects.has(p.id); const projectTasks=tasks.filter(t=>t.projectId===p.id&&!t.done); const count=projectTasks.length; return <div key={p.id} style={{marginBottom:8}}><div onClick={()=>setExpandedProjects(prev=>{const next=new Set(prev);next.has(p.id)?next.delete(p.id):next.add(p.id);return next;})} style={{background:"#fff",borderRadius:isExpanded?"14px 14px 0 0":14,padding:"12px 16px",display:"flex",alignItems:"center",gap:12,boxShadow:"0 1px 4px rgba(0,0,0,0.06)",borderLeft:`4px solid ${p.colour}`,cursor:"pointer"}}><span style={{fontSize:19}}>{p.emoji}</span><span style={{flex:1,fontSize:15,fontWeight:800,color:"#333",fontFamily:"'DM Sans',sans-serif"}}>{p.name}</span><span style={{fontSize:11,color:"#aaa",fontWeight:600,fontFamily:"'DM Sans',sans-serif"}}>{count} task{count!==1?"s":""}</span><button onClick={e=>{e.stopPropagation();setEditingProject(p);}} style={{background:"none",border:"none",color:"#ccc",fontSize:15,cursor:"pointer",padding:"2px 4px",lineHeight:1}}>✎</button><span style={{fontSize:15,color:"#bbb",display:"inline-block",transform:isExpanded?"rotate(90deg)":"rotate(0deg)",transition:"transform 0.18s"}}>›</span></div>{isExpanded&&<div style={{background:"#fafafa",borderRadius:"0 0 14px 14px",borderLeft:`4px solid ${p.colour}`,padding:"8px 12px 10px",boxShadow:"0 2px 6px rgba(0,0,0,0.04)"}}>{projectTasks.length===0?<p style={{fontSize:11,color:"#bbb",textAlign:"center",padding:"10px 0",fontFamily:"'DM Sans',sans-serif"}}>No tasks yet</p>:projectTasks.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(t,mode)=>mode==='reassign'?setReassignTask(t):setEditTask(t)} soundEnabled={soundEnabled}/>)}</div>}</div>; })}
-            {tasks.filter(t=>t.area===activeArea).length===0?<div style={{textAlign:"center",padding:"36px 20px",color:"#bbb"}}><div style={{fontSize:38}}>{areas.find(a=>a.id===activeArea)?.emoji}</div><p style={{fontWeight:700,fontFamily:"'DM Sans',sans-serif"}}>Nothing here</p></div>
+            {tasks.filter(t=>t.area===activeArea).length===0?<div style={{textAlign:"center",padding:"36px 20px",color:"#bbb"}}><div style={{fontSize:38}}>{areas.find(a=>a.id===activeArea)?.emoji}</div><p style={{fontWeight:800,fontFamily:"'DM Sans',sans-serif"}}>Nothing here</p></div>
             :HORIZONS.map(h=>{ const group=tasks.filter(t=>t.area===activeArea&&t.horizon===h.id&&!t.done); if(!group.length)return null; return <div key={h.id} style={{marginBottom:18}}><h3 style={{fontSize:11,fontWeight:800,color:"#bbb",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:7,fontFamily:"'DM Sans',sans-serif"}}>{h.icon} {h.label}</h3>{group.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(task, mode)=>mode==='reassign'?setReassignTask(task):setEditTask(task)} soundEnabled={soundEnabled}/>)}</div>; })}
           </div>
         )}

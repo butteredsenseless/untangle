@@ -174,7 +174,7 @@ function StepConversation({ userData, setUserData, next }) {
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {q.options.map(opt => (
                 <button key={opt} onClick={() => handleAnswer(opt)}
-                  style={{ padding: "12px 16px", borderRadius: 12, border: "2px solid #e5e5e5", background: "#fff", color: "#333", fontSize: 15, fontWeight: 700, cursor: "pointer", textAlign: "left" }}>
+                  style={{ padding: "12px 16px", borderRadius: 12, border: "2px solid #e5e5e5", background: "#fff", color: "#333", fontSize: 15, fontWeight: 800, cursor: "pointer", textAlign: "left" }}>
                   {opt}
                 </button>
               ))}
@@ -269,7 +269,7 @@ function StepFirstTask({ areas, onAddTasks, next }) {
       )}
 
       {loading && (
-        <p style={{ fontSize: 13, color: "#3AABB5", fontWeight: 700, marginBottom: 12 }}>Alexander is sorting…</p>
+        <p style={{ fontSize: 13, color: "#3AABB5", fontWeight: 800, marginBottom: 12 }}>Alexander is sorting…</p>
       )}
 
       {sorted && (
@@ -277,7 +277,7 @@ function StepFirstTask({ areas, onAddTasks, next }) {
           <div style={{ background: "#fff", borderRadius: 16, padding: "14px 16px", border: "2px solid #e5e5e5", marginBottom: 20, display: "flex", alignItems: "center", gap: 12 }}>
             <div style={{ fontSize: 24 }}>{sorted.area.emoji}</div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "#333" }}>{sorted.title}</div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: "#333" }}>{sorted.title}</div>
               <div style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>{sorted.area.label}</div>
             </div>
             <div style={{ fontSize: 19, color: "#4ade80" }}>✓</div>
@@ -328,7 +328,7 @@ function StepBrainDump({ areas, onAddTasks, next }) {
       <p style={{ fontSize: 24, fontWeight: 800, marginBottom: 8 }}>Now try a brain dump</p>
       <p style={{ fontSize: 15, color: "#aaa", marginBottom: 20 }}>
         Add up to {MAX} tasks — one at a time. Alexander will sort each one into the right bucket as you go. No tags, no categories. Just type.{" "}
-        <span style={{ color: "#3AABB5", fontWeight: 700 }}>({sorted.length}/{MAX})</span>
+        <span style={{ color: "#3AABB5", fontWeight: 800 }}>({sorted.length}/{MAX})</span>
       </p>
 
       {sorted.length > 0 && (
@@ -337,17 +337,17 @@ function StepBrainDump({ areas, onAddTasks, next }) {
             <div key={i} style={{ animation: "fadein 0.3s ease", background: "#fff", borderRadius: 14, padding: "12px 14px", border: "2px solid #e5e5e5", display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ fontSize: 24 }}>{s.area.emoji}</div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "#333" }}>{s.title}</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: "#333" }}>{s.title}</div>
                 <div style={{ fontSize: 11, color: "#aaa" }}>{s.area.label}</div>
               </div>
-              <div style={{ fontSize: 15, color: "#4ade80", fontWeight: 700 }}>✓</div>
+              <div style={{ fontSize: 15, color: "#4ade80", fontWeight: 800 }}>✓</div>
             </div>
           ))}
         </div>
       )}
 
       {loading && (
-        <p style={{ fontSize: 13, color: "#3AABB5", fontWeight: 700, marginBottom: 12 }}>Alexander is sorting…</p>
+        <p style={{ fontSize: 13, color: "#3AABB5", fontWeight: 800, marginBottom: 12 }}>Alexander is sorting…</p>
       )}
 
       {!done && (
@@ -376,7 +376,7 @@ function StepBrainDump({ areas, onAddTasks, next }) {
       )}
 
       {!done && sorted.length > 0 && (
-        <button onClick={next} style={{ width: "100%", padding: 12, borderRadius: 14, border: "2px solid #e5e5e5", background: "#fff", color: "#aaa", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>
+        <button onClick={next} style={{ width: "100%", padding: 12, borderRadius: 14, border: "2px solid #e5e5e5", background: "#fff", color: "#aaa", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>
           Skip →
         </button>
       )}
@@ -393,7 +393,7 @@ function StepBuckets({ areas, next }) {
         {areas.map(a => (
           <div key={a.id} style={{ padding: "14px 10px", borderRadius: 14, background: "#fff", border: "2px solid #e5e5e5", textAlign: "center" }}>
             <div style={{ fontSize: 24 }}>{a.emoji}</div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#555", marginTop: 4 }}>{a.label}</div>
+            <div style={{ fontSize: 11, fontWeight: 800, color: "#555", marginTop: 4 }}>{a.label}</div>
           </div>
         ))}
       </div>
@@ -425,7 +425,7 @@ function StepTodaysKnot({ tasks, areas, onSet, next }) {
                 padding: "12px 16px", borderRadius: 14,
                 border: `2px solid ${selected === t.title ? "#3AABB5" : "#e5e5e5"}`,
                 background: selected === t.title ? "#e8f7f8" : "#fff",
-                color: "#333", fontSize: 15, fontWeight: 700, cursor: "pointer",
+                color: "#333", fontSize: 15, fontWeight: 800, cursor: "pointer",
                 textAlign: "left", display: "flex", alignItems: "center", gap: 10,
                 fontFamily: "'DM Sans', sans-serif"
               }}>
@@ -442,7 +442,7 @@ function StepTodaysKnot({ tasks, areas, onSet, next }) {
           Let's go →
         </button>
       ) : (
-        <button onClick={next} style={{ width: "100%", padding: 12, borderRadius: 14, border: "2px solid #e5e5e5", background: "#fff", color: "#aaa", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>
+        <button onClick={next} style={{ width: "100%", padding: 12, borderRadius: 14, border: "2px solid #e5e5e5", background: "#fff", color: "#aaa", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>
           Skip for now →
         </button>
       )}
