@@ -13,7 +13,7 @@ ${Object.keys(learned).length > 0 ? `\nLearned corrections:\n${Object.entries(le
 Analyse the input and respond with ONLY a JSON object, no markdown:
 {
   "title": "keep the user's original wording, only fix typos or remove hashtags — never rewrite or interpret",
-  "area": "bucket id from the list above",
+  "area": "the exact bucket id from the list above (the part before the colon, e.g. 'health' not 'Health & Fitness')",
   "type": "task|recurring|deadline|goal|project",
   "recur": "none|daily|weekday|weekly|monthly",
   "dailyTarget": 1,

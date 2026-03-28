@@ -4,7 +4,9 @@ import { askAlexander } from "./alexander.js";
 const uid = () => Math.random().toString(36).slice(2, 9);
 
 function makeTask(raw, result, areas) {
-  const area = areas.find(a => a.id === result.area) || areas[0];
+  const area = areas.find(a => a.id === result.area)
+    || areas.find(a => a.label?.toLowerCase() === result.area?.toLowerCase())
+    || areas[0];
   return {
     id: uid(),
     title: result.title || raw,

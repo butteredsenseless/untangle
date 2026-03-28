@@ -831,6 +831,14 @@ function DailyPlanModal({ tasks, projects, areas, userName, planningPref, onAddT
     setLoading(true);
     try {
       const ids = await askAlexanderForPlan(tasks, projects, focusId, userName, areas);
+      if (!ids || ids.length === 0) {
+        setLoading(false);
+        setTimeout(() => {
+          addMsg("alex", "Nothing in there yet — want to try a different focus or mix of everything instead?");
+          setPhase("empty");
+        }, 300);
+        return;
+      }
       setSuggested(ids);
       setSelected(new Set(ids));
     } catch { setSuggested([]); }
@@ -877,11 +885,6 @@ function DailyPlanModal({ tasks, projects, areas, userName, planningPref, onAddT
     setTimeout(() => onConfirm([...selected]), 1800);
   };
 
-  const focusOptions = [
-    ...projects.map(p => ({ id: p.id, label: `${p.emoji} ${p.name}` })),
-    { id: "all", label: "Mix of everything" }
-  ];
-
   const bubbleStyle = (type) => ({
     maxWidth: "78%",
     padding: "12px 16px",
@@ -919,12 +922,33 @@ function DailyPlanModal({ tasks, projects, areas, userName, planningPref, onAddT
         <div style={{padding:"12px 16px 16px",background:"#fff",borderTop:"1px solid #ebebeb"}}>
           {phase==="focus"&&(
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              {focusOptions.map(opt=>(
-                <button key={opt.id} onClick={()=>handleFocusPick(opt.id,opt.label)}
-                  style={{padding:"11px 14px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#333",fontSize:14,fontWeight:700,cursor:"pointer",textAlign:"left",fontFamily:"'DM Sans',sans-serif"}}>
-                  {opt.label}
-                </button>
-              ))}
+              {projects.length>0&&(
+                <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                  {projects.map(p=>(
+                    <button key={p.id} onClick={()=>handleFocusPick(p.id,`${p.emoji} ${p.name}`)}
+                      style={{padding:"8px 14px",borderRadius:20,border:"2px solid #e5e5e5",background:"#fff",color:"#333",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",whiteSpace:"nowrap"}}>
+                      {p.emoji} {p.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <button onClick={()=>handleFocusPick("all","Mix of everything")}
+                style={{padding:"11px 14px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#333",fontSize:14,fontWeight:700,cursor:"pointer",textAlign:"left",fontFamily:"'DM Sans',sans-serif"}}>
+                Mix of everything
+              </button>
+            </div>
+          )}
+
+          {phase==="empty"&&(
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              <button onClick={()=>setPhase("focus")}
+                style={{padding:"11px 14px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#333",fontSize:14,fontWeight:700,cursor:"pointer",textAlign:"left",fontFamily:"'DM Sans',sans-serif"}}>
+                Change focus
+              </button>
+              <button onClick={()=>handleFocusPick("all","Mix of everything")}
+                style={{padding:"11px 14px",borderRadius:12,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:14,fontWeight:700,cursor:"pointer",textAlign:"left",fontFamily:"'DM Sans',sans-serif"}}>
+                Mix of everything
+              </button>
             </div>
           )}
 
@@ -970,7 +994,7 @@ function DailyPlanModal({ tasks, projects, areas, userName, planningPref, onAddT
             </div>
           )}
 
-          {(phase==="focus"||phase==="chips")&&(
+          {(phase==="focus"||phase==="chips"||phase==="empty")&&(
             <button onClick={onEscape} style={{width:"100%",marginTop:10,padding:"8px",borderRadius:10,border:"1px solid #e5e5e5",background:"transparent",color:"#bbb",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
               Not feeling it — just empty my mind instead
             </button>
