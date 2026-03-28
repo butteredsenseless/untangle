@@ -234,13 +234,13 @@ function TaskCard({ task, areas, onComplete, onUncomplete, onDelete, onBreakdown
   const isCountTask = task.dailyTarget > 1;
   const countProgress = isCountTask ? (task.dailyCount||0) / task.dailyTarget : 0;
   return (
-    <div style={{position:"relative",marginBottom:8,overflow:"hidden",borderRadius:14}}>
-      <div style={{position:"absolute",inset:0,background:"#5BAD6F",borderRadius:14,display:"flex",alignItems:"center",paddingLeft:16,opacity:swipeX>20?Math.min((swipeX-20)/40,1):0}}><span style={{fontSize:19}}>✓</span></div>
-      <div style={{position:"absolute",inset:0,background:"#E05C3A",borderRadius:14,display:"flex",alignItems:"center",justifyContent:"flex-end",paddingRight:16,opacity:swipeX<-20?Math.min((-swipeX-20)/40,1):0}}><span style={{fontSize:19}}>🗑️</span></div>
+    <div style={{position:"relative",marginBottom:8,overflow:"hidden",borderRadius:16}}>
+      <div style={{position:"absolute",inset:0,background:"#5BAD6F",borderRadius:16,display:"flex",alignItems:"center",paddingLeft:16,opacity:swipeX>20?Math.min((swipeX-20)/40,1):0}}><span style={{fontSize:19}}>✓</span></div>
+      <div style={{position:"absolute",inset:0,background:"#E05C3A",borderRadius:16,display:"flex",alignItems:"center",justifyContent:"flex-end",paddingRight:16,opacity:swipeX<-20?Math.min((-swipeX-20)/40,1):0}}><span style={{fontSize:19}}>🗑️</span></div>
       <div ref={cardRef} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
-        style={{background:"#fff",border:`1.5px solid ${area.color}18`,borderLeft:`4px solid ${area.color}`,borderRadius:14,padding:compact?"9px 13px":"13px 16px",display:"flex",alignItems:"flex-start",gap:11,boxShadow:"0 1px 6px rgba(0,0,0,0.04)",opacity:task.done?0.4:1,transform:`translateX(${swipeX}px)`,transition:swiping?"none":"transform 0.25s cubic-bezier(.23,1,.32,1)"}}
+        style={{background:"#fff",border:`1.5px solid ${area.color}18`,borderLeft:`4px solid ${area.color}`,borderRadius:16,padding:compact?"8px 12px":"16px",display:"flex",alignItems:"flex-start",gap:11,boxShadow:"0 2px 8px rgba(0,0,0,0.06)",opacity:task.done?0.4:1,transform:`translateX(${swipeX}px)`,transition:swiping?"none":"transform 0.25s cubic-bezier(.23,1,.32,1)"}}
         onMouseEnter={e=>{if(!task.done)e.currentTarget.style.boxShadow="0 4px 16px rgba(0,0,0,0.08)";}}
-        onMouseLeave={e=>{e.currentTarget.style.boxShadow="0 1px 6px rgba(0,0,0,0.04)";}}>
+        onMouseLeave={e=>{e.currentTarget.style.boxShadow="0 2px 8px rgba(0,0,0,0.06)";}}>
         {pop&&<ConfettiPop x={pop.x} y={pop.y}/>}
         {isCountTask?(
           <button onClick={handleComplete} style={{width:28,height:28,minWidth:28,borderRadius:10,border:`2px solid ${area.color}`,background:colorBg(area.color),cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",marginTop:4,flexDirection:"column",padding:0}}>
@@ -326,7 +326,7 @@ for (let i = 0; i < lines.length; i++) {
 };
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div style={{background:"#fff",borderRadius:22,padding:24,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.2)"}}>
+      <div style={{background:"#fff",borderRadius:22,padding:24,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.16)"}}>
         <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,marginBottom:4}}>🎤 Voice Brain Dump</h2>
         <p style={{fontSize:11,color:"#aaa",marginBottom:16}}>Works in Chrome, Safari, Edge. Each sentence becomes a task.</p>
         {!supported?<div style={{background:"#fff8e1",borderRadius:12,padding:16,marginBottom:16}}><p style={{fontSize:13,color:"#b8860b",fontWeight:800,margin:0}}>⚠️ Try Chrome or Safari, or paste below.</p></div>:(
@@ -335,7 +335,7 @@ for (let i = 0; i < lines.length; i++) {
             <p style={{fontSize:11,color:"#aaa",marginTop:8}}>{status}</p>
           </div>
         )}
-        <textarea value={transcript} onChange={e=>setTranscript(e.target.value)} placeholder="Your speech appears here…" rows={6} style={{width:"100%",padding:"12px 12px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:15,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",resize:"vertical",lineHeight:1.5}}/>
+        <textarea value={transcript} onChange={e=>setTranscript(e.target.value)} placeholder="Your speech appears here…" rows={6} style={{width:"100%",padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:15,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",resize:"vertical",lineHeight:1.5}}/>
         <div style={{display:"flex",gap:8,marginTop:12}}>
           <button onClick={handleImport} disabled={!transcript.trim()} style={{flex:1,padding:"12px",borderRadius:12,border:"none",background:transcript.trim()?"linear-gradient(135deg,#3AABB5,#4F86C6)":"#e5e5e5",color:transcript.trim()?"#fff":"#aaa",fontSize:15,fontWeight:800,cursor:transcript.trim()?"pointer":"default",fontFamily:"'DM Sans',sans-serif"}}>Import tasks ✓</button>
           <button onClick={onClose} style={{padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
@@ -395,7 +395,7 @@ function BrainDumpModal({ areas, onAddMany, onClose, learned={} }) {
 
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&!loading&&onClose()}>
-      <div style={{background:"#fff",borderRadius:22,padding:24,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.18)"}}>
+      <div style={{background:"#fff",borderRadius:22,padding:24,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.16)"}}>
         <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,marginBottom:4}}>🧠 Brain Dump</h2>
         <p style={{fontSize:13,color:"#aaa",marginBottom:16}}>One task per line. Just type naturally — Alexander will sort them.</p>
         <textarea value={text} onChange={e=>setText(e.target.value)} autoFocus placeholder={"call the dentist\npay council tax\nwalk the dog every morning"} rows={10} style={{width:"100%",padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:15,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",resize:"vertical",lineHeight:1.5}} disabled={loading}/>
@@ -419,7 +419,7 @@ function BrainDumpModal({ areas, onAddMany, onClose, learned={} }) {
 function ReassignPicker({ task, areas, onPick, onClose }) {
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div style={{background:"#fff",borderRadius:22,padding:24,width:"100%",maxWidth:380,boxShadow:"0 24px 64px rgba(0,0,0,0.18)"}}>
+      <div style={{background:"#fff",borderRadius:22,padding:24,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.16)"}}>
         <div style={{fontFamily:"'DM Sans',sans-serif",fontWeight:800,fontSize:15,marginBottom:4}}>Move to bucket</div>
         <div style={{fontSize:11,color:"#aaa",marginBottom:16}}>"{task.title}"</div>
         <div style={{display:"flex",flexDirection:"column",gap:6}}>
@@ -456,7 +456,7 @@ function ProjectModal({ areas, defaultBucketId, onSave, onClose, existing=null, 
 
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:1000}} onClick={onClose}>
-      <div style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"32px 24px 32px",width:"100%",maxWidth:480}} onClick={e=>e.stopPropagation()}>
+      <div style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:24,width:"100%",maxWidth:480}} onClick={e=>e.stopPropagation()}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontSize:19,fontWeight:800,color:"#222",fontFamily:"'DM Sans',sans-serif"}}>{existing ? "Edit Project" : "New Project"}</div>
         </div>
@@ -464,7 +464,7 @@ function ProjectModal({ areas, defaultBucketId, onSave, onClose, existing=null, 
           <input value={emoji} onChange={e=>setEmoji(e.target.value.slice(-2))} placeholder={selectedArea.emoji} maxLength={2}
             style={{width:44,height:44,borderRadius:12,border:"2px solid #e5e5e5",textAlign:"center",fontSize:19,fontFamily:"'DM Sans',sans-serif",outline:"none",flexShrink:0}} />
           <input value={name} onChange={e=>setName(e.target.value)} placeholder="Project name" autoFocus
-            style={{flex:1,height:44,borderRadius:12,border:"2px solid #e5e5e5",padding:"0 16px",fontSize:15,fontWeight:800,fontFamily:"'DM Sans',sans-serif",outline:"none",color:"#222"}} />
+            style={{flex:1,height:44,borderRadius:12,border:"2px solid #e5e5e5",padding:"12px 16px",fontSize:15,fontWeight:800,fontFamily:"'DM Sans',sans-serif",outline:"none",color:"#222"}} />
         </div>
         <div style={{marginBottom:16}}>
           <div style={{fontSize:11,fontWeight:800,color:"#aaa",marginBottom:8,textTransform:"uppercase",letterSpacing:1,fontFamily:"'DM Sans',sans-serif"}}>Bucket</div>
@@ -544,7 +544,7 @@ const go = async () => {
   const bucketProjects = projects.filter(p => p.bucketId === area);
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div style={{background:"#fff",borderRadius:22,padding:24,width:"100%",maxWidth:500,boxShadow:"0 24px 64px rgba(0,0,0,0.18)",maxHeight:"92vh",overflowY:"auto"}}>
+      <div style={{background:"#fff",borderRadius:22,padding:24,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.16)",maxHeight:"92vh",overflowY:"auto"}}>
         <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,marginBottom:4}}>{isEdit?"✏️ Edit task":"✨ Add a task"}</h2>
         <input value={raw} onChange={e=>setRaw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()} autoFocus placeholder="What needs doing? #work #weekly" style={{width:"100%",padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:15,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",marginBottom:8}}/>
         {tags.length>0&&<div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:8}}>{tags.map(t=><span key={t} style={{fontSize:11,background:"#e8f5e9",color:"#5BAD6F",padding:"4px 8px",borderRadius:20,fontWeight:800}}>#{t}</span>)}</div>}
@@ -579,10 +579,10 @@ const go = async () => {
               </div>
             </div>
           )}
-          {recur!=="none"&&<div style={{display:"flex",alignItems:"center",gap:8,marginTop:8}}><span style={{fontSize:11,color:"#aaa"}}>Time (optional):</span><input type="time" value={recurTime} onChange={e=>setRecurTime(e.target.value)} style={{padding:"4px 8px",borderRadius:8,border:"2px solid #e5e5e5",fontSize:11,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/></div>}
+          {recur!=="none"&&<div style={{display:"flex",alignItems:"center",gap:8,marginTop:8}}><span style={{fontSize:11,color:"#aaa"}}>Time (optional):</span><input type="time" value={recurTime} onChange={e=>setRecurTime(e.target.value)} style={{padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:11,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/></div>}
         </div>
-        <input value={deadline} onChange={e=>setDeadline(e.target.value)} placeholder="Deadline (optional)" style={{width:"100%",padding:"8px 12px",borderRadius:11,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",marginBottom:8}}/>
-        <textarea value={note} onChange={e=>setNote(e.target.value)} placeholder="Notes (optional)" rows={2} style={{width:"100%",padding:"8px 12px",borderRadius:11,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",resize:"none",marginBottom:16}}/>
+        <input value={deadline} onChange={e=>setDeadline(e.target.value)} placeholder="Deadline (optional)" style={{width:"100%",padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",marginBottom:8}}/>
+        <textarea value={note} onChange={e=>setNote(e.target.value)} placeholder="Notes (optional)" rows={2} style={{width:"100%",padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box",resize:"none",marginBottom:16}}/>
         <div style={{display:"flex",gap:8}}>
           <button onClick={go} style={{flex:1,padding:"12px",borderRadius:12,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>{isEdit?"Save changes ✓":"Add it ✓"}</button>
           <button onClick={onClose} style={{padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",background:"#fff",color:"#aaa",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Cancel</button>
@@ -595,7 +595,7 @@ function NotesModal({ notes, onSave, onClose }) {
   const [text,setText]=useState(notes||"");
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&(onSave(text),onClose())}>
-      <div style={{background:"#fff",borderRadius:22,padding:24,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.18)",maxHeight:"85vh",display:"flex",flexDirection:"column"}}>
+      <div style={{background:"#fff",borderRadius:22,padding:24,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.16)",maxHeight:"85vh",display:"flex",flexDirection:"column"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
           <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,margin:0}}>📝 Quick Notes</h2>
           <button onClick={()=>{onSave(text);onClose();}} style={{padding:"8px 16px",borderRadius:10,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Save ✓</button>
@@ -613,14 +613,14 @@ function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAre
   const handleLogo=e=>{ const f=e.target.files[0];if(!f)return; const r=new FileReader();r.onload=ev=>setAppLogo(ev.target.result);r.readAsDataURL(f); };
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div style={{background:"#fff",borderRadius:22,padding:24,width:"100%",maxWidth:500,boxShadow:"0 24px 64px rgba(0,0,0,0.18)",maxHeight:"90vh",overflowY:"auto"}}>
+      <div style={{background:"#fff",borderRadius:22,padding:24,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.16)",maxHeight:"90vh",overflowY:"auto"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
           <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,margin:0}}>⚙️ Settings</h2>
           <button onClick={onClose} style={{background:"none",border:"none",fontSize:24,cursor:"pointer",color:"#bbb"}}>×</button>
         </div>
         <div style={{background:"#fafafa",borderRadius:14,padding:"16px 16px",marginBottom:16}}>
           <label style={lbl}>App name</label>
-          <input value={appName} onChange={e=>setAppName(e.target.value)} style={{width:"100%",padding:"8px 12px",borderRadius:11,border:"2px solid #e5e5e5",fontSize:15,fontFamily:"'DM Sans',sans-serif",fontWeight:800,outline:"none",boxSizing:"border-box",marginBottom:12}}/>
+          <input value={appName} onChange={e=>setAppName(e.target.value)} style={{width:"100%",padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:15,fontFamily:"'DM Sans',sans-serif",fontWeight:800,outline:"none",boxSizing:"border-box",marginBottom:12}}/>
           <label style={lbl}>App logo</label>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
             {appLogo?<img src={appLogo} style={{width:48,height:48,borderRadius:12,objectFit:"cover",border:"2px solid #e5e5e5"}}/>:<div style={{width:48,height:48,borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center"}}><UntangleLogo size={48}/></div>}
@@ -668,11 +668,11 @@ function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAre
             <div style={{display:"flex",gap:8,alignItems:"center"}}>
               <div style={{display:"flex",flexDirection:"column",flex:1}}>
                 <span style={{fontSize:11,color:"#bbb",fontWeight:800,fontFamily:"'DM Sans',sans-serif",marginBottom:4,textTransform:"uppercase",letterSpacing:"0.07em"}}>From</span>
-                <input type="date" value={awayMode.from} onChange={e=>setAwayMode(m=>({...m,from:e.target.value}))} style={{padding:"8px 8px",borderRadius:10,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none",width:"100%",boxSizing:"border-box"}}/>
+                <input type="date" value={awayMode.from} onChange={e=>setAwayMode(m=>({...m,from:e.target.value}))} style={{padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none",width:"100%",boxSizing:"border-box"}}/>
               </div>
               <div style={{display:"flex",flexDirection:"column",flex:1}}>
                 <span style={{fontSize:11,color:"#bbb",fontWeight:800,fontFamily:"'DM Sans',sans-serif",marginBottom:4,textTransform:"uppercase",letterSpacing:"0.07em"}}>Until</span>
-                <input type="date" value={awayMode.to} min={awayMode.from||todayStr()} onChange={e=>setAwayMode(m=>({...m,to:e.target.value}))} style={{padding:"8px 8px",borderRadius:10,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none",width:"100%",boxSizing:"border-box"}}/>
+                <input type="date" value={awayMode.to} min={awayMode.from||todayStr()} onChange={e=>setAwayMode(m=>({...m,to:e.target.value}))} style={{padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none",width:"100%",boxSizing:"border-box"}}/>
               </div>
             </div>
           )}
@@ -685,7 +685,7 @@ function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAre
           {areas.map(a=>(
             <div key={a.id} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 8px",background:"#fafafa",borderRadius:10,marginBottom:4,border:`2px solid ${a.color}18`}}>
               <span style={{fontSize:19}}>{a.emoji}</span>
-              {editId===a.id?(<><input value={editLabel} onChange={e=>setEditLabel(e.target.value)} autoFocus style={{flex:1,padding:"4px 8px",borderRadius:8,border:"2px solid #3AABB5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/><button onClick={()=>{setAreas(p=>p.map(x=>x.id===a.id?{...x,label:editLabel}:x));setEditId(null);}} style={{padding:"4px 8px",borderRadius:8,border:"none",background:"#3AABB5",color:"#fff",fontSize:11,fontWeight:800,cursor:"pointer"}}>Save</button></>)
+              {editId===a.id?(<><input value={editLabel} onChange={e=>setEditLabel(e.target.value)} autoFocus style={{flex:1,padding:"12px 16px",borderRadius:12,border:"2px solid #3AABB5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/><button onClick={()=>{setAreas(p=>p.map(x=>x.id===a.id?{...x,label:editLabel}:x));setEditId(null);}} style={{padding:"4px 8px",borderRadius:8,border:"none",background:"#3AABB5",color:"#fff",fontSize:11,fontWeight:800,cursor:"pointer"}}>Save</button></>)
               :(<><span style={{flex:1,fontSize:13,fontWeight:800,color:"#333",fontFamily:"'DM Sans',sans-serif"}}>{a.label}</span><button onClick={()=>{setEditId(a.id);setEditLabel(a.label);}} style={{padding:"4px 8px",borderRadius:8,border:"2px solid #e5e5e5",background:"#fff",fontSize:11,fontWeight:800,cursor:"pointer",color:"#888"}}>Rename</button>{a.custom&&<button onClick={()=>setAreas(p=>p.filter(x=>x.id!==a.id))} style={{padding:"4px 8px",borderRadius:8,border:"2px solid #fee",background:"#fff",fontSize:11,fontWeight:800,cursor:"pointer",color:"#E05C3A"}}>Delete</button>}</>)}
               <div style={{width:11,height:11,borderRadius:"50%",background:a.color,flexShrink:0}}/>
             </div>
@@ -694,8 +694,8 @@ function SettingsPanel({ appName, setAppName, appLogo, setAppLogo, areas, setAre
         <div style={{background:"#fafafa",borderRadius:14,padding:"16px 16px",marginBottom:8}}>
           <label style={lbl}>Add custom area</label>
           <div style={{display:"flex",gap:8,marginBottom:8}}>
-            <input value={newEmoji} onChange={e=>setNewEmoji(e.target.value)} style={{width:44,padding:"8px",borderRadius:10,border:"2px solid #e5e5e5",fontSize:19,textAlign:"center",outline:"none"}}/>
-            <input value={newLabel} onChange={e=>setNewLabel(e.target.value)} placeholder="e.g. Client A…" style={{flex:1,padding:"8px 12px",borderRadius:10,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/>
+            <input value={newEmoji} onChange={e=>setNewEmoji(e.target.value)} style={{width:44,padding:"8px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:19,textAlign:"center",outline:"none"}}/>
+            <input value={newLabel} onChange={e=>setNewLabel(e.target.value)} placeholder="e.g. Client A…" style={{flex:1,padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/>
           </div>
           <div style={{display:"flex",gap:5,marginBottom:8,flexWrap:"wrap"}}>{PALETTE.map(c=><button key={c} onClick={()=>setNewColor(c)} style={{width:22,height:22,borderRadius:"50%",background:c,border:newColor===c?"3px solid #333":"2px solid transparent",cursor:"pointer"}}/>)}</div>
           <button onClick={addArea} disabled={!newLabel.trim()} style={{width:"100%",padding:"8px",borderRadius:11,border:"none",background:newLabel.trim()?"linear-gradient(135deg,#3AABB5,#4F86C6)":"#e5e5e5",color:newLabel.trim()?"#fff":"#aaa",fontSize:15,fontWeight:800,cursor:newLabel.trim()?"pointer":"default",fontFamily:"'DM Sans',sans-serif"}}>+ Add area</button>
@@ -752,7 +752,7 @@ function AiBreakdownModal({ task, onSave, onClose }) {
   },[]);
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div style={{background:"#fff",borderRadius:22,padding:24,width:"100%",maxWidth:440,boxShadow:"0 24px 64px rgba(0,0,0,0.18)"}}>
+      <div style={{background:"#fff",borderRadius:22,padding:24,width:"100%",maxWidth:480,boxShadow:"0 24px 64px rgba(0,0,0,0.16)"}}>
         <h2 style={{fontFamily:"'DM Sans',sans-serif",fontSize:19,fontWeight:800,marginBottom:4}}>🫱🍽️ AI Task Coach</h2>
         <p style={{fontSize:13,color:"#aaa",marginBottom:16}}>Breaking down: <strong>{task.title}</strong></p>
         {loading&&<div style={{textAlign:"center",padding:32}}><div style={{fontSize:32,animation:"spin 1s linear infinite"}}>⚙️</div><p style={{color:"#aaa",marginTop:8,fontFamily:"'DM Sans',sans-serif"}}>Thinking…</p></div>}
@@ -799,9 +799,9 @@ function StatsView({ tasks, areas, streak, done }) {
   return (
     <div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:16}}>
-        {[{v:`🔥 ${streak}`,l:"Day streak",c:"#E09B3D"},{v:done.length,l:"Tasks done",c:"#5BAD6F"},{v:incomplete.length,l:"Still to do",c:"#4F86C6"},{v:incomplete.filter(t=>t.recur&&t.recur!=="none").length,l:"Recurring",c:"#8B6FBE"}].map(s=><div key={s.l} style={{background:"#fff",borderRadius:14,padding:"16px 16px",boxShadow:"0 2px 8px rgba(0,0,0,0.04)"}}><div style={{fontSize:24,fontWeight:800,color:s.c,fontFamily:"'DM Sans',sans-serif"}}>{s.v}</div><div style={{fontSize:11,color:"#aaa",fontWeight:800,fontFamily:"'DM Sans',sans-serif"}}>{s.l}</div></div>)}
+        {[{v:`🔥 ${streak}`,l:"Day streak",c:"#E09B3D"},{v:done.length,l:"Tasks done",c:"#5BAD6F"},{v:incomplete.length,l:"Still to do",c:"#4F86C6"},{v:incomplete.filter(t=>t.recur&&t.recur!=="none").length,l:"Recurring",c:"#8B6FBE"}].map(s=><div key={s.l} style={{background:"#fff",borderRadius:16,padding:"16px",boxShadow:"0 2px 8px rgba(0,0,0,0.06)"}}><div style={{fontSize:24,fontWeight:800,color:s.c,fontFamily:"'DM Sans',sans-serif"}}>{s.v}</div><div style={{fontSize:11,color:"#aaa",fontWeight:800,fontFamily:"'DM Sans',sans-serif"}}>{s.l}</div></div>)}
       </div>
-      <div style={{background:"#fff",borderRadius:14,padding:"16px 16px",boxShadow:"0 2px 8px rgba(0,0,0,0.04)"}}>
+      <div style={{background:"#fff",borderRadius:16,padding:"16px",boxShadow:"0 2px 8px rgba(0,0,0,0.06)"}}>
         <h3 style={{fontSize:11,fontWeight:800,margin:"0 0 12px",color:"#888",fontFamily:"'DM Sans',sans-serif"}}>By area</h3>
         {areas.map(a=>{ const n=incomplete.filter(t=>t.area===a.id).length,tot=tasks.filter(t=>t.area===a.id).length; if(!tot)return null; return <div key={a.id} style={{marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:11,fontWeight:800,color:"#555",fontFamily:"'DM Sans',sans-serif"}}>{a.emoji} {a.label}</span><span style={{fontSize:11,color:"#bbb"}}>{n} left / {tot}</span></div><div style={{background:"#f0f0f0",borderRadius:20,height:6}}><div style={{width:`${Math.round(((tot-n)/tot)*100)}%`,height:"100%",background:a.color,borderRadius:20,transition:"width 0.6s"}}/></div></div>; })}
       </div>
@@ -923,7 +923,7 @@ function DailyPlanModal({ tasks, projects, areas, userName, planningPref, onAddT
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(15,25,35,0.85)",zIndex:1200,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
       <style>{`@keyframes fadein { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }`}</style>
-      <div style={{background:"#f7f8fa",borderRadius:22,width:"100%",maxWidth:480,maxHeight:"88vh",display:"flex",flexDirection:"column",boxShadow:"0 24px 64px rgba(0,0,0,0.3)",overflow:"hidden"}}>
+      <div style={{background:"#f7f8fa",borderRadius:22,width:"100%",maxWidth:480,maxHeight:"88vh",display:"flex",flexDirection:"column",boxShadow:"0 24px 64px rgba(0,0,0,0.16)",overflow:"hidden"}}>
         {/* Header */}
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 16px 12px",borderBottom:"1px solid #ebebeb",background:"#fff"}}>
           <span style={{fontSize:15,fontWeight:800,color:"#333",fontFamily:"'DM Sans',sans-serif"}}>✦ Plan your day</span>
@@ -1008,7 +1008,7 @@ function DailyPlanModal({ tasks, projects, areas, userName, planningPref, onAddT
               {/* Free text add */}
               {!showOverwhelmPrompt&&(
                 <div style={{display:"flex",gap:8,marginBottom:8}}>
-                  <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")handleAddTyped();}} placeholder="Type a task to add…" style={{flex:1,padding:"8px 12px",borderRadius:11,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/>
+                  <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")handleAddTyped();}} placeholder="Type a task to add…" style={{flex:1,padding:"12px 16px",borderRadius:12,border:"2px solid #e5e5e5",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/>
                   <button onClick={handleAddTyped} disabled={!input.trim()} style={{padding:"8px 16px",borderRadius:11,border:"none",background:input.trim()?"linear-gradient(135deg,#3AABB5,#4F86C6)":"#e5e5e5",color:input.trim()?"#fff":"#aaa",fontSize:13,fontWeight:800,cursor:input.trim()?"pointer":"default"}}>+</button>
                 </div>
               )}
@@ -1231,7 +1231,7 @@ const setOneThingFn=useCallback(text=>{const val={text,date:todayStr()};setOneTh
               <button onClick={()=>setShowCreateProject(true)} style={{padding:"8px 16px",borderRadius:10,border:"2px solid #e0e0e0",background:"#fff",color:"#555",fontSize:11,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>＋ New Project</button>
               <button onClick={()=>setShowAdd(true)} style={{padding:"8px 16px",borderRadius:10,border:"none",background:"linear-gradient(135deg,#3AABB5,#4F86C6)",color:"#fff",fontSize:11,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>+ Add task</button>
             </div>
-            {projects.filter(p=>p.bucketId===activeArea).map(p=>{ const isExpanded=expandedProjects.has(p.id); const projectTasks=tasks.filter(t=>t.projectId===p.id&&!t.done); const count=projectTasks.length; return <div key={p.id} style={{marginBottom:8}}><div onClick={()=>setExpandedProjects(prev=>{const next=new Set(prev);next.has(p.id)?next.delete(p.id):next.add(p.id);return next;})} style={{background:"#fff",borderRadius:isExpanded?"14px 14px 0 0":14,padding:"12px 16px",display:"flex",alignItems:"center",gap:12,boxShadow:"0 1px 4px rgba(0,0,0,0.06)",borderLeft:`4px solid ${p.colour}`,cursor:"pointer"}}><span style={{fontSize:19}}>{p.emoji}</span><span style={{flex:1,fontSize:15,fontWeight:800,color:"#333",fontFamily:"'DM Sans',sans-serif"}}>{p.name}</span><span style={{fontSize:11,color:"#aaa",fontWeight:600,fontFamily:"'DM Sans',sans-serif"}}>{count} task{count!==1?"s":""}</span><button onClick={e=>{e.stopPropagation();setEditingProject(p);}} style={{background:"none",border:"none",color:"#ccc",fontSize:15,cursor:"pointer",padding:"4px 4px",lineHeight:1}}>✎</button><span style={{fontSize:15,color:"#bbb",display:"inline-block",transform:isExpanded?"rotate(90deg)":"rotate(0deg)",transition:"transform 0.18s"}}>›</span></div>{isExpanded&&<div style={{background:"#fafafa",borderRadius:"0 0 14px 14px",borderLeft:`4px solid ${p.colour}`,padding:"8px 12px 8px",boxShadow:"0 2px 6px rgba(0,0,0,0.04)"}}>{projectTasks.length===0?<p style={{fontSize:11,color:"#bbb",textAlign:"center",padding:"8px 0",fontFamily:"'DM Sans',sans-serif"}}>No tasks yet</p>:projectTasks.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(t,mode)=>mode==='reassign'?setReassignTask(t):setEditTask(t)} soundEnabled={soundEnabled}/>)}</div>}</div>; })}
+            {projects.filter(p=>p.bucketId===activeArea).map(p=>{ const isExpanded=expandedProjects.has(p.id); const projectTasks=tasks.filter(t=>t.projectId===p.id&&!t.done); const count=projectTasks.length; return <div key={p.id} style={{marginBottom:8}}><div onClick={()=>setExpandedProjects(prev=>{const next=new Set(prev);next.has(p.id)?next.delete(p.id):next.add(p.id);return next;})} style={{background:"#fff",borderRadius:isExpanded?"16px 16px 0 0":16,padding:"16px",display:"flex",alignItems:"center",gap:12,boxShadow:"0 2px 8px rgba(0,0,0,0.06)",borderLeft:`4px solid ${p.colour}`,cursor:"pointer"}}><span style={{fontSize:19}}>{p.emoji}</span><span style={{flex:1,fontSize:15,fontWeight:800,color:"#333",fontFamily:"'DM Sans',sans-serif"}}>{p.name}</span><span style={{fontSize:11,color:"#aaa",fontWeight:600,fontFamily:"'DM Sans',sans-serif"}}>{count} task{count!==1?"s":""}</span><button onClick={e=>{e.stopPropagation();setEditingProject(p);}} style={{background:"none",border:"none",color:"#ccc",fontSize:15,cursor:"pointer",padding:"4px 4px",lineHeight:1}}>✎</button><span style={{fontSize:15,color:"#bbb",display:"inline-block",transform:isExpanded?"rotate(90deg)":"rotate(0deg)",transition:"transform 0.18s"}}>›</span></div>{isExpanded&&<div style={{background:"#fafafa",borderRadius:"0 0 16px 16px",borderLeft:`4px solid ${p.colour}`,padding:"8px 12px 8px",boxShadow:"0 2px 8px rgba(0,0,0,0.06)"}}>{projectTasks.length===0?<p style={{fontSize:11,color:"#bbb",textAlign:"center",padding:"8px 0",fontFamily:"'DM Sans',sans-serif"}}>No tasks yet</p>:projectTasks.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(t,mode)=>mode==='reassign'?setReassignTask(t):setEditTask(t)} soundEnabled={soundEnabled}/>)}</div>}</div>; })}
             {tasks.filter(t=>t.area===activeArea).length===0?<div style={{textAlign:"center",padding:"32px 24px",color:"#bbb"}}><div style={{fontSize:38}}>{areas.find(a=>a.id===activeArea)?.emoji}</div><p style={{fontWeight:800,fontFamily:"'DM Sans',sans-serif"}}>Nothing here</p></div>
             :HORIZONS.map(h=>{ const group=tasks.filter(t=>t.area===activeArea&&t.horizon===h.id&&!t.done); if(!group.length)return null; return <div key={h.id} style={{marginBottom:16}}><h3 style={{fontSize:11,fontWeight:800,color:"#bbb",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:8,fontFamily:"'DM Sans',sans-serif"}}>{h.icon} {h.label}</h3>{group.map(task=><TaskCard key={task.id} task={task} areas={areas} onComplete={completeTask} onDelete={deleteTask} onBreakdown={setBreakdownTask} onFocus={setFocusTask} onEdit={(task, mode)=>mode==='reassign'?setReassignTask(task):setEditTask(task)} soundEnabled={soundEnabled}/>)}</div>; })}
           </div>
